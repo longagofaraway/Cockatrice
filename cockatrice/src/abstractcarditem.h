@@ -12,11 +12,19 @@ const int CARD_HEIGHT = 102;
 class AbstractCardItem : public ArrowTarget
 {
     Q_OBJECT
+public:
+    enum TapState
+    {
+        Standing,
+        Tapped,
+        Reversed
+    };
+
 protected:
     CardInfoPtr info;
     int id;
     QString name;
-    bool tapped;
+    TapState tapped;
     bool facedown;
     int tapAngle;
     QString color;
@@ -86,11 +94,17 @@ public:
         return color;
     }
     void setColor(const QString &_color);
-    bool getTapped() const
+    TapState getTapped() const
     {
         return tapped;
     }
-    void setTapped(bool _tapped, bool canAnimate = false);
+    void setTapped(TapState _tapped, bool canAnimate = false);
+    TapState nextTapState(TapState state) const;
+    TapState nextTapState() const
+    {
+        return nextTapState(tapped);
+    }
+
     bool getFaceDown() const
     {
         return facedown;

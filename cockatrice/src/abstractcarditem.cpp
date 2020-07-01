@@ -13,9 +13,11 @@
 #include "main.h"
 #include "pictureloader.h"
 #include "settingscache.h"
+#include "player.h"
+#include "tab_game.h"
 
 AbstractCardItem::AbstractCardItem(const QString &_name, Player *_owner, int _id, QGraphicsItem *parent)
-    : ArrowTarget(_owner, parent), id(_id), name(_name), tapped(false), facedown(false), tapAngle(0),
+    : ArrowTarget(_owner, parent), id(_id), name(_name), tapped(Standing), facedown(false), tapAngle(0),
       bgColor(Qt::transparent), isHovered(false), realZValue(0)
 {
     setCursor(Qt::OpenHandCursor);
@@ -250,7 +252,7 @@ void AbstractCardItem::cacheBgColor()
     }
 }
 
-void AbstractCardItem::setTapped(bool _tapped, bool canAnimate)
+void AbstractCardItem::setTapped(TapState _tapped, bool canAnimate)
 {
     if (tapped == _tapped)
         return;
@@ -259,13 +261,26 @@ void AbstractCardItem::setTapped(bool _tapped, bool canAnimate)
     if (settingsCache->getTapAnimation() && canAnimate)
         static_cast<GameScene *>(scene())->registerAnimationItem(this);
     else {
-        tapAngle = tapped ? 90 : 0;
+        tapAngle = tapped * 90;
         setTransform(QTransform()
                          .translate((float)CARD_WIDTH / 2, (float)CARD_HEIGHT / 2)
                          .rotate(tapAngle)
                          .translate((float)-CARD_WIDTH / 2, (float)-CARD_HEIGHT / 2));
         update();
     }
+}
+
+AbstractCardItem::TapState AbstractCardItem::nextTapState(TapState state) const
+{
+    if (state == Standing)
+        return Tapped;
+    else if (state == Tapped)
+        if (owner->getGame()->getGameTypes().contains("Weiss Schwarz"))
+            return Reversed;
+        else
+            return Standing;
+    else if (state == Reversed)
+        return Standing;
 }
 
 void AbstractCardItem::setFaceDown(bool _facedown)

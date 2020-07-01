@@ -217,21 +217,25 @@ void TableZone::reorganizeCards()
 void TableZone::toggleTapped()
 {
     QList<QGraphicsItem *> selectedItems = scene()->selectedItems();
-    bool tapAll = false;
-    for (int i = 0; i < selectedItems.size(); i++)
-        if (!qgraphicsitem_cast<CardItem *>(selectedItems[i])->getTapped()) {
-            tapAll = true;
+    CardItem::TapState srcState = CardItem::Reversed;
+    for (int i = 0; i < selectedItems.size(); i++) {
+        CardItem::TapState st = qgraphicsitem_cast<CardItem *>(selectedItems[i])->getTapped();
+        if (st == CardItem::Standing) {
+            srcState = CardItem::Standing;
             break;
         }
+        if (st == CardItem::Tapped)
+            srcState = CardItem::Tapped;
+    }
     QList<const ::google::protobuf::Message *> cmdList;
     for (int i = 0; i < selectedItems.size(); i++) {
         CardItem *temp = qgraphicsitem_cast<CardItem *>(selectedItems[i]);
-        if (temp->getTapped() != tapAll) {
+        if (temp->getTapped() == srcState) {
             Command_SetCardAttr *cmd = new Command_SetCardAttr;
             cmd->set_zone(name.toStdString());
             cmd->set_card_id(temp->getId());
             cmd->set_attribute(AttrTapped);
-            cmd->set_attr_value(tapAll ? "1" : "0");
+            cmd->set_attr_value(std::to_string(temp->nextTapState(srcState)));
             cmdList.append(cmd);
         }
     }

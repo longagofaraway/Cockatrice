@@ -268,6 +268,10 @@ public:
     void retranslateUi() override;
     void updatePlayerListDockTitle();
     void closeRequest() override;
+    const QStringList &getGameTypes() const
+    {
+        return gameTypes;
+    }
     const QMap<int, Player *> &getPlayers() const
     {
         return players;

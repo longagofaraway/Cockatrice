@@ -680,27 +680,57 @@ void MessageLogWidget::logSetSideboardLock(Player *player, bool locked)
     }
 }
 
-void MessageLogWidget::logSetTapped(Player *player, CardItem *card, bool tapped)
+void MessageLogWidget::logSetTapped(Player *player, CardItem *card, int tapped)
 {
     if (currentContext == MessageContext_MoveCard) {
         return;
     }
 
-    if (tapped) {
-        soundEngine->playSound("tap_card");
-    } else {
-        soundEngine->playSound("untap_card");
+    switch (static_cast<AbstractCardItem::TapState>(tapped)) {
+        case CardItem::Tapped:
+            soundEngine->playSound("tap_card");
+            break;
+        case CardItem::Standing:
+            soundEngine->playSound("untap_card");
+            break;
+        case CardItem::Reversed:
+            soundEngine->playSound("reverse_card");
+            break;
     }
 
-    QString str;
+    QString msg;
     if (!card) {
-        appendHtmlServerMessage((tapped ? tr("%1 taps their permanents.") : tr("%1 untaps their permanents."))
-                                    .arg(sanitizeHtml(player->getName())));
+		switch (tapped) {
+            case CardItem::Standing:
+                msg = tr("%1 untaps their permanents.").arg(sanitizeHtml(player->getName()));
+                break;
+            case CardItem::Tapped:
+                msg = tr("%1 taps their permanents.").arg(sanitizeHtml(player->getName()));
+                break;
+            case CardItem::Reversed:
+                msg = tr("%1 reverses their permanents.").arg(sanitizeHtml(player->getName()));
+                break;
+		}
     } else {
-        appendHtmlServerMessage((tapped ? tr("%1 taps %2.") : tr("%1 untaps %2."))
-                                    .arg(sanitizeHtml(player->getName()))
-                                    .arg(cardLink(card->getName())));
+        switch (tapped) {
+            case CardItem::Standing:
+                msg = tr("%1 untaps %2.")
+					.arg(sanitizeHtml(player->getName()))
+                    .arg(cardLink(card->getName()));
+                break;
+            case CardItem::Tapped:
+                msg = tr("%1 taps %2.")
+					.arg(sanitizeHtml(player->getName()))
+                    .arg(cardLink(card->getName()));
+                break;
+            case CardItem::Reversed:
+                msg = tr("%1 reverses %2.")
+					.arg(sanitizeHtml(player->getName()))
+                    .arg(cardLink(card->getName()));
+                break;
+        }
     }
+    appendHtmlServerMessage(msg);
 }
 
 void MessageLogWidget::logShuffle(Player *player, CardZone *zone, int start, int end)
@@ -794,8 +824,8 @@ void MessageLogWidget::connectToPlayer(Player *player)
             SLOT(logSetCounter(Player *, QString, int, int)));
     connect(player, SIGNAL(logSetCardCounter(Player *, QString, int, int, int)), this,
             SLOT(logSetCardCounter(Player *, QString, int, int, int)));
-    connect(player, SIGNAL(logSetTapped(Player *, CardItem *, bool)), this,
-            SLOT(logSetTapped(Player *, CardItem *, bool)));
+    connect(player, SIGNAL(logSetTapped(Player *, CardItem *, int)), this,
+            SLOT(logSetTapped(Player *, CardItem *, int)));
     connect(player, SIGNAL(logSetDoesntUntap(Player *, CardItem *, bool)), this,
             SLOT(logSetDoesntUntap(Player *, CardItem *, bool)));
     connect(player, SIGNAL(logSetPT(Player *, CardItem *, QString)), this,

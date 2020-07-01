@@ -1913,7 +1913,7 @@ Server_Player::cmdRevealCards(const Command_RevealCards &cmd, ResponseContainer 
         cardInfo->set_x(card->getX());
         cardInfo->set_y(card->getY());
         cardInfo->set_face_down(card->getFaceDown());
-        cardInfo->set_tapped(card->getTapped());
+        cardInfo->set_tapped(static_cast<int>(card->getTapped()));
         cardInfo->set_attacking(card->getAttacking());
         cardInfo->set_color(card->getColor().toStdString());
         cardInfo->set_pt(card->getPT().toStdString());

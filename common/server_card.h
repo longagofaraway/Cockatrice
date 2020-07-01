@@ -32,13 +32,21 @@ class ServerInfo_Card;
 class Server_Card : public Server_ArrowTarget
 {
     Q_OBJECT
+public:
+    enum TapState
+    {
+        Standing,
+        Tapped,
+        Reversed
+    };
+
 private:
     Server_CardZone *zone;
     int id;
     int coord_x, coord_y;
     QString name;
     QMap<int, int> counters;
-    bool tapped;
+    TapState tapped;
     bool attacking;
     bool facedown;
     QString color;
@@ -87,7 +95,7 @@ public:
     {
         return counters.value(id, 0);
     }
-    bool getTapped() const
+    TapState getTapped() const
     {
         return tapped;
     }
@@ -142,7 +150,7 @@ public:
         name = _name;
     }
     void setCounter(int id, int value);
-    void setTapped(bool _tapped)
+    void setTapped(TapState _tapped)
     {
         tapped = _tapped;
     }

@@ -223,7 +223,7 @@ void CardItem::resetState()
     annotation.clear();
     attachedTo = 0;
     attachedCards.clear();
-    setTapped(false, false);
+    setTapped(AbstractCardItem::Standing, false);
     setDoesntUntap(false);
     if (scene())
         static_cast<GameScene *>(scene())->unregisterAnimationItem(this);
@@ -246,7 +246,7 @@ void CardItem::processCardInfo(const ServerInfo_Card &info)
     setPT(QString::fromStdString(info.pt()));
     setAnnotation(QString::fromStdString(info.annotation()));
     setColor(QString::fromStdString(info.color()));
-    setTapped(info.tapped());
+    setTapped(static_cast<AbstractCardItem::TapState>(info.tapped()));
     setDestroyOnZoneChange(info.destroy_on_zone_change());
     setDoesntUntap(info.doesnt_untap());
 }
@@ -401,16 +401,18 @@ bool CardItem::animationEvent()
 {
     int rotation = ROTATION_DEGREES_PER_FRAME;
     bool animationIncomplete = true;
-    if (!tapped)
+    if (tapped == Standing)
         rotation *= -1;
 
     tapAngle += rotation;
-    if (tapped && (tapAngle > 90)) {
+    if (tapped == Standing && tapAngle < 0) {
+        tapAngle = 0;
+        animationIncomplete = false;
+    } else if (tapped == Tapped && tapAngle > 90) {
         tapAngle = 90;
         animationIncomplete = false;
-    }
-    if (!tapped && (tapAngle < 0)) {
-        tapAngle = 0;
+    } else if (tapped == Reversed && tapAngle > 180) {
+        tapAngle = 180;
         animationIncomplete = false;
     }
 

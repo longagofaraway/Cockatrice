@@ -30,10 +30,10 @@ AbstractCardDragItem::AbstractCardDragItem(AbstractCardItem *_item,
         setCursor(Qt::ClosedHandCursor);
         setZValue(2000000007);
     }
-    if (item->getTapped())
+    if (item->getTapped() != AbstractCardItem::Standing)
         setTransform(QTransform()
                          .translate(CARD_WIDTH_HALF, CARD_HEIGHT_HALF)
-                         .rotate(90)
+                         .rotate(static_cast<int>(item->getTapped()) * 90)
                          .translate(-CARD_WIDTH_HALF, -CARD_HEIGHT_HALF));
 
     setCacheMode(DeviceCoordinateCache);

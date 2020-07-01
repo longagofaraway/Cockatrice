@@ -1482,12 +1482,21 @@ void Player::setCardAttrHelper(const GameEventContext &context,
     bool moveCardContext = context.HasExtension(Context_MoveCard::ext);
     switch (attribute) {
         case AttrTapped: {
-            bool tapped = avalue == "1";
-            if (!(!tapped && card->getDoesntUntap() && allCards)) {
+            AbstractCardItem::TapState tapState;
+            if (avalue == "0")
+                tapState = AbstractCardItem::Standing;
+            else if (avalue == "1")
+                tapState = AbstractCardItem::Tapped;
+            else if (avalue == "2")
+                tapState = AbstractCardItem::Reversed;
+            else
+                break;
+
+            if (!(tapState == AbstractCardItem::Standing && card->getDoesntUntap() && allCards)) {
                 if (!allCards) {
-                    emit logSetTapped(this, card, tapped);
+                    emit logSetTapped(this, card, tapState);
                 }
-                card->setTapped(tapped, !moveCardContext);
+                card->setTapped(tapState, !moveCardContext);
             }
             break;
         }
@@ -1604,9 +1613,19 @@ void Player::eventSetCardAttr(const Event_SetCardAttr &event, const GameEventCon
         for (int i = 0; i < cards.size(); ++i) {
             setCardAttrHelper(context, cards.at(i), event.attribute(), QString::fromStdString(event.attr_value()),
                               true);
-        }
-        if (event.attribute() == AttrTapped) {
-            emit logSetTapped(this, nullptr, event.attr_value() == "1");
+            if (event.attribute() == AttrTapped) {
+                AbstractCardItem::TapState tapState;
+                if (event.attr_value() == "0")
+                    tapState = AbstractCardItem::Standing;
+                else if (event.attr_value() == "1")
+                    tapState = AbstractCardItem::Tapped;
+                else if (event.attr_value() == "2")
+                    tapState = AbstractCardItem::Reversed;
+                else
+                    return;
+
+                emit logSetTapped(this, nullptr, tapState);
+            }
         }
     } else {
         CardItem *card = zone->getCard(event.card_id(), QString());
@@ -2473,7 +2492,7 @@ void Player::cardMenuAction()
                     cmd->set_zone(card->getZone()->getName().toStdString());
                     cmd->set_card_id(card->getId());
                     cmd->set_attribute(AttrTapped);
-                    cmd->set_attr_value(std::to_string(1 - static_cast<int>(card->getTapped())));
+                    cmd->set_attr_value(std::to_string(card->nextTapState()));
                     commandList.append(cmd);
                     break;
                 }

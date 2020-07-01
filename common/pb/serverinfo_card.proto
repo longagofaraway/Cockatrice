@@ -7,7 +7,7 @@ message ServerInfo_Card {
     optional sint32 x = 3 [default = -1];
     optional sint32 y = 4 [default = -1];
     optional bool face_down = 5;
-    optional bool tapped = 6;
+    optional sint32 tapped = 6;
     optional bool attacking = 7;
     optional string color = 8;
     optional string pt = 9;

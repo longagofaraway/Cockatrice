@@ -122,7 +122,7 @@ signals:
     void logAttachCard(Player *player, QString cardName, Player *targetPlayer, QString targetCardName);
     void logUnattachCard(Player *player, QString cardName);
     void logSetCardCounter(Player *player, QString cardName, int counterId, int value, int oldValue);
-    void logSetTapped(Player *player, CardItem *card, bool tapped);
+    void logSetTapped(Player *player, CardItem *card, int tapped);
     void logSetCounter(Player *player, QString counterName, int value, int oldValue);
     void logSetDoesntUntap(Player *player, CardItem *card, bool doesntUntap);
     void logSetPT(Player *player, CardItem *card, QString newPT);
