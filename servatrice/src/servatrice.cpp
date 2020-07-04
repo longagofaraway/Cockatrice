@@ -361,7 +361,7 @@ bool Servatrice::initServer()
         if (size == 0) {
             // no room defined in config, add a dummy one
             Server_Room *newRoom = new Server_Room(0, 100, "General room", "Play anything here.", "none", "none", true,
-                                                   "", QStringList("Standard"), this);
+                                                   "", QStringList({"Standard", "Weiss Schwarz"}), this);
             addRoom(newRoom);
         }
 

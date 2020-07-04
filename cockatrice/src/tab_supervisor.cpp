@@ -374,7 +374,7 @@ void TabSupervisor::gameJoined(const Event_GameJoined &event)
 
 void TabSupervisor::localGameJoined(const Event_GameJoined &event)
 {
-    TabGame *tab = new TabGame(this, localClients, event, QMap<int, QString>());
+    TabGame *tab = new TabGame(this, localClients, event, QMap<int, QString>({{0, "Standard"}, {1, "Weiss Schwarz"}}));
     connect(tab, SIGNAL(gameClosing(TabGame *)), this, SLOT(gameLeft(TabGame *)));
     connect(tab, SIGNAL(openDeckEditor(const DeckLoader *)), this, SLOT(addDeckEditorTab(const DeckLoader *)));
     int tabIndex = myAddTab(tab);

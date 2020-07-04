@@ -4,6 +4,8 @@
 
 #include <QMap>
 
+#include <mutex>
+
 #define CARDDBMODEL_COLUMNS 6
 
 CardDatabaseModel::CardDatabaseModel(CardDatabase *_db, bool _showOnlyCardsFromEnabledSets, QObject *parent)
@@ -125,6 +127,7 @@ void CardDatabaseModel::cardAdded(CardInfoPtr card)
     if (checkCardHasAtLeastOneEnabledSet(card)) {
         // add the card if it's present in at least one enabled set
         beginInsertRows(QModelIndex(), cardList.size(), cardList.size());
+        size_t s = cardList.size();
         cardList.append(card);
         connect(card.data(), SIGNAL(cardInfoChanged(CardInfoPtr)), this, SLOT(cardInfoChanged(CardInfoPtr)));
         endInsertRows();

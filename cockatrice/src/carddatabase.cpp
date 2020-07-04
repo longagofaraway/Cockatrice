@@ -1,5 +1,8 @@
 #include "carddatabase.h"
 
+#ifdef DBCONVERTER
+#include "../dbconverter/src/mocks.h"
+#endif
 #include "carddbparser/cockatricexml3.h"
 #include "carddbparser/cockatricexml4.h"
 #include "game_specific_terms.h"
