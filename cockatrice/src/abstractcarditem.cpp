@@ -130,10 +130,8 @@ void AbstractCardItem::paintPicture(QPainter *painter, const QSizeF &translatedS
     pen.setWidth(penWidth);
     painter->setPen(pen);
 
-    if (!angle)
-        painter->drawRect(QRectF(0, 0, CARD_WIDTH - 1, CARD_HEIGHT - penWidth));
-    else
-        painter->drawRect(QRectF(1, 1, CARD_WIDTH - 2, CARD_HEIGHT - 1.5));
+    if (!(facedown || name.isEmpty()))
+		painter->drawRect(QRectF(0, 0, CARD_WIDTH, CARD_HEIGHT));
 
     if (translatedPixmap.isNull() || settingsCache->getDisplayCardNames() || facedown) {
         painter->save();
@@ -175,7 +173,7 @@ void AbstractCardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         const int penWidth = 1;
         pen.setWidth(penWidth);
         painter->setPen(pen);
-        painter->drawRect(QRectF(0, 0, translatedSize.width() + penWidth, translatedSize.height() - penWidth));
+        painter->drawRect(QRectF(0, 0, translatedSize.width(), translatedSize.height()));
     }
 
     painter->restore();
