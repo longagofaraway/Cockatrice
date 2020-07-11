@@ -54,6 +54,30 @@ const QString &MessageLogWidget::stackConstant() const
     return constant;
 }
 
+const QString &MessageLogWidget::stockConstant() const
+{
+    static const QString constant("stock");
+    return constant;
+}
+
+const QString &MessageLogWidget::levelConstant() const
+{
+    static const QString constant("level");
+    return constant;
+}
+
+const QString &MessageLogWidget::climaxConstant() const
+{
+    static const QString constant("climax");
+    return constant;
+}
+
+const QString &MessageLogWidget::clockConstant() const
+{
+    static const QString constant("clock");
+    return constant;
+}
+
 QString MessageLogWidget::sanitizeHtml(QString dirty) const
 {
     return dirty.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
@@ -121,6 +145,14 @@ MessageLogWidget::getFromStr(CardZone *zone, QString cardName, int position, boo
         fromStr = tr(" from sideboard");
     } else if (zoneName == stackConstant()) {
         fromStr = tr(" from the stack");
+    } else if (zoneName == stockConstant()) {
+        fromStr = tr(" from stock");
+    } else if (zoneName == levelConstant()) {
+        fromStr = tr(" from level zone");
+    } else if (zoneName == climaxConstant()) {
+        fromStr = tr(" from climax zone");
+    } else if (zoneName == clockConstant()) {
+        fromStr = tr(" from clock");
     }
 
     if (!cardNameContainsStartZone) {
@@ -340,6 +372,14 @@ void MessageLogWidget::logMoveCard(Player *player,
     } else if (targetZoneName == stackConstant()) {
         soundEngine->playSound("play_card");
         finalStr = tr("%1 plays %2%3.");
+    } else if (targetZoneName == stockConstant()) {
+        finalStr = tr("%1 puts %2%3 into stock.");
+    } else if (targetZoneName == levelConstant()) {
+        finalStr = tr("%1 puts %2%3 into the level zone.");
+    } else if (targetZoneName == climaxConstant()) {
+        finalStr = tr("%1 puts %2%3 into the climax zone.");
+    } else if (targetZoneName == clockConstant()) {
+        finalStr = tr("%1 puts %2%3 into clock.");
     }
 
     if (usesNewX) {

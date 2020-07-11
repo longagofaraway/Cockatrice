@@ -33,6 +33,10 @@ private:
     const QString &deckConstant() const;
     const QString &sideboardConstant() const;
     const QString &stackConstant() const;
+    const QString &stockConstant() const;
+    const QString &clockConstant() const;
+    const QString &levelConstant() const;
+    const QString &climaxConstant() const;
 
     QString sanitizeHtml(QString dirty) const;
     QString cardLink(QString cardName) const;

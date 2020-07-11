@@ -35,7 +35,7 @@ void CardDragItem::updatePosition(const QPointF &cursorScenePos)
 
     CardZone *cardZone = 0;
     ZoneViewZone *zoneViewZone = 0;
-    for (int i = colliding.size() - 1; i >= 0; i--) {
+    for (int i = 0; i < colliding.size(); i++) {
         CardZone *temp = qgraphicsitem_cast<CardZone *>(colliding.at(i));
         if (!cardZone)
             cardZone = temp;

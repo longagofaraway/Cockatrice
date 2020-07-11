@@ -59,6 +59,10 @@ SET(cockatrice_SOURCES
     src/zoneviewwidget.cpp
     src/pilezone.cpp
     src/stackzone.cpp
+    src/stockzone.cpp
+    src/clockzone.cpp
+    src/levelzone.cpp
+    src/climaxzone.cpp
     src/carddragitem.cpp
     src/carddatabasemodel.cpp
     src/setsmodel.cpp

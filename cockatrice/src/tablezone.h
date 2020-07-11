@@ -24,12 +24,13 @@ private:
     /*
     Margins between table edges and cards, paddings between cards
     */
-    static const int MARGIN_LEFT = 20;
+    static const int MARGIN_LEFT = 200;
     static const int MARGIN_RIGHT = 15;
     static const int MARGIN_TOP = 10;
     static const int MARGIN_BOTTOM = 30;
     static const int PADDING_X = 35;
     static const int PADDING_Y = 30;
+    static const int BACKROW_LEFT_MARGIN = (CARD_WIDTH * 2 + PADDING_X) / 2 - CARD_WIDTH / 2;
 
     /*
     Minimum width of the table zone including margins.

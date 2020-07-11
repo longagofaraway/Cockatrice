@@ -57,6 +57,10 @@
 #include "playertarget.h"
 #include "settingscache.h"
 #include "stackzone.h"
+#include "stockzone.h"
+#include "clockzone.h"
+#include "levelzone.h"
+#include "climaxzone.h"
 #include "tab_game.h"
 #include "tablezone.h"
 #include "thememanager.h"
@@ -134,6 +138,12 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     connect(table, SIGNAL(sizeChanged()), this, SLOT(updateBoundingRect()));
 
     stack = new StackZone(this, (int)table->boundingRect().height(), this);
+    stock = new StockZone(this, (int)table->boundingRect().height(), this);
+    level = new LevelZone(this, this);
+    clock = new ClockZone(
+        this, table->boundingRect().width() - stock->boundingRect().width() - level->boundingRect().width(), this);
+    //climax = new ClimaxZone(this, this);
+    climax = new ClimaxZone(this, this);
 
     hand = new HandZone(this, _local || (_parent->getSpectator() && _parent->getSpectatorsSeeEverything()),
                         (int)table->boundingRect().height(), this);
@@ -584,6 +594,7 @@ void Player::playerListActionTriggered()
 
 void Player::rearrangeZones()
 {
+    int climOffset = (CARD_HEIGHT - CARD_WIDTH) / 2 + 1;
     QPointF base = QPointF(CARD_HEIGHT + counterAreaWidth + 15, 0);
     if (settingsCache->getHorizontalHand()) {
         if (mirrored) {
@@ -598,12 +609,28 @@ void Player::rearrangeZones()
             base += QPointF(stack->boundingRect().width(), 0);
 
             table->setPos(base);
+            stock->setPos(base);
+            base += QPointF(stock->boundingRect().width(), 0);
+
+            level->setPos(base);
+            climax->setPos(base.x() + climOffset, base.y() + level->boundingRect().height());
+            clock->setPos(base.x() + level->boundingRect().width(), base.y());
         } else {
             stack->setPos(base);
+            base += QPointF(stack->boundingRect().width(), 0);
 
-            table->setPos(base.x() + stack->boundingRect().width(), 0);
-            base += QPointF(0, table->boundingRect().height());
+            table->setPos(base);
+            stock->setPos(base);
+            base += QPointF(stock->boundingRect().width(), table->boundingRect().height());
 
+            level->setPos(base.x(), base.y() - level->boundingRect().height());
+            climax->setPos(base.x() + climOffset,
+                           base.y() - level->boundingRect().height() -
+                                         climax->boundingRect().height());
+            clock->setPos(base.x() + level->boundingRect().width(),
+                          base.y() - clock->boundingRect().height());
+
+			base -= QPointF(stack->boundingRect().width() + stock->boundingRect().width(), 0);
             if (hand->contentsKnown()) {
                 handVisible = true;
                 hand->setPos(base);
@@ -620,6 +647,7 @@ void Player::rearrangeZones()
         stack->setPos(base);
         base += QPointF(stack->boundingRect().width(), 0);
 
+        stock->setPos(base);
         table->setPos(base);
     }
     hand->setVisible(handVisible);
@@ -3299,6 +3327,7 @@ void Player::processSceneSizeChange(int newPlayerWidth)
     }
 
     table->setWidth(tableWidth);
+	// TODO
     hand->setWidth(tableWidth + stack->boundingRect().width());
 }
 

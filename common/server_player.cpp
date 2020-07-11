@@ -159,6 +159,11 @@ void Server_Player::setupZones()
     addZone(new Server_CardZone(this, "grave", false, ServerInfo_Zone::PublicZone));
     addZone(new Server_CardZone(this, "rfg", false, ServerInfo_Zone::PublicZone));
 
+    addZone(new Server_CardZone(this, "stock", false, ServerInfo_Zone::HiddenZone));
+    addZone(new Server_CardZone(this, "level", false, ServerInfo_Zone::PublicZone));
+    addZone(new Server_CardZone(this, "climax", false, ServerInfo_Zone::PublicZone));
+    addZone(new Server_CardZone(this, "clock", false, ServerInfo_Zone::PublicZone));
+
     addCounter(new Server_Counter(0, "life", makeColor(255, 255, 255), 25, 20));
     addCounter(new Server_Counter(1, "w", makeColor(255, 255, 150), 20, 0));
     addCounter(new Server_Counter(2, "u", makeColor(150, 150, 255), 20, 0));
@@ -492,10 +497,14 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
                 newX = targetzone->getFreeGridColumn(newX, y, card->getName(), faceDown);
             }
 
+            // always append to stock
+            if (targetzone->getName() == "stock")
+                newX = -1;
+
             targetzone->insertCard(card, newX, y);
 
             bool targetBeingLookedAt = (targetzone->getType() != ServerInfo_Zone::HiddenZone) ||
-                                       (targetzone->getCardsBeingLookedAt() > newX) ||
+                                       (newX > 0 && (targetzone->getCardsBeingLookedAt() > newX)) ||
                                        (targetzone->getCardsBeingLookedAt() == -1);
             bool sourceBeingLookedAt = (startzone->getType() != ServerInfo_Zone::HiddenZone) ||
                                        (startzone->getCardsBeingLookedAt() > position) ||
@@ -564,7 +573,7 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
                 position = -1;
             }
             if ((targetzone->getType() == ServerInfo_Zone::HiddenZone) &&
-                ((targetzone->getCardsBeingLookedAt() > newX) || (targetzone->getCardsBeingLookedAt() == -1))) {
+                ((newX > 0 && (targetzone->getCardsBeingLookedAt() > newX)) || (targetzone->getCardsBeingLookedAt() == -1))) {
                 publicNewX = -1;
             }
 

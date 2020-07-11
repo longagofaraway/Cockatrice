@@ -29,7 +29,7 @@ TableZone::TableZone(Player *_p, QGraphicsItem *parent)
 
     updateBg();
 
-    height = MARGIN_TOP + MARGIN_BOTTOM + TABLEROWS * CARD_HEIGHT + (TABLEROWS - 1) * PADDING_Y;
+    height = MARGIN_TOP + MARGIN_BOTTOM + TABLEROWS * CARD_HEIGHT + TABLEROWS * PADDING_Y;
     width = MIN_WIDTH;
     currentMinimumWidth = width;
 
@@ -72,7 +72,7 @@ void TableZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
         painter->fillRect(boundingRect(), FADE_MASK);
     }
 
-    paintLandDivider(painter);
+    //paintLandDivider(painter);
 }
 
 /**
@@ -146,7 +146,7 @@ void TableZone::handleDropEventByGrid(const QList<CardDragItem *> &dragItems,
         CardToMove *ctm = cmd.mutable_cards_to_move()->add_card();
         ctm->set_card_id(item->getId());
         ctm->set_face_down(item->getFaceDown());
-        if (startZone->getName() != name && !item->getFaceDown()) {
+        if (startZone->getName() != name && !item->getFaceDown()) { // TODO show power when placed from deck
             const auto &info = item->getItem()->getInfo();
             if (info) {
                 ctm->set_pt(info->getPowTough().toStdString());
@@ -320,18 +320,19 @@ void TableZone::computeCardStackWidths()
 QPointF TableZone::mapFromGrid(QPoint gridPoint) const
 {
     qreal x, y;
+    int nonInvertedY = gridPoint.y();
+
+    if (isInverted())
+        gridPoint.setY(TABLEROWS - 1 - gridPoint.y());
 
     // Start with margin plus stacked card offset
-    x = MARGIN_LEFT + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_X;
+    x = MARGIN_LEFT + BACKROW_LEFT_MARGIN * nonInvertedY + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_X;
 
     // Add in width of card stack plus padding for each column
     for (int i = 0; i < gridPoint.x() / 3; ++i) {
         const int key = getCardStackMapKey(i, gridPoint.y());
         x += cardStackWidth.value(key, CARD_WIDTH) + PADDING_X;
     }
-
-    if (isInverted())
-        gridPoint.setY(TABLEROWS - 1 - gridPoint.y());
 
     // Start with margin plus stacked card offset
     y = MARGIN_TOP + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_Y;
@@ -359,16 +360,18 @@ QPoint TableZone::mapToGrid(const QPointF &mapPoint) const
 
     if (isInverted())
         gridPointY = TABLEROWS - 1 - gridPointY;
+    else if (gridPointY == 2) // Only 2 rows in WS, but 3 rows on the table
+        --gridPointY;
 
     // Calculating the x-coordinate of the grid space requires adding up the
     // widths of each card stack along the row.
 
     // Offset point by the margin amount to reference point within grid area.
-    int x = mapPoint.x() - MARGIN_LEFT;
+    int x = mapPoint.x() - MARGIN_LEFT - BACKROW_LEFT_MARGIN * gridPointY;
 
     // Maximum value is a card width from the right margin, referenced to the
     // grid area.
-    const int xMax = width - MARGIN_LEFT - MARGIN_RIGHT - CARD_WIDTH;
+    const int xMax = width - MARGIN_LEFT - BACKROW_LEFT_MARGIN * gridPointY - MARGIN_RIGHT - CARD_WIDTH;
 
     int xStack = 0;
     int xNextStack = 0;

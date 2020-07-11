@@ -89,6 +89,14 @@ QString CardZone::getTranslatedName(bool theirOwn, GrammaticalCase gc) const
             default:
                 break;
         }
+    else if (name == "stock")
+        return (theirOwn ? tr("their stock", "nominative") : tr("%1's stock", "nominative").arg(ownerName));
+    else if (name == "clock")
+        return (theirOwn ? tr("their clock", "nominative") : tr("%1's clock", "nominative").arg(ownerName));
+    else if (name == "level")
+        return (theirOwn ? tr("their level zone", "nominative") : tr("%1's level zone", "nominative").arg(ownerName));
+    else if (name == "climax")
+        return (theirOwn ? tr("their climax zone", "nominative") : tr("%1's climax zone", "nominative").arg(ownerName));
     return QString();
 }
 
