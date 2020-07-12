@@ -740,7 +740,7 @@ void MessageLogWidget::logSetTapped(Player *player, CardItem *card, int tapped)
 
     QString msg;
     if (!card) {
-		switch (tapped) {
+        switch (tapped) {
             case CardItem::Standing:
                 msg = tr("%1 untaps their permanents.").arg(sanitizeHtml(player->getName()));
                 break;
@@ -750,23 +750,17 @@ void MessageLogWidget::logSetTapped(Player *player, CardItem *card, int tapped)
             case CardItem::Reversed:
                 msg = tr("%1 reverses their permanents.").arg(sanitizeHtml(player->getName()));
                 break;
-		}
+        }
     } else {
         switch (tapped) {
             case CardItem::Standing:
-                msg = tr("%1 untaps %2.")
-					.arg(sanitizeHtml(player->getName()))
-                    .arg(cardLink(card->getName()));
+                msg = tr("%1 untaps %2.").arg(sanitizeHtml(player->getName())).arg(cardLink(card->getName()));
                 break;
             case CardItem::Tapped:
-                msg = tr("%1 taps %2.")
-					.arg(sanitizeHtml(player->getName()))
-                    .arg(cardLink(card->getName()));
+                msg = tr("%1 taps %2.").arg(sanitizeHtml(player->getName())).arg(cardLink(card->getName()));
                 break;
             case CardItem::Reversed:
-                msg = tr("%1 reverses %2.")
-					.arg(sanitizeHtml(player->getName()))
-                    .arg(cardLink(card->getName()));
+                msg = tr("%1 reverses %2.").arg(sanitizeHtml(player->getName())).arg(cardLink(card->getName()));
                 break;
         }
     }

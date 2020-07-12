@@ -126,20 +126,25 @@ void ZoneViewZone::reorganizeCards()
     if (pileView && sortByType) { // we need sort by type enabled for the feature to work
         int typeRow = 0;
         QString lastCardType;
+        int lastLevel;
         for (int i = 0; i < cardCount; i++) {
             CardItem *c = cardsToDisplay.at(i);
             QString cardType = c->getInfo() ? c->getInfo()->getMainCardType() : "";
+            QString manaCost = c->getInfo() ? c->getInfo()->getManaCost() : "";
+            int level = manaCost.split('/').at(0).toInt();
 
             if (i) { // if not the first card
-                if (cardType == lastCardType)
+                if ((cardType == lastCardType && cardType != "Character") ||
+                    (cardType == lastCardType && cardType == "Character" && level == lastLevel)) {
                     typeRow++; // add below current card
-                else {         // if no match then move card to next column
+                } else {       // if no match then move card to next column
                     typeColumn++;
                     typeRow = 0;
                 }
             }
 
             lastCardType = cardType;
+            lastLevel = level;
             qreal x = 7 + (typeColumn * CARD_WIDTH);
             qreal y = typeRow * CARD_HEIGHT / 3;
             c->setPos(x + 5, y + 5);

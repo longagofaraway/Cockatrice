@@ -5,9 +5,9 @@
 
 #include <QPainter>
 
-ClimaxZone::ClimaxZone(Player *_p, QGraphicsItem *parent)
-    : PileZone(_p, "climax", false, true, parent)
-{}
+ClimaxZone::ClimaxZone(Player *_p, QGraphicsItem *parent) : PileZone(_p, "climax", false, true, parent)
+{
+}
 
 void ClimaxZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
@@ -22,7 +22,7 @@ void ClimaxZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opt
         painter->translate((float)-CARD_WIDTH / 2, (float)-CARD_HEIGHT / 2);
 
         QPixmap pixmap = QPixmap("theme:icons/climaxes_icons");
-		qreal xOff = (CARD_WIDTH - pixmap.width()) / 2;
+        qreal xOff = (CARD_WIDTH - pixmap.width()) / 2;
         qreal yOff = (CARD_HEIGHT - pixmap.height()) / 2;
         painter->drawPixmap(QPointF(xOff, yOff), pixmap);
         painter->restore();
@@ -35,9 +35,7 @@ void ClimaxZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opt
     painter->drawLine(boundingRect().topRight(), boundingRect().bottomRight());
 }
 
-void ClimaxZone::handleDropEvent(const QList<CardDragItem *> &dragItems,
-                                CardZone *startZone,
-                                const QPoint & dropPoint)
+void ClimaxZone::handleDropEvent(const QList<CardDragItem *> &dragItems, CardZone *startZone, const QPoint &dropPoint)
 {
     if (startZone == this)
         return;

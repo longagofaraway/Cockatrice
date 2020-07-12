@@ -48,6 +48,18 @@ public:
         if (flags & SortByType) {
             QString t1 = a->getInfo() ? a->getInfo()->getMainCardType() : QString();
             QString t2 = b->getInfo() ? b->getInfo()->getMainCardType() : QString();
+
+            if (t1 == t2 && t1 == "Character") {
+                QString l1 = a->getInfo() ? a->getInfo()->getManaCost() : QString();
+                QString l2 = b->getInfo() ? b->getInfo()->getManaCost() : QString();
+                int lvl1 = l1.split('/').at(0).toInt();
+                int lvl2 = l2.split('/').at(0).toInt();
+
+                if (lvl1 == lvl2 && (flags & SortByName))
+                    return a->getName() < b->getName();
+                return lvl1 < lvl2;
+            }
+
             if ((t1 == t2) && (flags & SortByName))
                 return a->getName() < b->getName();
             return t1 < t2;

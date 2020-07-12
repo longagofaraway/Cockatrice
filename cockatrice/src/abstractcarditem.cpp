@@ -12,8 +12,8 @@
 #include "gamescene.h"
 #include "main.h"
 #include "pictureloader.h"
-#include "settingscache.h"
 #include "player.h"
+#include "settingscache.h"
 #include "tab_game.h"
 
 AbstractCardItem::AbstractCardItem(const QString &_name, Player *_owner, int _id, QGraphicsItem *parent)
@@ -131,7 +131,7 @@ void AbstractCardItem::paintPicture(QPainter *painter, const QSizeF &translatedS
     painter->setPen(pen);
 
     if (!(facedown || name.isEmpty()))
-		painter->drawRect(QRectF(0, 0, CARD_WIDTH, CARD_HEIGHT));
+        painter->drawRect(QRectF(0, 0, CARD_WIDTH, CARD_HEIGHT));
 
     if (translatedPixmap.isNull() || settingsCache->getDisplayCardNames() || facedown) {
         painter->save();

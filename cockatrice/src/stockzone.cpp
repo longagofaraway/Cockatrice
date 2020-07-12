@@ -1,7 +1,7 @@
 #include "stockzone.h"
 
-#include "carditem.h"
 #include "carddragitem.h"
+#include "carditem.h"
 #include "pb/command_move_card.pb.h"
 #include "player.h"
 #include "thememanager.h"
@@ -10,7 +10,8 @@
 
 StockZone::StockZone(Player *_p, int _zoneHeight, QGraphicsItem *parent)
     : SelectZone(_p, "stock", false, false, false, parent), zoneHeight(_zoneHeight)
-{}
+{
+}
 
 void StockZone::addCardImpl(CardItem *card, int /*x*/, int /*y*/)
 {

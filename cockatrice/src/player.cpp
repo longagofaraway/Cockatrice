@@ -5,6 +5,8 @@
 #include "carditem.h"
 #include "cardlist.h"
 #include "cardzone.h"
+#include "climaxzone.h"
+#include "clockzone.h"
 #include "color.h"
 #include "counter_general.h"
 #include "deck_loader.h"
@@ -12,6 +14,7 @@
 #include "gamescene.h"
 #include "handcounter.h"
 #include "handzone.h"
+#include "levelzone.h"
 #include "main.h"
 #include "pb/command_attach_card.pb.h"
 #include "pb/command_change_zone_properties.pb.h"
@@ -58,9 +61,6 @@
 #include "settingscache.h"
 #include "stackzone.h"
 #include "stockzone.h"
-#include "clockzone.h"
-#include "levelzone.h"
-#include "climaxzone.h"
 #include "tab_game.h"
 #include "tablezone.h"
 #include "thememanager.h"
@@ -624,12 +624,10 @@ void Player::rearrangeZones()
 
             level->setPos(base.x(), base.y() - level->boundingRect().height());
             climax->setPos(base.x() + climOffset,
-                           base.y() - level->boundingRect().height() -
-                                         climax->boundingRect().height());
-            clock->setPos(base.x() + level->boundingRect().width(),
-                          base.y() - clock->boundingRect().height());
+                           base.y() - level->boundingRect().height() - climax->boundingRect().height());
+            clock->setPos(base.x() + level->boundingRect().width(), base.y() - clock->boundingRect().height());
 
-			base -= QPointF(stack->boundingRect().width() + stock->boundingRect().width(), 0);
+            base -= QPointF(stack->boundingRect().width() + stock->boundingRect().width(), 0);
             if (hand->contentsKnown()) {
                 handVisible = true;
                 hand->setPos(base);
@@ -654,7 +652,7 @@ void Player::rearrangeZones()
             climax->setPos(base.x() + climOffset, base.y() + level->boundingRect().height());
             clock->setPos(base.x() + level->boundingRect().width(), base.y());
         } else {
-			base += QPointF(stock->boundingRect().width(), table->boundingRect().height());
+            base += QPointF(stock->boundingRect().width(), table->boundingRect().height());
             level->setPos(base.x(), base.y() - level->boundingRect().height());
             climax->setPos(base.x() + climOffset,
                            base.y() - level->boundingRect().height() - climax->boundingRect().height());
@@ -3338,7 +3336,7 @@ void Player::processSceneSizeChange(int newPlayerWidth)
     }
 
     table->setWidth(tableWidth);
-	// TODO
+    // TODO
     hand->setWidth(tableWidth + stack->boundingRect().width());
 }
 

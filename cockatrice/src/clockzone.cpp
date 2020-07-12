@@ -1,16 +1,17 @@
 #include "clockzone.h"
 
-#include "pb/command_move_card.pb.h"
 #include "abstractcarditem.h"
 #include "carddragitem.h"
 #include "carditem.h"
+#include "pb/command_move_card.pb.h"
 #include "player.h"
 
 #include <QPainter>
 
 ClockZone::ClockZone(Player *_p, int _zoneWidth, QGraphicsItem *parent)
     : SelectZone(_p, "clock", true, false, true, parent), zoneWidth(_zoneWidth)
-{}
+{
+}
 
 void ClockZone::addCardImpl(CardItem *card, int x, int /*y*/)
 {
@@ -71,7 +72,7 @@ void ClockZone::reorganizeCards()
         qreal xspace = 25;
         qreal cardOffset = 30;
 
-		while (xspace + cardOffset * (cardCount - 1) + cardWidth > totalWidth)
+        while (xspace + cardOffset * (cardCount - 1) + cardWidth > totalWidth)
             --cardOffset;
 
         for (int i = 0; i < cardCount; i++) {

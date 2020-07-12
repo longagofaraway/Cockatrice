@@ -1,15 +1,14 @@
 #include "levelzone.h"
 
-#include "pb/command_move_card.pb.h"
-#include "carddragitem.h"
 #include "abstractcarditem.h"
+#include "carddragitem.h"
 #include "carditem.h"
+#include "pb/command_move_card.pb.h"
 #include "player.h"
 
 #include <QPainter>
 
-LevelZone::LevelZone(Player *_p, QGraphicsItem *parent)
-    : SelectZone(_p, "level", true, false, true, parent)
+LevelZone::LevelZone(Player *_p, QGraphicsItem *parent) : SelectZone(_p, "level", true, false, true, parent)
 {
 }
 
@@ -19,7 +18,7 @@ void LevelZone::addCardImpl(CardItem *card, int /*x*/, int /*y*/)
 
     card->setParentItem(this);
     card->resetState();
-	card->setTapped(AbstractCardItem::Tapped);
+    card->setTapped(AbstractCardItem::Tapped);
     card->setVisible(true);
     card->update();
 }

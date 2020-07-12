@@ -573,7 +573,8 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
                 position = -1;
             }
             if ((targetzone->getType() == ServerInfo_Zone::HiddenZone) &&
-                ((newX > 0 && (targetzone->getCardsBeingLookedAt() > newX)) || (targetzone->getCardsBeingLookedAt() == -1))) {
+                ((newX > 0 && (targetzone->getCardsBeingLookedAt() > newX)) ||
+                 (targetzone->getCardsBeingLookedAt() == -1))) {
                 publicNewX = -1;
             }
 

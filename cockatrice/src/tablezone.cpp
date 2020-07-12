@@ -72,7 +72,7 @@ void TableZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
         painter->fillRect(boundingRect(), FADE_MASK);
     }
 
-    //paintLandDivider(painter);
+    // paintLandDivider(painter);
 }
 
 /**
