@@ -302,7 +302,8 @@ AppearanceSettingsPage::AppearanceSettingsPage()
     handGroupBox = new QGroupBox;
     handGroupBox->setLayout(handGrid);
 
-    invertVerticalCoordinateCheckBox.setChecked(settingsCache->getInvertVerticalCoordinate());
+    //invertVerticalCoordinateCheckBox.setChecked(settingsCache->getInvertVerticalCoordinate());
+    invertVerticalCoordinateCheckBox.setChecked(false);
     connect(&invertVerticalCoordinateCheckBox, SIGNAL(stateChanged(int)), settingsCache,
             SLOT(setInvertVerticalCoordinate(int)));
 
@@ -319,7 +320,7 @@ AppearanceSettingsPage::AppearanceSettingsPage()
     maxFontSizeForCardsEdit.setMaximum(100);
 
     auto *tableGrid = new QGridLayout;
-    tableGrid->addWidget(&invertVerticalCoordinateCheckBox, 0, 0, 1, 2);
+    //tableGrid->addWidget(&invertVerticalCoordinateCheckBox, 0, 0, 1, 2);
     tableGrid->addWidget(&minPlayersForMultiColumnLayoutLabel, 1, 0, 1, 1);
     tableGrid->addWidget(&minPlayersForMultiColumnLayoutEdit, 1, 1, 1, 1);
     tableGrid->addWidget(&maxFontSizeForCardsLabel, 2, 0, 1, 1);
