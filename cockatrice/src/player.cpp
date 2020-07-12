@@ -2840,12 +2840,12 @@ void Player::actDrawArrow()
 
 void Player::actIncP()
 {
-    actIncPT(1, 0);
+    actIncPT(500, 0);
 }
 
 void Player::actDecP()
 {
-    actIncPT(-1, 0);
+    actIncPT(-500, 0);
 }
 
 void Player::actIncT()
