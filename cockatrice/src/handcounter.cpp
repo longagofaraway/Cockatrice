@@ -23,7 +23,7 @@ void HandCounter::updateNumber()
 
 QRectF HandCounter::boundingRect() const
 {
-    return QRectF(0, 0, 72, 72);
+    return QRectF(0, 0, 62, 62);
 }
 
 void HandCounter::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)

@@ -126,10 +126,10 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     qreal h2 = handCounter->boundingRect().height();
 
     PileZone *grave = new PileZone(this, "grave", false, true, playerArea);
-    grave->setPos(base + QPointF(0, h + h2 + 10));
+    grave->setPos(base + QPointF(0, h + h2));
 
     PileZone *rfg = new PileZone(this, "rfg", false, true, playerArea);
-    rfg->setPos(base + QPointF(0, 2 * h + h2 + 10));
+    rfg->setPos(base + QPointF(0, 2 * h + h2));
 
     PileZone *sb = new PileZone(this, "sb", false, false, playerArea);
     sb->setVisible(false);
