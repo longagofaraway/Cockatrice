@@ -29,7 +29,7 @@ TableZone::TableZone(Player *_p, QGraphicsItem *parent)
 
     updateBg();
 
-    height = MARGIN_TOP + MARGIN_BOTTOM + TABLEROWS * CARD_HEIGHT + TABLEROWS * PADDING_Y;
+    height = MARGIN_TOP + MARGIN_BOTTOM + TABLEROWS * CARD_HEIGHT + (TABLEROWS - 1) * PADDING_Y;
     width = MIN_WIDTH;
     currentMinimumWidth = width;
 
@@ -320,13 +320,11 @@ void TableZone::computeCardStackWidths()
 QPointF TableZone::mapFromGrid(QPoint gridPoint) const
 {
     qreal x, y;
-    int nonInvertedY = gridPoint.y();
 
-    if (isInverted())
-        gridPoint.setY(TABLEROWS - 1 - gridPoint.y());
+    qreal marginTop = isInverted() ? MARGIN_BOTTOM : MARGIN_TOP;
 
     // Start with margin plus stacked card offset
-    x = MARGIN_LEFT + BACKROW_LEFT_MARGIN * nonInvertedY + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_X;
+    x = MARGIN_LEFT + BACKROW_LEFT_MARGIN * gridPoint.y() + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_X;
 
     // Add in width of card stack plus padding for each column
     for (int i = 0; i < gridPoint.x() / 3; ++i) {
@@ -334,8 +332,11 @@ QPointF TableZone::mapFromGrid(QPoint gridPoint) const
         x += cardStackWidth.value(key, CARD_WIDTH) + PADDING_X;
     }
 
+    if (isInverted())
+        gridPoint.setY(TABLEROWS - 1 - gridPoint.y());
+
     // Start with margin plus stacked card offset
-    y = MARGIN_TOP + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_Y;
+    y = marginTop + (gridPoint.x() % 3) * STACKED_CARD_OFFSET_Y;
 
     // Add in card size and padding for each row
     for (int i = 0; i < gridPoint.y(); ++i)
@@ -350,7 +351,7 @@ QPoint TableZone::mapToGrid(const QPointF &mapPoint) const
     // used for the x-coordinate.
 
     // Offset point by the margin amount to reference point within grid area.
-    int y = mapPoint.y() - MARGIN_TOP;
+    int y = mapPoint.y() - (isInverted() ? MARGIN_BOTTOM : MARGIN_TOP);
 
     // Below calculation effectively rounds to the nearest grid point.
     const int gridPointHeight = CARD_HEIGHT + PADDING_Y;
@@ -360,8 +361,6 @@ QPoint TableZone::mapToGrid(const QPointF &mapPoint) const
 
     if (isInverted())
         gridPointY = TABLEROWS - 1 - gridPointY;
-    else if (gridPointY == 2) // Only 2 rows in WS, but 3 rows on the table
-        --gridPointY;
 
     // Calculating the x-coordinate of the grid space requires adding up the
     // widths of each card stack along the row.
