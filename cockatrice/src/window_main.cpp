@@ -142,14 +142,12 @@ void MainWindow::statusChanged(ClientStatus _status)
         case StatusDisconnected:
             tabSupervisor->stop();
             aSinglePlayer->setEnabled(true);
-            aWsSinglePlayer->setEnabled(true);
             aConnect->setEnabled(true);
             aRegister->setEnabled(true);
             aDisconnect->setEnabled(false);
             break;
         case StatusLoggingIn:
             aSinglePlayer->setEnabled(false);
-            aWsSinglePlayer->setEnabled(false);
             aConnect->setEnabled(false);
             aRegister->setEnabled(false);
             aDisconnect->setEnabled(true);
@@ -210,12 +208,7 @@ void MainWindow::actDisconnect()
     client->disconnectFromServer();
 }
 
-void MainWindow::actWsSinglePlayer()
-{
-    actSinglePlayer(1);
-}
-
-void MainWindow::actSinglePlayer(int gameType)
+void MainWindow::actSinglePlayer()
 {
     bool ok;
     int numberPlayers =
@@ -226,7 +219,6 @@ void MainWindow::actSinglePlayer(int gameType)
     aConnect->setEnabled(false);
     aRegister->setEnabled(false);
     aSinglePlayer->setEnabled(false);
-    aWsSinglePlayer->setEnabled(false);
 
     localServer = new LocalServer(this);
     LocalServerInterface *mainLsi = localServer->newConnection();
@@ -244,7 +236,6 @@ void MainWindow::actSinglePlayer(int gameType)
 
     Command_CreateGame createCommand;
     createCommand.set_max_players(static_cast<google::protobuf::uint32>(numberPlayers));
-    createCommand.add_game_type_ids(gameType);
     mainClient->sendCommand(LocalClient::prepareRoomCommand(createCommand, 0));
 }
 
@@ -277,7 +268,6 @@ void MainWindow::localGameEnded()
     aConnect->setEnabled(true);
     aRegister->setEnabled(true);
     aSinglePlayer->setEnabled(true);
-    aWsSinglePlayer->setEnabled(true);
 }
 
 void MainWindow::actDeckEditor()
@@ -631,7 +621,6 @@ void MainWindow::retranslateUi()
 
     aConnect->setText(tr("&Connect..."));
     aDisconnect->setText(tr("&Disconnect"));
-    aWsSinglePlayer->setText(tr("Start local WeissSchwarz game"));
     aSinglePlayer->setText(tr("Start &local game..."));
     aWatchReplay->setText(tr("&Watch replay..."));
     aDeckEditor->setText(tr("&Deck editor"));
@@ -670,8 +659,6 @@ void MainWindow::createActions()
     aDisconnect = new QAction(this);
     aDisconnect->setEnabled(false);
     connect(aDisconnect, SIGNAL(triggered()), this, SLOT(actDisconnect()));
-    aWsSinglePlayer = new QAction(this);
-    connect(aWsSinglePlayer, SIGNAL(triggered()), this, SLOT(actWsSinglePlayer()));
     aSinglePlayer = new QAction(this);
     connect(aSinglePlayer, SIGNAL(triggered()), this, SLOT(actSinglePlayer()));
     aWatchReplay = new QAction(this);
@@ -756,7 +743,6 @@ void MainWindow::createMenus()
     cockatriceMenu->addAction(aDisconnect);
     cockatriceMenu->addAction(aRegister);
     cockatriceMenu->addSeparator();
-    cockatriceMenu->addAction(aWsSinglePlayer);
     cockatriceMenu->addAction(aSinglePlayer);
     cockatriceMenu->addAction(aWatchReplay);
     cockatriceMenu->addSeparator();
@@ -1188,7 +1174,6 @@ void MainWindow::refreshShortcuts()
     aConnect->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aConnect"));
     aDisconnect->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aDisconnect"));
     aSinglePlayer->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aSinglePlayer"));
-    aWsSinglePlayer->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aWsSinglePlayer"));
     aWatchReplay->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aWatchReplay"));
     aDeckEditor->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aDeckEditor"));
     aFullScreen->setShortcuts(settingsCache->shortcuts().getShortcut("MainWindow/aFullScreen"));

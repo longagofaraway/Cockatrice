@@ -273,10 +273,7 @@ AbstractCardItem::TapState AbstractCardItem::nextTapState(TapState state) const
     if (state == Standing)
         return Tapped;
     else if (state == Tapped)
-        if (owner->getGame()->getGameTypes().contains("Weiss Schwarz"))
-            return Reversed;
-        else
-            return Standing;
+        return Reversed;
     else if (state == Reversed)
         return Standing;
 }
