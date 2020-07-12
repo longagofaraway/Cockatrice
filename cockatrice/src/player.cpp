@@ -649,6 +649,18 @@ void Player::rearrangeZones()
 
         stock->setPos(base);
         table->setPos(base);
+        if (mirrored) {
+            base += QPointF(stock->boundingRect().width(), 0);
+            level->setPos(base);
+            climax->setPos(base.x() + climOffset, base.y() + level->boundingRect().height());
+            clock->setPos(base.x() + level->boundingRect().width(), base.y());
+        } else {
+			base += QPointF(stock->boundingRect().width(), table->boundingRect().height());
+            level->setPos(base.x(), base.y() - level->boundingRect().height());
+            climax->setPos(base.x() + climOffset,
+                           base.y() - level->boundingRect().height() - climax->boundingRect().height());
+            clock->setPos(base.x() + level->boundingRect().width(), base.y() - clock->boundingRect().height());
+        }
     }
     hand->setVisible(handVisible);
     hand->updateOrientation();
