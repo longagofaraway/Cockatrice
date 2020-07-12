@@ -594,7 +594,7 @@ void Player::playerListActionTriggered()
 
 void Player::rearrangeZones()
 {
-    int climOffset = (CARD_HEIGHT - CARD_WIDTH) / 2 + 1;
+    int climOffset = (CARD_HEIGHT - CARD_WIDTH) / 2;
     QPointF base = QPointF(CARD_HEIGHT + counterAreaWidth + 15, 0);
     if (settingsCache->getHorizontalHand()) {
         if (mirrored) {

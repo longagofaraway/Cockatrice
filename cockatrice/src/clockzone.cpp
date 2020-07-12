@@ -31,7 +31,9 @@ void ClockZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
 {
     painter->fillRect(boundingRect(), QBrush(QColor("transparent")));
     painter->setPen(QColor(255, 255, 255, 40));
-    painter->drawRect(boundingRect());
+    painter->drawLine(boundingRect().topLeft(), boundingRect().topRight());
+    painter->drawLine(boundingRect().topRight(), boundingRect().bottomRight());
+    painter->drawLine(boundingRect().bottomLeft(), boundingRect().bottomRight());
 }
 
 void ClockZone::handleDropEvent(const QList<CardDragItem *> &dragItems,

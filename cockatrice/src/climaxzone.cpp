@@ -30,7 +30,9 @@ void ClimaxZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opt
 
     painter->fillRect(boundingRect(), QBrush(QColor("transparent")));
     painter->setPen(QColor(255, 255, 255, 40));
-    painter->drawRect(boundingRect());
+    painter->drawLine(boundingRect().topLeft(), boundingRect().topRight());
+    painter->drawLine(boundingRect().topLeft(), boundingRect().bottomLeft());
+    painter->drawLine(boundingRect().topRight(), boundingRect().bottomRight());
 }
 
 void ClimaxZone::handleDropEvent(const QList<CardDragItem *> &dragItems,
