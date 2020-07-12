@@ -158,11 +158,11 @@ void GameScene::toggleZoneView(Player *player, const QString &zoneName, int numb
     connect(item, SIGNAL(closePressed(ZoneViewWidget *)), this, SLOT(removeZoneView(ZoneViewWidget *)));
     addItem(item);
     if (zoneName == "grave")
-        item->setPos(360, 100);
+        item->setPos(200, 100);
     else if (zoneName == "rfg")
-        item->setPos(380, 120);
+        item->setPos(200, 120);
     else
-        item->setPos(340, 80);
+        item->setPos(200, 80);
 }
 
 void GameScene::addRevealedZoneView(Player *player,

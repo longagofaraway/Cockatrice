@@ -237,7 +237,7 @@ SettingsCache::SettingsCache()
     knownMissingFeatures = settings->value("interface/knownmissingfeatures", "").toString();
     useTearOffMenus = settings->value("interface/usetearoffmenus", true).toBool();
 
-    displayCardNames = settings->value("cards/displaycardnames", true).toBool();
+    displayCardNames = settings->value("cards/displaycardnames", false).toBool();
     horizontalHand = settings->value("hand/horizontal", true).toBool();
     invertVerticalCoordinate = settings->value("table/invert_vertical", false).toBool();
     minPlayersForMultiColumnLayout = settings->value("interface/min_players_multicolumn", 4).toInt();
