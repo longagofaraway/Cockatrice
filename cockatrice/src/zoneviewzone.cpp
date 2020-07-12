@@ -156,12 +156,15 @@ void ZoneViewZone::reorganizeCards()
         }
     }
 
+    qreal cardWidth = CARD_WIDTH * scale();
+    qreal cardHeight = CARD_HEIGHT * scale();
+
     qreal aleft = 0;
     qreal atop = 0;
-    qreal awidth = (pileView && sortByType) ? qMax(typeColumn + 1, 3) * CARD_WIDTH + (CARD_WIDTH / 2)
-                                            : qMax(cols, 1) * CARD_WIDTH + (CARD_WIDTH / 2);
-    qreal aheight = (pileView && sortByType) ? (longestRow * CARD_HEIGHT) / 3 + CARD_HEIGHT * 1.3
-                                             : (rows * CARD_HEIGHT) / 3 + CARD_HEIGHT * 1.3;
+    qreal awidth = (pileView && sortByType) ? qMax(typeColumn + 1, 3) * cardWidth + (cardWidth / 2)
+                                            : qMax(cols, 1) * cardWidth + (cardWidth / 2);
+    qreal aheight = (pileView && sortByType) ? (longestRow * cardHeight) / 3 + cardHeight * 1.3
+                                             : (rows * cardHeight) / 3 + cardHeight * 1.3;
     optimumRect = QRectF(aleft, atop, awidth, aheight);
 
     updateGeometry();

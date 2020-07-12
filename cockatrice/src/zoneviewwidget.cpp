@@ -93,6 +93,7 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
     zone = new ZoneViewZone(player, _origZone, numberCards, _revealZone, _writeableRevealZone, zoneContainer);
     connect(zone, SIGNAL(wheelEventReceived(QGraphicsSceneWheelEvent *)), scrollBarProxy,
             SLOT(recieveWheelEvent(QGraphicsSceneWheelEvent *)));
+    zone->setScale(1.7);
 
     // numberCard is the num of cards we want to reveal from an area. Ex: scry the top 3 cards.
     // If the number is < 0 then it means that we can make the area sorted and we dont care about the order.
