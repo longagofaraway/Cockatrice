@@ -701,15 +701,21 @@ void TabDeckEditor::updateComments()
 
 void TabDeckEditor::updateCardInfoLeft(const QModelIndex &current, const QModelIndex & /*previous*/)
 {
-    cardInfo->setCard(current.sibling(current.row(), 0).data().toString());
+    // map index to db
+    QModelIndex index = databaseDisplayModel->mapToSource(current);
+    cardInfo->setCard(databaseModel->getCard(index.row())->getProperty("code"));
 }
 
 void TabDeckEditor::updateCardInfoRight(const QModelIndex &current, const QModelIndex & /*previous*/)
 {
     if (!current.isValid())
         return;
-    if (!current.model()->hasChildren(current.sibling(current.row(), 0)))
-        cardInfo->setCard(current.sibling(current.row(), 1).data().toString());
+    if (!current.model()->hasChildren(current.sibling(current.row(), 0))) {
+        auto *temp = static_cast<AbstractDecklistNode *>(current.internalPointer());
+        auto *node = dynamic_cast<DecklistModelCardNode *>(temp);
+        if (node)
+            cardInfo->setCard(db->getCardByCode(node->getName()));
+    }
 }
 
 void TabDeckEditor::updateSearch(const QString &search)
@@ -951,9 +957,11 @@ CardInfoPtr TabDeckEditor::currentCardInfo() const
         return {};
     }
 
-    const QString cardName = currentIndex.sibling(currentIndex.row(), 0).data().toString();
+    // map index to db
+    QModelIndex mappedIndex = databaseDisplayModel->mapToSource(currentIndex);
+    const QString code = databaseModel->getCard(mappedIndex.row())->getProperty("code");
 
-    return db->getCard(cardName);
+    return db->getCardByCode(code);
 }
 
 void TabDeckEditor::addCardHelper(QString zoneName)
@@ -964,7 +972,7 @@ void TabDeckEditor::addCardHelper(QString zoneName)
     if (info->getIsToken())
         zoneName = DECK_ZONE_TOKENS;
 
-    QModelIndex newCardIndex = deckModel->addCard(info->getName(), zoneName);
+    QModelIndex newCardIndex = deckModel->addCard(info->getProperty("code"), zoneName);
     recursiveExpand(newCardIndex);
     deckView->setCurrentIndex(newCardIndex);
     setModified(true);
@@ -976,7 +984,13 @@ void TabDeckEditor::actSwapCard()
     const QModelIndex currentIndex = deckView->selectionModel()->currentIndex();
     if (!currentIndex.isValid())
         return;
-    const QString cardName = currentIndex.sibling(currentIndex.row(), 1).data().toString();
+
+    auto *temp = static_cast<AbstractDecklistNode *>(currentIndex.internalPointer());
+    auto *node = dynamic_cast<DecklistModelCardNode *>(temp);
+    if (!node)
+        return;
+
+    const QString cardName = node->getName();
     const QModelIndex gparent = currentIndex.parent().parent();
 
     if (!gparent.isValid())
@@ -1047,7 +1061,7 @@ void TabDeckEditor::decrementCardHelper(QString zoneName)
     if (info->getIsToken())
         zoneName = DECK_ZONE_TOKENS;
 
-    idx = deckModel->findCard(info->getName(), zoneName);
+    idx = deckModel->findCard(info->getProperty("code"), zoneName);
     offsetCountAtIndex(idx, -1);
 }
 
@@ -1084,7 +1098,7 @@ void TabDeckEditor::setDeck(DeckLoader *_deck)
     deckView->expandAll();
     setModified(false);
 
-    PictureLoader::cacheCardPixmaps(db->getCards(deckModel->getDeckList()->getCardList()));
+    PictureLoader::cacheCardPixmaps(db->getCardsByCode(deckModel->getDeckList()->getCardList()));
     deckView->expandAll();
     setModified(false);
 

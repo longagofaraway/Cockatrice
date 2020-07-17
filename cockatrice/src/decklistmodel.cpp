@@ -49,7 +49,7 @@ void DeckListModel::rebuildTree()
                 continue;
             }
 
-            CardInfoPtr info = db->getCard(currentCard->getName());
+            CardInfoPtr info = db->getCardByCode(currentCard->getName());
             QString cardType = info ? info->getMainCardType() : "unknown";
 
             auto *cardTypeNode = dynamic_cast<InnerDecklistNode *>(node->findChild(cardType));
@@ -92,6 +92,7 @@ QVariant DeckListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+    CardInfoPtr info;
     auto *temp = static_cast<AbstractDecklistNode *>(index.internalPointer());
     auto *card = dynamic_cast<DecklistModelCardNode *>(temp);
     if (card == nullptr) {
@@ -134,7 +135,11 @@ QVariant DeckListModel::data(const QModelIndex &index, int role) const
                     case 0:
                         return card->getNumber();
                     case 1:
-                        return card->getName();
+                        info = db->getCardByCode(card->getName());
+                        if (info)
+                            return info->getName();
+                        else
+                            return card->getName();
                     default:
                         return QVariant();
                 }
@@ -278,7 +283,7 @@ InnerDecklistNode *DeckListModel::createNodeIfNeeded(const QString &name, InnerD
     return newNode;
 }
 
-DecklistModelCardNode *DeckListModel::findCardNode(const QString &cardName, const QString &zoneName) const
+DecklistModelCardNode *DeckListModel::findCardNode(const QString &cardCode, const QString &zoneName) const
 {
     InnerDecklistNode *zoneNode, *typeNode;
     CardInfoPtr info;
@@ -289,7 +294,7 @@ DecklistModelCardNode *DeckListModel::findCardNode(const QString &cardName, cons
         return nullptr;
     }
 
-    info = db->getCard(cardName);
+    info = db->getCardByCode(cardCode);
     if (!info) {
         return nullptr;
     }
@@ -300,14 +305,14 @@ DecklistModelCardNode *DeckListModel::findCardNode(const QString &cardName, cons
         return nullptr;
     }
 
-    return dynamic_cast<DecklistModelCardNode *>(typeNode->findChild(cardName));
+    return dynamic_cast<DecklistModelCardNode *>(typeNode->findChild(cardCode));
 }
 
-QModelIndex DeckListModel::findCard(const QString &cardName, const QString &zoneName) const
+QModelIndex DeckListModel::findCard(const QString &cardCode, const QString &zoneName) const
 {
     DecklistModelCardNode *cardNode;
 
-    cardNode = findCardNode(cardName, zoneName);
+    cardNode = findCardNode(cardCode, zoneName);
     if (!cardNode) {
         return {};
     }
@@ -315,16 +320,16 @@ QModelIndex DeckListModel::findCard(const QString &cardName, const QString &zone
     return nodeToIndex(cardNode);
 }
 
-QModelIndex DeckListModel::addCard(const QString &cardName, const QString &zoneName, bool abAddAnyway)
+QModelIndex DeckListModel::addCard(const QString &cardCode, const QString &zoneName, bool abAddAnyway)
 {
-    CardInfoPtr info = db->getCard(cardName);
+    CardInfoPtr info = db->getCardByCode(cardCode);
     if (info == nullptr) {
         if (abAddAnyway) {
             // We need to keep this card added no matter what
             // This is usually called from tab_deck_editor
             // So we'll create a new CardInfo with the name
             // and default values for all fields
-            info = CardInfo::newInstance(cardName);
+            info = CardInfo::newInstance(cardCode);
         } else {
             return {};
         }
@@ -336,9 +341,9 @@ QModelIndex DeckListModel::addCard(const QString &cardName, const QString &zoneN
     InnerDecklistNode *cardTypeNode = createNodeIfNeeded(cardType, zoneNode);
 
     QModelIndex parentIndex = nodeToIndex(cardTypeNode);
-    auto *cardNode = dynamic_cast<DecklistModelCardNode *>(cardTypeNode->findChild(cardName));
+    auto *cardNode = dynamic_cast<DecklistModelCardNode *>(cardTypeNode->findChild(cardCode));
     if (!cardNode) {
-        DecklistCardNode *decklistCard = deckList->addCard(cardName, zoneName);
+        DecklistCardNode *decklistCard = deckList->addCard(cardCode, zoneName);
         beginInsertRows(parentIndex, cardTypeNode->size(), cardTypeNode->size());
         cardNode = new DecklistModelCardNode(decklistCard, cardTypeNode);
         endInsertRows();

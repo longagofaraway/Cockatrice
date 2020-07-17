@@ -39,26 +39,26 @@ private:
     const QString &climaxConstant() const;
 
     QString sanitizeHtml(QString dirty) const;
-    QString cardLink(QString cardName) const;
+    QString cardLink(QString cardName, QString cardCode) const;
     QPair<QString, QString> getFromStr(CardZone *zone, QString cardName, int position, bool ownerChange) const;
 
 public slots:
     void containerProcessingDone();
     void containerProcessingStarted(const GameEventContext &context);
     void logAlwaysRevealTopCard(Player *player, CardZone *zone, bool reveal);
-    void logAttachCard(Player *player, QString cardName, Player *targetPlayer, QString targetCardName);
+    void logAttachCard(Player *player, CardItem *card, Player *targetPlayer, CardItem *targetcard);
     void logConcede(Player *player);
     void logUnconcede(Player *player);
     void logConnectionStateChanged(Player *player, bool connectionState);
     void logCreateArrow(Player *player,
                         Player *startPlayer,
-                        QString startCard,
+                        CardItem *startCard,
                         Player *targetPlayer,
-                        QString targetCard,
+                        CardItem *targetCard,
                         bool playerTarget);
     void logCreateToken(Player *player, QString cardName, QString pt);
     void logDeckSelect(Player *player, QString deckHash, int sideboardSize);
-    void logDestroyCard(Player *player, QString cardName);
+    void logDestroyCard(Player *player, CardItem *card);
     void logDrawCards(Player *player, int number);
     void logDumpZone(Player *player, CardZone *zone, int numberCards);
     void logFlipCard(Player *player, QString cardName, bool faceDown);
@@ -77,7 +77,7 @@ public slots:
     void logRevealCards(Player *player,
                         CardZone *zone,
                         int cardId,
-                        QString cardName,
+                        CardItem *card,
                         Player *otherPlayer,
                         bool faceDown,
                         int amount);
@@ -87,7 +87,7 @@ public slots:
     void logSetActivePhase(int phase);
     void logSetActivePlayer(Player *player);
     void logSetAnnotation(Player *player, CardItem *card, QString newAnnotation);
-    void logSetCardCounter(Player *player, QString cardName, int counterId, int value, int oldValue);
+    void logSetCardCounter(Player *player, CardItem *card, int counterId, int value, int oldValue);
     void logSetCounter(Player *player, QString counterName, int value, int oldValue);
     void logSetDoesntUntap(Player *player, CardItem *card, bool doesntUntap);
     void logSetPT(Player *player, CardItem *card, QString newPT);
@@ -97,7 +97,7 @@ public slots:
     void
     logSpectatorSay(QString spectatorName, UserLevelFlags spectatorUserLevel, QString userPrivLevel, QString message);
     void logStopDumpZone(Player *player, CardZone *zone);
-    void logUnattachCard(Player *player, QString cardName);
+    void logUnattachCard(Player *player, CardItem *card);
     void logUndoDraw(Player *player, QString cardName);
     void setContextJudgeName(QString player);
     void appendHtmlServerMessage(const QString &html,

@@ -337,6 +337,7 @@ public:
         return getSetProperty(set, "picurl");
     }
     QString getCorrectedName() const;
+    QString getCorrectedName(QString _name) const;
     void addToSet(const CardSetPtr &_set, CardInfoPerSet _info = CardInfoPerSet());
     void emitPixmapUpdated()
     {
@@ -377,6 +378,11 @@ protected:
      */
     CardNameMap cards;
 
+    /*
+     * The cards, indexed by id.
+     */
+    CardNameMap cardsByCode;
+
     /**
      * The cards, indexed by their simple name.
      */
@@ -415,6 +421,9 @@ public:
      * function, so you don't need to simplify it beforehand.
      */
     CardInfoPtr getCardBySimpleName(const QString &cardName) const;
+
+    CardInfoPtr getCardByCode(const QString &code) const;
+    QList<CardInfoPtr> getCardsByCode(const QStringList &codes) const;
 
     CardSetPtr getSet(const QString &setName);
     QList<CardInfoPtr> getCardList() const

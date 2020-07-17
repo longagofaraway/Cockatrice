@@ -232,7 +232,7 @@ CardInfo::CardInfo(const QString &_name,
       reverseRelatedCards(_reverseRelatedCards), sets(std::move(_sets)), cipt(_cipt), tableRow(_tableRow),
       upsideDownArt(_upsideDownArt)
 {
-    pixmapCacheKey = QLatin1String("card_") + name;
+    pixmapCacheKey = QLatin1String("card_") + properties.value("code").toString();
     simpleName = CardInfo::simplifyName(name);
 
     refreshCachedSetNames();
@@ -265,11 +265,16 @@ CardInfoPtr CardInfo::newInstance(const QString &_name,
     return ptr;
 }
 
-QString CardInfo::getCorrectedName() const
+QString CardInfo::getCorrectedName(QString _name) const
 {
-    QString result = name;
+    QString result = _name;
     // Fire // Ice, Circle of Protection: Red, "Ach! Hans, Run!", Who/What/When/Where/Why, Question Elemental?
     return result.remove(" // ").remove(':').remove('"').remove('?').replace('/', ' ');
+}
+
+QString CardInfo::getCorrectedName() const
+{
+    return getCorrectedName(name);
 }
 
 void CardInfo::addToSet(const CardSetPtr &_set, const CardInfoPerSet _info)
@@ -363,6 +368,7 @@ void CardDatabase::clear()
 
     cards.clear();
     simpleNameCards.clear();
+    cardsByCode.clear();
 
     sets.clear();
     ICardDatabaseParser::clearSetlist();
@@ -380,8 +386,8 @@ void CardDatabase::addCard(CardInfoPtr card)
     }
 
     // if card already exists just add the new set property
-    if (cards.contains(card->getName())) {
-        CardInfoPtr sameCard = cards[card->getName()];
+    if (cardsByCode.contains(card->getProperty("code"))) {
+        CardInfoPtr sameCard = cardsByCode[card->getProperty("code")];
         for (const CardInfoPerSet &set : card->getSets()) {
             sameCard->addToSet(set.getPtr(), set);
         }
@@ -391,6 +397,8 @@ void CardDatabase::addCard(CardInfoPtr card)
     addCardMutex->lock();
     cards.insert(card->getName(), card);
     simpleNameCards.insert(card->getSimpleName(), card);
+    if (!card->getProperty("code").isEmpty())
+        cardsByCode.insert(card->getProperty("code"), card);
     addCardMutex->unlock();
     emit cardAdded(card);
 }
@@ -414,6 +422,7 @@ void CardDatabase::removeCard(CardInfoPtr card)
     removeCardMutex->lock();
     cards.remove(card->getName());
     simpleNameCards.remove(card->getSimpleName());
+    cardsByCode.remove(card->getProperty("code"));
     removeCardMutex->unlock();
     emit cardRemoved(card);
 }
@@ -438,6 +447,23 @@ QList<CardInfoPtr> CardDatabase::getCards(const QStringList &cardNames) const
 CardInfoPtr CardDatabase::getCardBySimpleName(const QString &cardName) const
 {
     return getCardFromMap(simpleNameCards, CardInfo::simplifyName(cardName));
+}
+
+CardInfoPtr CardDatabase::getCardByCode(const QString &code) const
+{
+    return getCardFromMap(cardsByCode, code);
+}
+
+QList<CardInfoPtr> CardDatabase::getCardsByCode(const QStringList &codes) const
+{
+    QList<CardInfoPtr> cardInfos;
+    foreach (QString code, codes) {
+        CardInfoPtr ptr = getCardFromMap(cardsByCode, code);
+        if (ptr)
+            cardInfos.append(ptr);
+    }
+
+    return cardInfos;
 }
 
 CardSetPtr CardDatabase::getSet(const QString &setName)

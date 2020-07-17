@@ -130,7 +130,7 @@ void CardZone::addCard(CardItem *card, bool reorganize, int x, int y)
 {
     if (view)
         if ((x <= view->getCards().size()) || (view->getNumberCards() == -1))
-            view->addCard(new CardItem(player, card->getName(), card->getId()), reorganize, x, y);
+            view->addCard(new CardItem(player, card->getCode(), card->getId()), reorganize, x, y);
 
     card->setZone(this);
     addCardImpl(card, x, y);
@@ -141,7 +141,7 @@ void CardZone::addCard(CardItem *card, bool reorganize, int x, int y)
     emit cardCountChanged();
 }
 
-CardItem *CardZone::getCard(int cardId, const QString &cardName)
+CardItem *CardZone::getCard(int cardId, const QString &cardCode)
 {
     CardItem *c = cards.findCard(cardId, false);
     if (!c) {
@@ -153,7 +153,7 @@ CardItem *CardZone::getCard(int cardId, const QString &cardName)
     // It can be assumed that in an invisible zone, all cards are equal.
     if ((c->getId() == -1) || (c->getName().isEmpty())) {
         c->setId(cardId);
-        c->setName(cardName);
+        c->setName(cardCode);
     }
     return c;
 }

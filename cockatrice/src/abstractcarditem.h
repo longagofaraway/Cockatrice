@@ -23,6 +23,7 @@ public:
 protected:
     CardInfoPtr info;
     int id;
+    QString code;
     QString name;
     TapState tapped;
     bool facedown;
@@ -57,7 +58,7 @@ public:
     {
         return Type;
     }
-    AbstractCardItem(const QString &_name = QString(),
+    AbstractCardItem(const QString &cardCode = QString(),
                      Player *_owner = nullptr,
                      int _id = -1,
                      QGraphicsItem *parent = nullptr);
@@ -82,7 +83,12 @@ public:
     {
         return name;
     }
-    void setName(const QString &_name = QString());
+    QString getCode() const
+    {
+        return code;
+    }
+
+    void setName(const QString &cardCode = QString());
     qreal getRealZValue() const
     {
         return realZValue;

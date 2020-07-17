@@ -113,19 +113,19 @@ signals:
     void logRollDie(Player *player, int sides, int roll);
     void logCreateArrow(Player *player,
                         Player *startPlayer,
-                        QString startCard,
+                        CardItem *startCard,
                         Player *targetPlayer,
-                        QString targetCard,
+                        CardItem *targetCard,
                         bool _playerTarget);
     void logCreateToken(Player *player, QString cardName, QString pt);
     void logDrawCards(Player *player, int number);
     void logUndoDraw(Player *player, QString cardName);
     void logMoveCard(Player *player, CardItem *card, CardZone *startZone, int oldX, CardZone *targetZone, int newX);
     void logFlipCard(Player *player, QString cardName, bool faceDown);
-    void logDestroyCard(Player *player, QString cardName);
-    void logAttachCard(Player *player, QString cardName, Player *targetPlayer, QString targetCardName);
-    void logUnattachCard(Player *player, QString cardName);
-    void logSetCardCounter(Player *player, QString cardName, int counterId, int value, int oldValue);
+    void logDestroyCard(Player *player, CardItem *card);
+    void logAttachCard(Player *player, CardItem *card, Player *targetPlayer, CardItem *targetcard);
+    void logUnattachCard(Player *player, CardItem *card);
+    void logSetCardCounter(Player *player, CardItem *card, int counterId, int value, int oldValue);
     void logSetTapped(Player *player, CardItem *card, int tapped);
     void logSetCounter(Player *player, QString counterName, int value, int oldValue);
     void logSetDoesntUntap(Player *player, CardItem *card, bool doesntUntap);
@@ -137,6 +137,7 @@ signals:
                         CardZone *zone,
                         int cardId,
                         QString cardName,
+                        QString cardCode,
                         Player *otherPlayer,
                         bool faceDown,
                         int amount);

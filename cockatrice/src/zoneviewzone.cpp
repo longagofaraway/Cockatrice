@@ -73,7 +73,7 @@ void ZoneViewZone::initializeCards(const QList<const ServerInfo_Card *> &cardLis
         int number = numberCards == -1 ? c.size() : (numberCards < c.size() ? numberCards : c.size());
         for (int i = 0; i < number; i++) {
             CardItem *card = c.at(i);
-            addCard(new CardItem(player, card->getName(), card->getId(), revealZone, this), false, i);
+            addCard(new CardItem(player, card->getCode(), card->getId(), revealZone, this), false, i);
         }
         reorganizeCards();
     }

@@ -16,9 +16,9 @@
 #include "settingscache.h"
 #include "tab_game.h"
 
-AbstractCardItem::AbstractCardItem(const QString &_name, Player *_owner, int _id, QGraphicsItem *parent)
-    : ArrowTarget(_owner, parent), id(_id), name(_name), tapped(Standing), facedown(false), tapAngle(0),
-      bgColor(Qt::transparent), isHovered(false), realZValue(0)
+AbstractCardItem::AbstractCardItem(const QString &cardCode, Player *_owner, int _id, QGraphicsItem *parent)
+    : ArrowTarget(_owner, parent), id(_id), code(cardCode), name(QString()), tapped(Standing), facedown(false),
+      tapAngle(0), bgColor(Qt::transparent), isHovered(false), realZValue(0)
 {
     setCursor(Qt::OpenHandCursor);
     setFlag(ItemIsSelectable);
@@ -46,16 +46,19 @@ void AbstractCardItem::pixmapUpdated()
 
 void AbstractCardItem::cardInfoUpdated()
 {
-    info = db->getCard(name);
+    info = db->getCardByCode(code);
 
-    if (!info && !name.isEmpty()) {
+    if (!info && !code.isEmpty()) {
         QVariantHash properties = QVariantHash();
 
-        info = CardInfo::newInstance(name, "", true, QVariantHash(), QList<CardRelation *>(), QList<CardRelation *>(),
+        info = CardInfo::newInstance(code, "", true, QVariantHash(), QList<CardRelation *>(), QList<CardRelation *>(),
                                      CardInfoPerSetMap(), false, -1, false);
     }
     if (info.data()) {
+        name = info.data()->getName();
         connect(info.data(), SIGNAL(pixmapUpdated()), this, SLOT(pixmapUpdated()));
+    } else {
+        name = QString();
     }
 
     cacheBgColor();
@@ -181,15 +184,16 @@ void AbstractCardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->restore();
 }
 
-void AbstractCardItem::setName(const QString &_name)
+void AbstractCardItem::setName(const QString &cardCode)
 {
-    if (name == _name)
+    if (code == cardCode)
         return;
 
     emit deleteCardInfoPopup(name);
     if (info)
         disconnect(info.data(), nullptr, this, nullptr);
-    name = _name;
+    code = cardCode;
+    // name = _name;
 
     cardInfoUpdated();
 }
@@ -298,14 +302,14 @@ void AbstractCardItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if (event->button() == Qt::LeftButton)
         setCursor(Qt::ClosedHandCursor);
     else if (event->button() == Qt::MidButton)
-        emit showCardInfoPopup(event->screenPos(), name);
+        emit showCardInfoPopup(event->screenPos(), code);
     event->accept();
 }
 
 void AbstractCardItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::MidButton)
-        emit deleteCardInfoPopup(name);
+        emit deleteCardInfoPopup(code);
 
     // This function ensures the parent function doesn't mess around with our selection.
     event->accept();

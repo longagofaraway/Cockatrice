@@ -65,8 +65,9 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     bool removeRows(int row, int count, const QModelIndex &parent) override;
-    QModelIndex findCard(const QString &cardName, const QString &zoneName) const;
-    QModelIndex addCard(const QString &cardName, const QString &zoneName, bool abAddAnyway = false);
+    // DeckListModel works with card codes as names
+    QModelIndex findCard(const QString &cardCode, const QString &zoneName) const;
+    QModelIndex addCard(const QString &cardCode, const QString &zoneName, bool abAddAnyway = false);
     void sort(int column, Qt::SortOrder order) override;
     void cleanList();
     DeckLoader *getDeckList() const
@@ -82,7 +83,7 @@ private:
     Qt::SortOrder lastKnownOrder;
     InnerDecklistNode *createNodeIfNeeded(const QString &name, InnerDecklistNode *parent);
     QModelIndex nodeToIndex(AbstractDecklistNode *node) const;
-    DecklistModelCardNode *findCardNode(const QString &cardName, const QString &zoneName) const;
+    DecklistModelCardNode *findCardNode(const QString &cardCode, const QString &zoneName) const;
     void emitRecursiveUpdates(const QModelIndex &index);
     void sortHelper(InnerDecklistNode *node, Qt::SortOrder order);
 

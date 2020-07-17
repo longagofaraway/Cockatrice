@@ -10,7 +10,7 @@
 #include <QVBoxLayout>
 #include <utility>
 
-CardFrame::CardFrame(const QString &cardName, QWidget *parent) : QTabWidget(parent), info(nullptr), cardTextOnly(false)
+CardFrame::CardFrame(const QString &cardCode, QWidget *parent) : QTabWidget(parent), info(nullptr), cardTextOnly(false)
 {
     setContentsMargins(3, 3, 3, 3);
     pic = new CardInfoPicture();
@@ -57,7 +57,7 @@ CardFrame::CardFrame(const QString &cardName, QWidget *parent) : QTabWidget(pare
 
     setViewMode(settingsCache->getCardInfoViewMode());
 
-    setCard(db->getCard(cardName));
+    setCard(db->getCardByCode(cardCode));
 }
 
 void CardFrame::retranslateUi()
@@ -105,9 +105,9 @@ void CardFrame::setCard(CardInfoPtr card)
     pic->setCard(info);
 }
 
-void CardFrame::setCard(const QString &cardName)
+void CardFrame::setCard(const QString &cardCode)
 {
-    setCard(db->getCardBySimpleName(cardName));
+    setCard(db->getCardByCode(cardCode));
 }
 
 void CardFrame::setCard(AbstractCardItem *card)

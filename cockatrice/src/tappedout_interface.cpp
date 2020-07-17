@@ -102,7 +102,7 @@ struct CopyMainOrSide
 
     void operator()(const InnerDecklistNode *node, const DecklistCardNode *card) const
     {
-        CardInfoPtr dbCard = cardDatabase.getCard(card->getName());
+        CardInfoPtr dbCard = cardDatabase.getCardByCode(card->getName());
         if (!dbCard || dbCard->getIsToken())
             return;
 

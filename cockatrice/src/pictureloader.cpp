@@ -59,13 +59,13 @@ void PictureToLoad::populateSetUrls()
         }
     }
 
-    for (const QString &urlTemplate : urlTemplates) {
+    /*for (const QString &urlTemplate : urlTemplates) {
         QString transformedUrl = transformUrl(urlTemplate);
 
         if (!transformedUrl.isEmpty()) {
             currentSetUrls.append(transformedUrl);
         }
-    }
+    }*/
 
     /* Call nextUrl to make sure currentUrl is up-to-date
        but we don't need the result here. */
@@ -146,8 +146,8 @@ void PictureLoaderWorker::processLoadQueue()
         mutex.unlock();
 
         QString setName = cardBeingLoaded.getSetName();
-        QString cardName = cardBeingLoaded.getCard()->getName();
-        QString correctedCardName = cardBeingLoaded.getCard()->getCorrectedName();
+        QString cardName = cardBeingLoaded.getCard()->getProperty("code");
+        QString correctedCardName = cardBeingLoaded.getCard()->getCorrectedName(cardName);
 
         qDebug() << "PictureLoader: [card: " << cardName << " set: " << setName << "]: Trying to load picture";
 
@@ -374,7 +374,7 @@ bool PictureLoaderWorker::imageIsBlackListed(const QByteArray &picData)
 void PictureLoaderWorker::picDownloadFinished(QNetworkReply *reply)
 {
     if (reply->error()) {
-        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getName()
+        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getProperty("code")
                  << " set: " << cardBeingDownloaded.getSetName() << "]:  Download failed:" << reply->errorString();
     }
 
@@ -382,7 +382,7 @@ void PictureLoaderWorker::picDownloadFinished(QNetworkReply *reply)
     if (statusCode == 301 || statusCode == 302) {
         QUrl redirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
         QNetworkRequest req(redirectUrl);
-        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getName()
+        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getProperty("code")
                  << " set: " << cardBeingDownloaded.getSetName() << "]: following redirect:" << req.url().toString();
         networkManager->get(req);
         return;
@@ -392,7 +392,7 @@ void PictureLoaderWorker::picDownloadFinished(QNetworkReply *reply)
     const QByteArray &picData = reply->peek(reply->size());
 
     if (imageIsBlackListed(picData)) {
-        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getName()
+        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getProperty("code")
                  << " set: " << cardBeingDownloaded.getSetName()
                  << "]:Picture downloaded, but blacklisted, will consider it as "
                     "not found";
@@ -417,16 +417,16 @@ void PictureLoaderWorker::picDownloadFinished(QNetworkReply *reply)
 
     if (imgReader.read(&testImage)) {
         QString setName = cardBeingDownloaded.getSetName();
+        QString cardCode = cardBeingDownloaded.getCard()->getProperty("code");
         if (!setName.isEmpty()) {
             if (!QDir().mkpath(picsPath + "/downloadedPics/" + setName)) {
-                qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getName()
-                         << " set: " << cardBeingDownloaded.getSetName()
+                qDebug() << "PictureLoader: [card: " << cardCode << " set: " << cardBeingDownloaded.getSetName()
                          << "]: " << picsPath + "/downloadedPics/" + setName + " could not be created.";
                 return;
             }
 
             QFile newPic(picsPath + "/downloadedPics/" + setName + "/" +
-                         cardBeingDownloaded.getCard()->getCorrectedName() + extension);
+                         cardBeingDownloaded.getCard()->getCorrectedName(cardCode) + extension);
             if (!newPic.open(QIODevice::WriteOnly)) {
                 return;
             }
@@ -435,11 +435,11 @@ void PictureLoaderWorker::picDownloadFinished(QNetworkReply *reply)
         }
 
         imageLoaded(cardBeingDownloaded.getCard(), testImage);
-        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getName()
+        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getProperty("code")
                  << " set: " << cardBeingDownloaded.getSetName() << "]: Image successfully downloaded from "
                  << reply->request().url().toDisplayString();
     } else {
-        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getName()
+        qDebug() << "PictureLoader: [card: " << cardBeingDownloaded.getCard()->getProperty("code")
                  << " set: " << cardBeingDownloaded.getSetName() << "]: Possible picture at "
                  << reply->request().url().toDisplayString() << " could not be loaded";
         picDownloadFailed();

@@ -49,7 +49,7 @@ public:
         return Type;
     }
     CardItem(Player *_owner,
-             const QString &_name = QString(),
+             const QString &cardCode = QString(),
              int _cardid = -1,
              bool revealedCard = false,
              QGraphicsItem *parent = nullptr);

@@ -1600,11 +1600,9 @@ void Player::eventCreateArrow(const Event_CreateArrow &event)
     auto *startCard = static_cast<CardItem *>(arrow->getStartItem());
     auto *targetCard = qgraphicsitem_cast<CardItem *>(arrow->getTargetItem());
     if (targetCard) {
-        emit logCreateArrow(this, startCard->getOwner(), startCard->getName(), targetCard->getOwner(),
-                            targetCard->getName(), false);
+        emit logCreateArrow(this, startCard->getOwner(), startCard, targetCard->getOwner(), targetCard, false);
     } else {
-        emit logCreateArrow(this, startCard->getOwner(), startCard->getName(), arrow->getTargetItem()->getOwner(),
-                            QString(), true);
+        emit logCreateArrow(this, startCard->getOwner(), startCard, arrow->getTargetItem()->getOwner(), nullptr, true);
     }
 }
 
@@ -1689,7 +1687,7 @@ void Player::eventSetCardCounter(const Event_SetCardCounter &event)
     int oldValue = card->getCounters().value(event.counter_id(), 0);
     card->setCounter(event.counter_id(), event.counter_value());
     updateCardMenu(card);
-    emit logSetCardCounter(this, card->getName(), event.counter_id(), event.counter_value(), oldValue);
+    emit logSetCardCounter(this, card, event.counter_id(), event.counter_value(), oldValue);
 }
 
 void Player::eventCreateCounter(const Event_CreateCounter &event)
@@ -1870,7 +1868,7 @@ void Player::eventDestroyCard(const Event_DestroyCard &event)
         attachedCard->setAttachedTo(0);
     }
 
-    emit logDestroyCard(this, card->getName());
+    emit logDestroyCard(this, card);
     zone->takeCard(-1, event.card_id(), true);
     card->deleteLater();
 }
@@ -1914,9 +1912,9 @@ void Player::eventAttachCard(const Event_AttachCard &event)
     }
 
     if (targetCard) {
-        emit logAttachCard(this, startCard->getName(), targetPlayer, targetCard->getName());
+        emit logAttachCard(this, startCard, targetPlayer, targetCard);
     } else {
-        emit logUnattachCard(this, startCard->getName());
+        emit logUnattachCard(this, startCard);
     }
 }
 
@@ -1972,21 +1970,22 @@ void Player::eventRevealCards(const Event_RevealCards &event)
 
     if (peeking) {
         for (const auto &card : cardList) {
-            QString cardName = QString::fromStdString(card->name());
+            QString cardCode = QString::fromStdString(card->name());
             CardItem *cardItem = zone->getCard(card->id(), QString());
             if (!cardItem) {
                 continue;
             }
-            cardItem->setName(cardName);
-            emit logRevealCards(this, zone, card->id(), cardName, this, true, 1);
+            cardItem->setName(cardCode);
+            emit logRevealCards(this, zone, card->id(), cardItem->getName(), cardItem->getCode(), this, true, 1);
         }
     } else {
         bool showZoneView = true;
-        QString cardName;
+        QString cardName, cardCode;
         if (cardList.size() == 1) {
-            cardName = QString::fromStdString(cardList.first()->name());
+            cardCode = QString::fromStdString(cardList.first()->name());
             if ((event.card_id() == 0) && dynamic_cast<PileZone *>(zone)) {
-                zone->getCards().first()->setName(cardName);
+                zone->getCards().first()->setName(cardCode);
+                cardName = zone->getCards().first()->getName();
                 zone->update();
                 showZoneView = false;
             }
@@ -1995,7 +1994,7 @@ void Player::eventRevealCards(const Event_RevealCards &event)
             static_cast<GameScene *>(scene())->addRevealedZoneView(this, zone, cardList, event.grant_write_access());
         }
 
-        emit logRevealCards(this, zone, event.card_id(), cardName, otherPlayer, false,
+        emit logRevealCards(this, zone, event.card_id(), cardName, cardCode, otherPlayer, false,
                             event.has_number_of_cards() ? event.number_of_cards() : cardList.size());
     }
 }
