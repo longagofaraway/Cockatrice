@@ -8,6 +8,7 @@ PROJECT(Oracle VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJ
 set(DESKTOPDIR share/applications CACHE STRING "path to .desktop files")
 
 SET(oracle_SOURCES
+    src/loaddbpage.cpp
     src/main.cpp
     src/oraclewizard.cpp
     src/oracleimporter.cpp

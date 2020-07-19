@@ -1,5 +1,6 @@
 #include "oraclewizard.h"
 
+#include "loaddbpage.h"
 #include "main.h"
 #include "oracleimporter.h"
 #include "settingscache.h"
@@ -61,7 +62,7 @@ OracleWizard::OracleWizard(QWidget *parent) : QWizard(parent)
 
     nam = new QNetworkAccessManager(this);
 
-    if (!isSpoilersOnly) {
+    /*if (!isSpoilersOnly) {
         addPage(new IntroPage);
         addPage(new LoadSetsPage);
         addPage(new SaveSetsPage);
@@ -70,7 +71,10 @@ OracleWizard::OracleWizard(QWidget *parent) : QWizard(parent)
     } else {
         addPage(new LoadSpoilersPage);
         addPage(new OutroPage);
-    }
+    }*/
+
+    addPage(new LoadDbPage);
+    addPage(new OutroPage);
 
     retranslateUi();
 }
