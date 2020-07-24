@@ -174,7 +174,7 @@ SettingsCache::SettingsCache()
     // updates - don't reorder them or their index in the settings won't match
     // append channels one by one, or msvc will add them in the wrong order.
     releaseChannels << new StableReleaseChannel();
-    releaseChannels << new BetaReleaseChannel();
+    //releaseChannels << new BetaReleaseChannel();
 
     mbDownloadSpoilers = settings->value("personal/downloadspoilers", false).toBool();
 
