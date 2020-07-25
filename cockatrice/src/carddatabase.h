@@ -428,7 +428,7 @@ public:
     CardSetPtr getSet(const QString &setName);
     QList<CardInfoPtr> getCardList() const
     {
-        return cards.values();
+        return cardsByCode.values();
     }
     SetList getSetList() const;
     LoadStatus loadFromFile(const QString &fileName);

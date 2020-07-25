@@ -501,11 +501,6 @@ bool DeckList::loadFromStream_Plain(QTextStream &in)
     const QRegularExpression reDigitBrace(" ?\\(\\d*\\) ?");            // () are matched if containing digits
     const QRegularExpression reBraceDigit(
         " ?\\([\\dA-Z]+\\) *\\d+$"); // () are matched if containing setcode then a number
-    const QHash<QRegularExpression, QString> differences{{QRegularExpression("’"), QString("'")},
-                                                         {QRegularExpression("Æ"), QString("Ae")},
-                                                         {QRegularExpression("æ"), QString("ae")},
-                                                         {QRegularExpression(" ?[|/]+ ?"), QString(" // ")},
-                                                         {QRegularExpression("(?<![A-Z]) ?& ?"), QString(" // ")}};
 
     cleanList();
 
@@ -599,14 +594,6 @@ bool DeckList::loadFromStream_Plain(QTextStream &in)
         cardName.remove(reRoundBrace); // I'll be entirely honest here, these are split to accommodate just three cards
         cardName.remove(reDigitBrace); // from un-sets that have a word in between round braces at the end
         cardName.remove(reBraceDigit); // very specific format with the set code in () and collectors number after
-
-        // replace common differences in cardnames
-        for (auto diff = differences.constBegin(); diff != differences.constEnd(); ++diff) {
-            cardName.replace(diff.key(), diff.value());
-        }
-
-        // get cardname, this function does nothing if the name is not found
-        cardName = getCompleteCardName(cardName);
 
         // get zone name based on if it's in sideboard
         QString zoneName = getCardZoneFromName(cardName, sideboard ? DECK_ZONE_SIDE : DECK_ZONE_MAIN);
