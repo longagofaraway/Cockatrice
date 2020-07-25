@@ -25,7 +25,7 @@
 
 namespace
 {
-constexpr char *gDefaultDbUrl = "https://yadi.sk/d/FyaPLHhFAU5BVA";
+constexpr char *gDefaultDbUrl = "https://boardhunt.ru/Weiss_Schwarz_DBv4.zip";
 }
 
 LoadDbPage::LoadDbPage(QWidget *parent) : OracleWizardPage(parent)
