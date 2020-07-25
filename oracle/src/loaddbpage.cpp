@@ -3,12 +3,25 @@
 #include "oraclewizard.h"
 #include "settingscache.h"
 
+#include <QBuffer>
 #include <QFileDialog>
 #include <QGridLayout>
+#include <QJsonDocument>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSaveFile>
-#include <qjsondocument.h>
+
+#ifdef HAS_LZMA
+#include "lzma/decompress.h"
+#endif
+
+#ifdef HAS_ZLIB
+#include "zip/unzip.h"
+#endif
+
+#define ZIP_SIGNATURE "PK"
+// Xz stream header: 0xFD + "7zXZ"
+#define XZ_SIGNATURE "\xFD\x37\x7A\x58\x5A"
 
 namespace
 {
@@ -177,20 +190,82 @@ void LoadDbPage::actDownloadFinished()
     wizard()->enableButtons();
     setEnabled(true);
 
-    saveToFile(reply->readAll());
+    bool res = saveToFile(reply->readAll());
     reply->deleteLater();
+    if (!res)
+        return;
 
     jobDone = true;
     wizard()->next();
 }
 
-void LoadDbPage::saveToFile(QByteArray data)
+bool LoadDbPage::saveToFile(QByteArray data)
 {
+    // unzip the file if needed
+    if (data.startsWith(XZ_SIGNATURE)) {
+#ifdef HAS_LZMA
+        // zipped file
+        auto *inBuffer = new QBuffer(&data);
+        auto *outBuffer = new QBuffer(this);
+        inBuffer->open(QBuffer::ReadOnly);
+        outBuffer->open(QBuffer::WriteOnly);
+        XzDecompressor xz;
+        if (!xz.decompress(inBuffer, outBuffer)) {
+            QMessageBox::critical(this, tr("Error"), tr("Xz extraction failed."));
+            return false;
+        }
+
+        data = outBuffer->data();
+#else
+        QMessageBox::critical(this, tr("Error"),
+                              tr("Sorry, this version of Oracle does not support xz compressed files."));
+        return false;
+#endif
+    } else if (data.startsWith(ZIP_SIGNATURE)) {
+#ifdef HAS_ZLIB
+        // zipped file
+        auto *inBuffer = new QBuffer(&data);
+        auto *outBuffer = new QBuffer(this);
+        QString fileName;
+        UnZip::ErrorCode ec;
+        UnZip uz;
+
+        ec = uz.openArchive(inBuffer);
+        if (ec != UnZip::Ok) {
+            QMessageBox::critical(this, tr("Error"), tr("Failed to open Zip archive: %1.").arg(uz.formatError(ec)));
+            return false;
+        }
+
+        if (uz.fileList().size() != 1) {
+            QMessageBox::critical(this, tr("Error"),
+                                  tr("Zip extraction failed: the Zip archive doesn't contain exactly one file."));
+            return false;
+        }
+        fileName = uz.fileList().at(0);
+
+        outBuffer->open(QBuffer::ReadWrite);
+        ec = uz.extractFile(fileName, outBuffer);
+        if (ec != UnZip::Ok) {
+            QMessageBox::critical(this, tr("Error"), tr("Zip extraction failed: %1.").arg(uz.formatError(ec)));
+            uz.closeArchive();
+            return false;
+        }
+
+        data = outBuffer->data();
+#else
+        QMessageBox::critical(this, tr("Error"), tr("Sorry, this version of Oracle does not support zipped files."));
+        return false;
+#endif
+    }
+
     QString defaultPath = settingsCache->getCardDatabasePath();
     QSaveFile file(defaultPath);
-    file.open(QIODevice::WriteOnly);
-    file.write(data);
-    file.commit();
+    if (!file.open(QIODevice::WriteOnly))
+        return false;
+    if (file.write(data) != data.size())
+        return false;
+
+    return file.commit();
 }
 
 bool LoadDbPage::validatePage()
@@ -230,7 +305,8 @@ bool LoadDbPage::validatePage()
             return false;
         }
 
-        saveToFile(setsFile.readAll());
+        if (!saveToFile(setsFile.readAll()))
+            return false;
 
         jobDone = true;
         wizard()->next();

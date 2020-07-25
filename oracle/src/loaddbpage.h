@@ -23,7 +23,7 @@ protected:
 
 private:
     void initializePage() override;
-    void saveToFile(QByteArray data);
+    bool saveToFile(QByteArray data);
     void downloadFile(QUrl url);
 
     QRadioButton *urlRadioButton;
