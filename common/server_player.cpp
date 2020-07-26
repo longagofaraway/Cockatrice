@@ -960,11 +960,11 @@ Server_Player::cmdShuffle(const Command_Shuffle &cmd, ResponseContainer & /*rc*/
         return Response::RespContextError;
     }
 
-    if (cmd.has_zone_name() && cmd.zone_name() != "deck") {
+    if (cmd.has_zone_name() && cmd.zone_name() != "deck" && cmd.zone_name() != "stock") {
         return Response::RespFunctionNotAllowed;
     }
 
-    Server_CardZone *zone = zones.value("deck");
+    Server_CardZone *zone = zones.value(cmd.has_zone_name() ? cmd.zone_name().data() : "deck");
     if (!zone) {
         return Response::RespNameNotFound;
     }

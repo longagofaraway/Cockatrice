@@ -9,7 +9,7 @@
 #include <QPainter>
 
 StockZone::StockZone(Player *_p, int _zoneHeight, QGraphicsItem *parent)
-    : SelectZone(_p, "stock", false, false, false, parent), zoneHeight(_zoneHeight)
+    : SelectZone(_p, "stock", false, true, false, parent), zoneHeight(_zoneHeight)
 {
 }
 

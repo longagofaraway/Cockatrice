@@ -166,6 +166,8 @@ public slots:
 
     void actViewLibrary();
     void actViewHand();
+    void actViewClock();
+    void actViewStock();
     void actViewTopCards();
     void actAlwaysRevealTopCard();
     void actViewGraveyard();
@@ -213,7 +215,8 @@ private:
     TabGame *game;
     QMenu *sbMenu, *countersMenu, *sayMenu, *createPredefinedTokenMenu, *mRevealLibrary, *mRevealTopCard, *mRevealHand,
         *mRevealRandomHandCard, *mRevealRandomGraveyardCard;
-    TearOffMenu *moveGraveMenu, *moveRfgMenu, *graveMenu, *moveHandMenu, *handMenu, *libraryMenu, *rfgMenu, *playerMenu;
+    TearOffMenu *moveGraveMenu, *moveRfgMenu, *graveMenu, *moveHandMenu, *handMenu, *libraryMenu, *rfgMenu, *playerMenu,
+        *clockMenu, *stockMenu;
     QList<QMenu *> playerLists;
     QList<QAction *> allPlayersActions;
     QAction *aMoveHandToTopLibrary, *aMoveHandToBottomLibrary, *aMoveHandToGrave, *aMoveHandToRfg,
@@ -224,6 +227,8 @@ private:
         *aViewSideboard, *aDrawCard, *aDrawCards, *aUndoDraw, *aMulligan, *aShuffle, *aMoveTopToPlay,
         *aMoveTopToPlayFaceDown, *aUntapAll, *aRollDie, *aCreateToken, *aCreateAnotherToken, *aCardMenu,
         *aMoveBottomCardToGrave;
+    QAction *aMoveLevelToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
+        *aShuffleStock;
 
     QList<QAction *> aAddCounter, aSetCounter, aRemoveCounter;
     QAction *aPlay, *aPlayFacedown, *aHide, *aTap, *aDoesntUntap, *aAttach, *aUnattach, *aDrawArrow, *aSetPT, *aResetPT,
@@ -321,7 +326,10 @@ public:
         cmMoveToBottomLibrary,
         cmMoveToHand,
         cmMoveToGraveyard,
-        cmMoveToExile
+        cmMoveToExile,
+        cmMoveToStock,
+        cmMoveToClock,
+        cmMoveToBottomClock
     };
     enum CardsToReveal
     {

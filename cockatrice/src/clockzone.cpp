@@ -15,7 +15,9 @@ ClockZone::ClockZone(Player *_p, int _zoneWidth, QGraphicsItem *parent)
 
 void ClockZone::addCardImpl(CardItem *card, int x, int /*y*/)
 {
-    cards.append(card);
+    if (x == -1)
+        x = cards.size();
+    cards.insert(x, card);
 
     card->setParentItem(this);
     card->resetState();
@@ -51,7 +53,7 @@ void ClockZone::handleDropEvent(const QList<CardDragItem *> &dragItems,
     cmd.set_start_zone(startZone->getName().toStdString());
     cmd.set_target_player_id(player->getId());
     cmd.set_target_zone(getName().toStdString());
-    cmd.set_x(0);
+    cmd.set_x(-1);
     cmd.set_y(0);
 
     for (int i = 0; i < dragItems.size(); ++i)

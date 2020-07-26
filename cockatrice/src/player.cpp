@@ -203,6 +203,10 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         connect(aViewLibrary, SIGNAL(triggered()), this, SLOT(actViewLibrary()));
         aViewHand = new QAction(this);
         connect(aViewHand, SIGNAL(triggered()), this, SLOT(actViewHand()));
+        aViewClock = new QAction(this);
+        connect(aViewClock, SIGNAL(triggered()), this, SLOT(actViewClock()));
+        aViewStock = new QAction(this);
+        connect(aViewStock, SIGNAL(triggered()), this, SLOT(actViewStock()));
 
         aViewTopCards = new QAction(this);
         connect(aViewTopCards, SIGNAL(triggered()), this, SLOT(actViewTopCards()));
@@ -212,6 +216,13 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         aOpenDeckInDeckEditor = new QAction(this);
         aOpenDeckInDeckEditor->setEnabled(false);
         connect(aOpenDeckInDeckEditor, SIGNAL(triggered()), this, SLOT(actOpenDeckInDeckEditor()));
+
+        aMoveLevelToGrave = new QAction(this);
+        aMoveLevelToGrave->setData(QList<QVariant>() << "grave" << 0);
+        connect(aMoveLevelToGrave, SIGNAL(triggered()), clock, SLOT(moveAllToZone()));
+        aShuffleStock = new QAction(this);
+        aShuffleStock->setData("stock");
+        connect(aShuffleStock, SIGNAL(triggered()), this, SLOT(actShuffle()));
     }
 
     aViewGraveyard = new QAction(this);
@@ -298,9 +309,21 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         libraryMenu->addSeparator();
         libraryMenu->addAction(aOpenDeckInDeckEditor);
         deck->setMenu(libraryMenu, aDrawCard);
+
+        clockMenu = playerMenu->addTearOffMenu(QString());
+        // TODO: moving cards within a clock view doesn't work, we probably need it to swap cards in clock
+        // clockMenu->addAction(aViewClock);
+        clockMenu->addAction(aMoveLevelToGrave);
+        clock->setMenu(clockMenu);
+
+        stockMenu = playerMenu->addTearOffMenu(QString());
+        stockMenu->addAction(aShuffleStock);
+        stockMenu->addAction(aViewStock);
+        stock->setMenu(stockMenu);
     } else {
         handMenu = nullptr;
         libraryMenu = nullptr;
+        clockMenu = nullptr;
     }
 
     graveMenu = playerMenu->addTearOffMenu(QString());
@@ -359,15 +382,10 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         createPredefinedTokenMenu = new QMenu(QString());
 
         playerMenu->addSeparator();
-        countersMenu = playerMenu->addMenu(QString());
-        playerMenu->addSeparator();
+        countersMenu = nullptr;
         playerMenu->addAction(aUntapAll);
         playerMenu->addSeparator();
         playerMenu->addAction(aRollDie);
-        playerMenu->addSeparator();
-        playerMenu->addAction(aCreateToken);
-        playerMenu->addAction(aCreateAnotherToken);
-        playerMenu->addMenu(createPredefinedTokenMenu);
         playerMenu->addSeparator();
     }
 
@@ -456,12 +474,21 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     aMoveToGraveyard->setData(cmMoveToGraveyard);
     aMoveToExile = new QAction(this);
     aMoveToExile->setData(cmMoveToExile);
+    aMoveToStock = new QAction(this);
+    aMoveToStock->setData(cmMoveToStock);
+    aMoveToClock = new QAction(this);
+    aMoveToClock->setData(cmMoveToClock);
+    aMoveToBottomClock = new QAction(this);
+    aMoveToBottomClock->setData(cmMoveToBottomClock);
     connect(aMoveToTopLibrary, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
     connect(aMoveToBottomLibrary, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
     connect(aMoveToXfromTopOfLibrary, SIGNAL(triggered()), this, SLOT(actMoveCardXCardsFromTop()));
     connect(aMoveToHand, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
     connect(aMoveToGraveyard, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
     connect(aMoveToExile, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
+    connect(aMoveToStock, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
+    connect(aMoveToClock, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
+    connect(aMoveToBottomClock, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
 
     aPlay = new QAction(this);
     connect(aPlay, SIGNAL(triggered()), this, SLOT(actPlay()));
@@ -743,13 +770,19 @@ void Player::retranslateUi()
         mRevealRandomGraveyardCard->setTitle(tr("Reveal random card to..."));
         sbMenu->setTitle(tr("&Sideboard"));
         libraryMenu->setTitle(tr("&Library"));
-        countersMenu->setTitle(tr("&Counters"));
 
         aUntapAll->setText(tr("&Untap all permanents"));
         aRollDie->setText(tr("R&oll die..."));
         aCreateToken->setText(tr("&Create token..."));
         aCreateAnotherToken->setText(tr("C&reate another token"));
         createPredefinedTokenMenu->setTitle(tr("Cr&eate predefined token"));
+
+        aMoveLevelToGrave->setText(tr("Move clock to graveyard"));
+        clockMenu->setTitle(tr("Clock"));
+        aViewClock->setText(tr("&View clock"));
+        stockMenu->setTitle(tr("Stock"));
+        aViewStock->setText(tr("&View stock"));
+        aShuffleStock->setText(tr("&Shuffle stock"));
 
         QMapIterator<int, AbstractCounter *> counterIterator(counters);
         while (counterIterator.hasNext()) {
@@ -815,6 +848,9 @@ void Player::retranslateUi()
     aMoveToHand->setText(tr("&Hand"));
     aMoveToGraveyard->setText(tr("&Graveyard"));
     aMoveToExile->setText(tr("&Exile"));
+    aMoveToStock->setText(tr("&Stock"));
+    aMoveToClock->setText(tr("&Clock"));
+    aMoveToBottomClock->setText(tr("Bottom of clock"));
 
     QMapIterator<QString, CardZone *> zoneIterator(zones);
     while (zoneIterator.hasNext()) {
@@ -852,6 +888,9 @@ void Player::setShortcutsActive()
     aMoveToHand->setShortcuts(shortcuts.getShortcut("Player/aMoveToHand"));
     aMoveToGraveyard->setShortcuts(shortcuts.getShortcut("Player/aMoveToGraveyard"));
     aMoveToExile->setShortcuts(shortcuts.getShortcut("Player/aMoveToExile"));
+    aMoveToStock->setShortcuts(shortcuts.getShortcut("Player/aMoveToStock"));
+    aMoveToClock->setShortcuts(shortcuts.getShortcut("Player/aMoveToClock"));
+    aMoveToBottomClock->setShortcuts(shortcuts.getShortcut("Player/aMoveToBottomClock"));
 
     QList<QKeySequence> addCCShortCuts;
     addCCShortCuts.append(shortcuts.getSingleShortcut("Player/aCCRed"));
@@ -989,6 +1028,16 @@ void Player::actViewHand()
     static_cast<GameScene *>(scene())->toggleZoneView(this, "hand", -1);
 }
 
+void Player::actViewClock()
+{
+    static_cast<GameScene *>(scene())->toggleZoneView(this, "clock", clock->getCards().size());
+}
+
+void Player::actViewStock()
+{
+    static_cast<GameScene *>(scene())->toggleZoneView(this, "stock", -1);
+}
+
 void Player::actViewTopCards()
 {
     bool ok;
@@ -1044,7 +1093,14 @@ void Player::actViewSideboard()
 
 void Player::actShuffle()
 {
-    sendGameCommand(Command_Shuffle());
+    auto *action = dynamic_cast<QAction *>(sender());
+    QString zone = action->data().toString();
+    if (zone.isEmpty())
+        zone = "deck";
+
+    Command_Shuffle cmd;
+    cmd.set_zone_name(zone.toStdString());
+    sendGameCommand(cmd);
 }
 
 void Player::actDrawCard()
@@ -2659,6 +2715,42 @@ void Player::cardMenuAction()
                 commandList.append(cmd);
                 break;
             }
+            case cmMoveToStock: {
+                auto *cmd = new Command_MoveCard;
+                cmd->set_start_player_id(startPlayerId);
+                cmd->set_start_zone(startZone.toStdString());
+                cmd->mutable_cards_to_move()->CopyFrom(idList);
+                cmd->set_target_player_id(getId());
+                cmd->set_target_zone("stock");
+                cmd->set_x(0);
+                cmd->set_y(0);
+                commandList.append(cmd);
+                break;
+            }
+            case cmMoveToClock: {
+                auto *cmd = new Command_MoveCard;
+                cmd->set_start_player_id(startPlayerId);
+                cmd->set_start_zone(startZone.toStdString());
+                cmd->mutable_cards_to_move()->CopyFrom(idList);
+                cmd->set_target_player_id(getId());
+                cmd->set_target_zone("clock");
+                cmd->set_x(-1);
+                cmd->set_y(0);
+                commandList.append(cmd);
+                break;
+            }
+            case cmMoveToBottomClock: {
+                auto *cmd = new Command_MoveCard;
+                cmd->set_start_player_id(startPlayerId);
+                cmd->set_start_zone(startZone.toStdString());
+                cmd->mutable_cards_to_move()->CopyFrom(idList);
+                cmd->set_target_player_id(getId());
+                cmd->set_target_zone("clock");
+                cmd->set_x(0);
+                cmd->set_y(0);
+                commandList.append(cmd);
+                break;
+            }
             default:
                 break;
         }
@@ -3073,10 +3165,12 @@ void Player::updateCardMenu(const CardItem *card)
             moveMenu->addAction(aMoveToBottomLibrary);
             moveMenu->addSeparator();
             moveMenu->addAction(aMoveToHand);
-            moveMenu->addSeparator();
             moveMenu->addAction(aMoveToGraveyard);
-            moveMenu->addSeparator();
             moveMenu->addAction(aMoveToExile);
+            moveMenu->addAction(aMoveToStock);
+            moveMenu->addSeparator();
+            moveMenu->addAction(aMoveToClock);
+            moveMenu->addAction(aMoveToBottomClock);
         }
 
         if (card->getZone()) {
@@ -3119,7 +3213,6 @@ void Player::updateCardMenu(const CardItem *card)
                 cardMenu->addMenu(ptMenu);
                 cardMenu->addAction(aSetAnnotation);
                 cardMenu->addSeparator();
-                cardMenu->addAction(aClone);
                 cardMenu->addMenu(moveMenu);
 
                 for (int i = 0; i < aAddCounter.size(); ++i) {
@@ -3150,6 +3243,17 @@ void Player::updateCardMenu(const CardItem *card)
 
                 addRelatedCardView(card, cardMenu);
                 addRelatedCardActions(card, cardMenu);
+            } else if (card->getZone()->getName() == "stock" || card->getZone()->getName() == "clock" ||
+                       card->getZone()->getName() == "level") {
+                if (card->getZone()->getName() == "stock") {
+                    cardMenu->addActions(stockMenu->actions());
+                    cardMenu->addSeparator();
+                } else if (card->getZone()->getName() == "clock") {
+                    cardMenu->addActions(clockMenu->actions());
+                    cardMenu->addSeparator();
+                }
+                cardMenu->addMenu(moveMenu);
+                addRelatedCardView(card, cardMenu);
             } else {
                 // Card is in hand or a custom zone specified by server
                 cardMenu->addAction(aPlay);
