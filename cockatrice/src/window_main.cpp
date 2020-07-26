@@ -297,7 +297,7 @@ void MainWindow::actExit()
 void MainWindow::actAbout()
 {
     QMessageBox mb(
-        QMessageBox::NoIcon, tr("About Cockatrice"),
+        QMessageBox::NoIcon, tr("About CockatriceWS"),
         QString("<font size=\"8\"><b>Cockatrice</b></font> (" + QString::fromStdString(BUILD_ARCHITECTURE) + ")<br>" +
                 tr("Version") + QString(" %1").arg(VERSION_STRING) + "<br><br><b><a href='" + GITHUB_PAGES_URL + "'>" +
                 tr("Cockatrice Webpage") + "</a></b><br>" + "<br><b>" + tr("Project Manager:") +
