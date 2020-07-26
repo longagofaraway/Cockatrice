@@ -13,9 +13,11 @@
         <file>resources/icons/arrow_top_green.svg</file>
         <file>resources/icons/arrow_up_green.svg</file>
         <file>resources/icons/clearsearch.svg</file>
+        <file>resources/icons/climaxes_icons.png</file>
         <file>resources/icons/conceded.svg</file>
         <file>resources/icons/decrement.svg</file>
         <file>resources/icons/delete.svg</file>
+        <file>resources/icons/detective.png</file>
         <file>resources/icons/forgot_password.svg</file>
         <file>resources/icons/increment.svg</file>
         <file>resources/icons/info.svg</file>
@@ -33,7 +35,6 @@
         <file>resources/icons/tab_changed.svg</file>
         <file>resources/icons/update.png</file>
         <file>resources/icons/view.svg</file>
-        <file>resources/icons/climaxes_icons.png</file>
 
         <file>resources/config/general.svg</file>
         <file>resources/config/appearance.svg</file>
