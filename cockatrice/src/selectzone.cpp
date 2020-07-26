@@ -46,19 +46,20 @@ void SelectZone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void SelectZone::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-        scene()->clearSelection();
+    scene()->clearSelection();
 
-        selectionOrigin = event->pos();
-        static_cast<GameScene *>(scene())->startRubberBand(event->scenePos());
-        event->accept();
-    } else
-        CardZone::mousePressEvent(event);
+    selectionOrigin = event->pos();
+    static_cast<GameScene *>(scene())->startRubberBand(event->scenePos());
+    event->accept();
 }
 
 void SelectZone::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    selectionOrigin = QPoint();
-    static_cast<GameScene *>(scene())->stopRubberBand();
-    event->accept();
+    if (event->button() == Qt::LeftButton) {
+        selectionOrigin = QPoint();
+        static_cast<GameScene *>(scene())->stopRubberBand();
+        event->accept();
+    } else {
+        CardZone::mouseReleaseEvent(event);
+    }
 }

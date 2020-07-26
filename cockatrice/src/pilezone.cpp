@@ -83,19 +83,21 @@ void PileZone::reorganizeCards()
 
 void PileZone::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    CardZone::mousePressEvent(event);
-    if (event->isAccepted())
-        return;
-
     if (event->button() == Qt::LeftButton) {
         setCursor(Qt::ClosedHandCursor);
         event->accept();
-    } else
+    } else if (event->button() == Qt::RightButton) {
+        event->accept();
+    } else {
         event->ignore();
+    }
 }
 
 void PileZone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (!event->buttons().testFlag(Qt::LeftButton))
+        return;
+
     if ((event->screenPos() - event->buttonDownScreenPos(Qt::LeftButton)).manhattanLength() <
         QApplication::startDragDistance())
         return;
@@ -112,9 +114,10 @@ void PileZone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     setCursor(Qt::OpenHandCursor);
 }
 
-void PileZone::mouseReleaseEvent(QGraphicsSceneMouseEvent * /*event*/)
+void PileZone::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     setCursor(Qt::OpenHandCursor);
+    CardZone::mouseReleaseEvent(event);
 }
 
 void PileZone::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

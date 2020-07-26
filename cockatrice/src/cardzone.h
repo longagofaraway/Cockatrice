@@ -29,7 +29,7 @@ protected:
     bool isView;
     bool alwaysRevealTopCard;
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void addCardImpl(CardItem *card, int x, int y) = 0;
 signals:
     void cardCountChanged();

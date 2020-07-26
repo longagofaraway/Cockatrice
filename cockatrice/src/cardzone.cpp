@@ -115,15 +115,13 @@ bool CardZone::showContextMenu(const QPoint &screenPos)
     return false;
 }
 
-void CardZone::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void CardZone::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::RightButton) {
-        if (showContextMenu(event->screenPos()))
-            event->accept();
-        else
-            event->ignore();
-    } else
-        event->ignore();
+        showContextMenu(event->screenPos());
+    }
+
+    QGraphicsItem::mouseReleaseEvent(event);
 }
 
 void CardZone::addCard(CardItem *card, bool reorganize, int x, int y)
