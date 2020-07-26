@@ -171,7 +171,7 @@ void Server_Player::setupZones()
     addCounter(new Server_Counter(4, "r", makeColor(250, 150, 150), 20, 0));
     addCounter(new Server_Counter(5, "g", makeColor(150, 255, 150), 20, 0));
     addCounter(new Server_Counter(6, "x", makeColor(255, 255, 255), 20, 0));
-    //addCounter(new Server_Counter(7, "storm", makeColor(255, 150, 30), 20, 0));
+    // addCounter(new Server_Counter(7, "storm", makeColor(255, 150, 30), 20, 0));
 
     // ------------------------------------------------------------------
 
@@ -539,7 +539,7 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
                 privateCardName = QString();
             }
             int privatePosition = -1;
-            if (startzone->getType() == ServerInfo_Zone::HiddenZone) {
+            if (startzone->getType() == ServerInfo_Zone::HiddenZone || startzone->getName() == "clock") {
                 privatePosition = position;
             }
 
@@ -569,7 +569,7 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
             // all cards are equal.
             if (((startzone->getType() == ServerInfo_Zone::HiddenZone) &&
                  ((startzone->getCardsBeingLookedAt() > position) || (startzone->getCardsBeingLookedAt() == -1))) ||
-                (startzone->getType() == ServerInfo_Zone::PublicZone)) {
+                ((startzone->getType() == ServerInfo_Zone::PublicZone) && (startzone->getName() != "clock"))) {
                 position = -1;
             }
             if ((targetzone->getType() == ServerInfo_Zone::HiddenZone) &&

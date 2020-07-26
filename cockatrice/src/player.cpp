@@ -3228,7 +3228,6 @@ void Player::updateCardMenu(const CardItem *card)
                 // Card is on the stack
                 cardMenu->addAction(aDrawArrow);
                 cardMenu->addSeparator();
-                cardMenu->addAction(aClone);
                 cardMenu->addMenu(moveMenu);
 
                 addRelatedCardView(card, cardMenu);
@@ -3238,7 +3237,6 @@ void Player::updateCardMenu(const CardItem *card)
                 cardMenu->addAction(aPlay);
                 cardMenu->addAction(aPlayFacedown);
                 cardMenu->addSeparator();
-                cardMenu->addAction(aClone);
                 cardMenu->addMenu(moveMenu);
 
                 addRelatedCardView(card, cardMenu);
@@ -3270,8 +3268,6 @@ void Player::updateCardMenu(const CardItem *card)
             cardMenu->addSeparator();
             addRelatedCardView(card, cardMenu);
             addRelatedCardActions(card, cardMenu);
-            cardMenu->addSeparator();
-            cardMenu->addAction(aClone);
         }
     }
 }

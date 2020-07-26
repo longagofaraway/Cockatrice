@@ -177,11 +177,11 @@ void CardDatabaseDisplayModel::fetchMore(const QModelIndex &index)
 int CardDatabaseDisplayModel::rowCount(const QModelIndex &parent) const
 {
     // uncomment for debugging on windows
-    /*if (parent.isValid())
+    if (parent.isValid())
         return 0;
 
-    return QSortFilterProxyModel::rowCount(parent);*/
-    return qMin(QSortFilterProxyModel::rowCount(parent), loadedRowCount);
+    return QSortFilterProxyModel::rowCount(parent);
+    // return qMin(QSortFilterProxyModel::rowCount(parent), loadedRowCount);
 }
 
 bool CardDatabaseDisplayModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

@@ -145,14 +145,34 @@ MessageLogWidget::getFromStr(CardZone *zone, QString cardName, int position, boo
         fromStr = tr(" from sideboard");
     } else if (zoneName == stackConstant()) {
         fromStr = tr(" from the stack");
-    } else if (zoneName == stockConstant()) {
-        fromStr = tr(" from stock");
-    } else if (zoneName == levelConstant()) {
-        fromStr = tr(" from level zone");
     } else if (zoneName == climaxConstant()) {
-        fromStr = tr(" from climax zone");
+        fromStr = tr(" from the climax zone");
+    } else if (zoneName == levelConstant()) {
+        fromStr = tr(" from the level zone");
+    } else if (zoneName == stockConstant()) {
+        if (cardName.isEmpty()) {
+            cardNameContainsStartZone = true;
+            if (position == 0)
+                cardName = tr("the bottom card of their stock");
+            else if (position >= zone->getCards().size())
+                cardName = tr("the top card of their stock");
+            else
+                cardName = tr("a card from the middle of their stock");
+        } else {
+            if (position == 0)
+                fromStr = tr(" from the bottom of their stock");
+            else if (position >= zone->getCards().size())
+                fromStr = tr(" from the top of their stock");
+            else
+                fromStr = tr(" from the middle of their stock");
+        }
     } else if (zoneName == clockConstant()) {
-        fromStr = tr(" from clock");
+        if (position == 0)
+            fromStr = tr(" from the bottom of their clock");
+        else if (position >= zone->getCards().size())
+            fromStr = tr(" from the top of their clock");
+        else
+            fromStr = tr(" from the middle of their clock");
     }
 
     if (!cardNameContainsStartZone) {
@@ -375,13 +395,16 @@ void MessageLogWidget::logMoveCard(Player *player,
         soundEngine->playSound("play_card");
         finalStr = tr("%1 plays %2%3.");
     } else if (targetZoneName == stockConstant()) {
-        finalStr = tr("%1 puts %2%3 into stock.");
+        finalStr = tr("%1 puts %2%3 into the stock.");
     } else if (targetZoneName == levelConstant()) {
         finalStr = tr("%1 puts %2%3 into the level zone.");
     } else if (targetZoneName == climaxConstant()) {
         finalStr = tr("%1 puts %2%3 into the climax zone.");
     } else if (targetZoneName == clockConstant()) {
-        finalStr = tr("%1 puts %2%3 into clock.");
+        if (newX == 0)
+            finalStr = tr("%1 puts %2%3 onto the bottom of their clock.");
+        else
+            finalStr = tr("%1 puts %2%3 into the clock.");
     }
 
     if (usesNewX) {
