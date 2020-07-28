@@ -92,6 +92,8 @@ public slots:
      */
     void reorganizeCards();
 
+    void actTapHovered();
+
 public:
     /**
        Constructs TableZone.

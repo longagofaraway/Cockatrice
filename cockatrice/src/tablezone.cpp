@@ -242,6 +242,23 @@ void TableZone::toggleTapped()
     player->sendGameCommand(player->prepareGameCommand(cmdList));
 }
 
+void TableZone::actTapHovered()
+{
+    for (int i = 0; i < cards.size(); i++) {
+        if (cards[i]->getHovered()) {
+            QList<const ::google::protobuf::Message *> cmdList;
+            Command_SetCardAttr *cmd = new Command_SetCardAttr;
+            cmd->set_zone(name.toStdString());
+            cmd->set_card_id(cards[i]->getId());
+            cmd->set_attribute(AttrTapped);
+            cmd->set_attr_value(std::to_string(cards[i]->nextTapState()));
+            cmdList.append(cmd);
+            player->sendGameCommand(player->prepareGameCommand(cmdList));
+            break;
+        }
+    }
+}
+
 CardItem *TableZone::takeCard(int position, int cardId, bool canResize)
 {
     CardItem *result = CardZone::takeCard(position, cardId);

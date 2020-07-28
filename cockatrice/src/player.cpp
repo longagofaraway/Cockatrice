@@ -68,6 +68,7 @@
 #include "zoneviewzone.h"
 
 #include <QDebug>
+#include <QGraphicsSceneWheelEvent>
 #include <QMenu>
 #include <QPainter>
 #include <QRegularExpression>
@@ -233,6 +234,9 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         connect(aMoveStackToStock, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
         connect(aMoveStackToClock, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
         connect(aMoveStackToGrave, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
+
+        aTapHovered = new QAction(this);
+        connect(aTapHovered, SIGNAL(triggered()), table, SLOT(actTapHovered()));
     }
 
     aViewGraveyard = new QAction(this);
@@ -400,6 +404,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         playerMenu->addSeparator();
         countersMenu = nullptr;
         playerMenu->addAction(aUntapAll);
+        playerMenu->addAction(aTapHovered);
         playerMenu->addSeparator();
         playerMenu->addAction(aRollDie);
         playerMenu->addSeparator();
@@ -788,6 +793,7 @@ void Player::retranslateUi()
         libraryMenu->setTitle(tr("&Library"));
 
         aUntapAll->setText(tr("&Untap all permanents"));
+        aTapHovered->setText(tr("Tap Hovered Card"));
         aRollDie->setText(tr("R&oll die..."));
         aCreateToken->setText(tr("&Create token..."));
         aCreateAnotherToken->setText(tr("C&reate another token"));
@@ -953,6 +959,7 @@ void Player::setShortcutsActive()
     aMulligan->setShortcut(shortcuts.getSingleShortcut("Player/aMulligan"));
     aShuffle->setShortcut(shortcuts.getSingleShortcut("Player/aShuffle"));
     aUntapAll->setShortcut(shortcuts.getSingleShortcut("Player/aUntapAll"));
+    aTapHovered->setShortcut(shortcuts.getSingleShortcut("Player/aTapHovered"));
     aRollDie->setShortcut(shortcuts.getSingleShortcut("Player/aRollDie"));
     aCreateToken->setShortcut(shortcuts.getSingleShortcut("Player/aCreateToken"));
     aCreateAnotherToken->setShortcut(shortcuts.getSingleShortcut("Player/aCreateAnotherToken"));
@@ -998,6 +1005,10 @@ void Player::setShortcutsInactive()
     aMoveTopCardsToGraveyard->setShortcut(QKeySequence());
     aMoveTopCardToExile->setShortcut(QKeySequence());
     aMoveTopCardsToExile->setShortcut(QKeySequence());
+
+    aMoveStackToStock->setShortcut(QKeySequence());
+    aMoveStackToClock->setShortcut(QKeySequence());
+    aMoveStackToGrave->setShortcut(QKeySequence());
 
     QMapIterator<int, AbstractCounter *> counterIterator(counters);
     while (counterIterator.hasNext()) {
@@ -2787,6 +2798,22 @@ void Player::cardMenuAction()
     }
 }
 
+namespace
+{
+QString addPowerToughness(const QVariantList &ptList, int deltaP, int deltaT)
+{
+    QString newpt;
+    if (ptList.isEmpty()) {
+        newpt = QString::number(deltaP) + (deltaT ? "/" + QString::number(deltaT) : "");
+    } else if (ptList.size() == 1) {
+        newpt = QString::number(ptList.at(0).toInt() + deltaP) + (deltaT ? "/" + QString::number(deltaT) : "");
+    } else {
+        newpt = QString::number(ptList.at(0).toInt() + deltaP) + "/" + QString::number(ptList.at(1).toInt() + deltaT);
+    }
+    return newpt;
+}
+} // namespace
+
 void Player::actIncPT(int deltaP, int deltaT)
 {
     int playerid = id;
@@ -2796,15 +2823,7 @@ void Player::actIncPT(int deltaP, int deltaT)
         auto *card = static_cast<CardItem *>(item);
         QString pt = card->getPT();
         const auto ptList = parsePT(pt);
-        QString newpt;
-        if (ptList.isEmpty()) {
-            newpt = QString::number(deltaP) + (deltaT ? "/" + QString::number(deltaT) : "");
-        } else if (ptList.size() == 1) {
-            newpt = QString::number(ptList.at(0).toInt() + deltaP) + (deltaT ? "/" + QString::number(deltaT) : "");
-        } else {
-            newpt =
-                QString::number(ptList.at(0).toInt() + deltaP) + "/" + QString::number(ptList.at(1).toInt() + deltaT);
-        }
+        QString newpt = addPowerToughness(ptList, deltaP, deltaT);
 
         auto *cmd = new Command_SetCardAttr;
         cmd->set_zone(card->getZone()->getName().toStdString());
@@ -2815,6 +2834,34 @@ void Player::actIncPT(int deltaP, int deltaT)
 
         if (local) {
             playerid = card->getZone()->getPlayer()->getId();
+        }
+    }
+
+    game->sendGameCommand(prepareGameCommand(commandList), playerid);
+}
+
+void Player::incPTHovered(int deltaP, int deltaT)
+{
+    int playerid = id;
+
+    QList<const ::google::protobuf::Message *> commandList;
+    const CardList &cardsOnTable = table->getCards();
+    for (int i = 0; i < cardsOnTable.size(); i++) {
+        if (!cardsOnTable[i]->getHovered())
+            continue;
+        QString pt = cardsOnTable[i]->getPT();
+        const auto ptList = parsePT(pt);
+        QString newpt = addPowerToughness(ptList, deltaP, deltaT);
+
+        auto *cmd = new Command_SetCardAttr;
+        cmd->set_zone(cardsOnTable[i]->getZone()->getName().toStdString());
+        cmd->set_card_id(cardsOnTable[i]->getId());
+        cmd->set_attribute(AttrPT);
+        cmd->set_attr_value(newpt.toStdString());
+        commandList.append(cmd);
+
+        if (local) {
+            playerid = cardsOnTable[i]->getZone()->getPlayer()->getId();
         }
     }
 
@@ -3477,4 +3524,12 @@ void Player::setLastToken(CardInfoPtr cardInfo)
     lastTokenDestroy = true;
     aCreateAnotherToken->setText(tr("C&reate another %1 token").arg(lastTokenName));
     aCreateAnotherToken->setEnabled(true);
+}
+
+void Player::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+    if (event->delta() > 0)
+        incPTHovered(500, 0);
+    else if (event->delta() < 0)
+        incPTHovered(-500, 0);
 }

@@ -228,7 +228,7 @@ private:
         *aMoveTopToPlayFaceDown, *aUntapAll, *aRollDie, *aCreateToken, *aCreateAnotherToken, *aCardMenu,
         *aMoveBottomCardToGrave;
     QAction *aMoveClockToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
-        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave;
+        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave, *aTapHovered;
 
     QList<QAction *> aAddCounter, aSetCounter, aRemoveCounter;
     QAction *aPlay, *aPlayFacedown, *aHide, *aTap, *aDoesntUntap, *aAttach, *aUnattach, *aDrawArrow, *aSetPT, *aResetPT,
@@ -357,6 +357,8 @@ public:
     void delCounter(int counterId);
     void clearCounters();
 
+    void incPTHovered(int deltaP, int deltaT);
+
     ArrowItem *addArrow(const ServerInfo_Arrow &arrow);
     ArrowItem *addArrow(int arrowId, CardItem *startCard, ArrowTarget *targetItem, const QColor &color);
     void delArrow(int arrowId);
@@ -449,6 +451,9 @@ public:
     void sendGameCommand(const google::protobuf::Message &command);
 
     void setLastToken(CardInfoPtr cardInfo);
+
+protected:
+    void wheelEvent(QGraphicsSceneWheelEvent *event);
 };
 
 #endif

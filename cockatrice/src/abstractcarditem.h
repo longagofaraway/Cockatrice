@@ -95,6 +95,10 @@ public:
     }
     void setRealZValue(qreal _zValue);
     void setHovered(bool _hovered);
+    bool getHovered()
+    {
+        return isHovered;
+    }
     QString getColor() const
     {
         return color;
