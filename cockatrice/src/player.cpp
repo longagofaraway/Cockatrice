@@ -217,12 +217,22 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         aOpenDeckInDeckEditor->setEnabled(false);
         connect(aOpenDeckInDeckEditor, SIGNAL(triggered()), this, SLOT(actOpenDeckInDeckEditor()));
 
-        aMoveLevelToGrave = new QAction(this);
-        aMoveLevelToGrave->setData(QList<QVariant>() << "grave" << 0);
-        connect(aMoveLevelToGrave, SIGNAL(triggered()), clock, SLOT(moveAllToZone()));
+        aMoveClockToGrave = new QAction(this);
+        aMoveClockToGrave->setData(QList<QVariant>() << "grave" << 0);
+        connect(aMoveClockToGrave, SIGNAL(triggered()), clock, SLOT(moveAllToZone()));
         aShuffleStock = new QAction(this);
         aShuffleStock->setData("stock");
         connect(aShuffleStock, SIGNAL(triggered()), this, SLOT(actShuffle()));
+
+        aMoveStackToStock = new QAction(this);
+        aMoveStackToClock = new QAction(this);
+        aMoveStackToGrave = new QAction(this);
+        aMoveStackToStock->setData(QList<QVariant>() << "stock" << 0);
+        aMoveStackToClock->setData(QList<QVariant>() << "clock" << 0);
+        aMoveStackToGrave->setData(QList<QVariant>() << "grave" << 0);
+        connect(aMoveStackToStock, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
+        connect(aMoveStackToClock, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
+        connect(aMoveStackToGrave, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
     }
 
     aViewGraveyard = new QAction(this);
@@ -313,13 +323,19 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         clockMenu = playerMenu->addTearOffMenu(QString());
         // TODO: moving cards within a clock view doesn't work, we probably need it to swap cards in clock
         // clockMenu->addAction(aViewClock);
-        clockMenu->addAction(aMoveLevelToGrave);
+        clockMenu->addAction(aMoveClockToGrave);
         clock->setMenu(clockMenu);
 
         stockMenu = playerMenu->addTearOffMenu(QString());
         stockMenu->addAction(aShuffleStock);
         stockMenu->addAction(aViewStock);
         stock->setMenu(stockMenu);
+
+        stackMenu = playerMenu->addTearOffMenu(QString());
+        stackMenu->addAction(aMoveStackToStock);
+        stackMenu->addAction(aMoveStackToClock);
+        stackMenu->addAction(aMoveStackToGrave);
+        stack->setMenu(stackMenu);
     } else {
         handMenu = nullptr;
         libraryMenu = nullptr;
@@ -777,12 +793,16 @@ void Player::retranslateUi()
         aCreateAnotherToken->setText(tr("C&reate another token"));
         createPredefinedTokenMenu->setTitle(tr("Cr&eate predefined token"));
 
-        aMoveLevelToGrave->setText(tr("Move clock to graveyard"));
+        aMoveClockToGrave->setText(tr("Move clock to graveyard"));
         clockMenu->setTitle(tr("Clock"));
         aViewClock->setText(tr("&View clock"));
         stockMenu->setTitle(tr("Stock"));
+        stackMenu->setTitle(tr("Stack"));
         aViewStock->setText(tr("&View stock"));
         aShuffleStock->setText(tr("&Shuffle stock"));
+        aMoveStackToStock->setText(tr("Move stack to &stock"));
+        aMoveStackToClock->setText(tr("Move stack to &clock"));
+        aMoveStackToGrave->setText(tr("Move stack to &grave"));
 
         QMapIterator<int, AbstractCounter *> counterIterator(counters);
         while (counterIterator.hasNext()) {
@@ -947,6 +967,10 @@ void Player::setShortcutsActive()
     aMoveBottomCardToGrave->setShortcut(shortcuts.getSingleShortcut("Player/aMoveBottomCardToGrave"));
     aPlayFacedown->setShortcut(shortcuts.getSingleShortcut("Player/aPlayFacedown"));
     aPlay->setShortcut(shortcuts.getSingleShortcut("Player/aPlay"));
+
+    aMoveStackToStock->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToStock"));
+    aMoveStackToClock->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToClock"));
+    aMoveStackToGrave->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToGrave"));
 }
 
 void Player::setShortcutsInactive()

@@ -24,6 +24,7 @@ public:
         View,
         Move_top,
         Move_bottom,
+        Move_all_cards,
         Gameplay,
         Drawing,
         Chat_room,
@@ -58,6 +59,8 @@ public:
                 return QApplication::translate("shortcutsTab", "Move Top Card");
             case Move_bottom:
                 return QApplication::translate("shortcutsTab", "Move Bottom Card");
+            case Move_all_cards:
+                return QApplication::translate("shortcutsTab", "Move All Cards");
             case Gameplay:
                 return QApplication::translate("shortcutsTab", "Gameplay");
             case Drawing:
@@ -483,9 +486,8 @@ private:
         {"Player/aCloseMostRecentZoneView", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Close Recent View"),
                                                         parseSequenceString("Esc"),
                                                         ShortcutGroup::View)},
-        {"Player/aMoveTopToPlay", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Stack"),
-                                              parseSequenceString("Ctrl+Y"),
-                                              ShortcutGroup::Move_top)},
+        {"Player/aMoveTopToPlay",
+         ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Stack"), parseSequenceString("D"), ShortcutGroup::Move_top)},
         {"Player/aMoveTopToPlayFaceDown", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Battlefield, Face Down"),
                                                       parseSequenceString("Ctrl+Shift+E"),
                                                       ShortcutGroup::Move_top)},
@@ -502,6 +504,15 @@ private:
         {"Player/aMoveTopCardToBottom", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Bottom of Library"),
                                                     parseSequenceString(""),
                                                     ShortcutGroup::Move_top)},
+        {"Player/aMoveStackToStock", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "From Stack to Stock"),
+                                                 parseSequenceString("W"),
+                                                 ShortcutGroup::Move_all_cards)},
+        {"Player/aMoveStackToClock", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "From Stack to Clock"),
+                                                 parseSequenceString("S"),
+                                                 ShortcutGroup::Move_all_cards)},
+        {"Player/aMoveStackToGrave", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "From Stack to Grave"),
+                                                 parseSequenceString("A"),
+                                                 ShortcutGroup::Move_all_cards)},
         {"Player/aMoveBottomCardToGrave", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Graveyard"),
                                                       parseSequenceString(""),
                                                       ShortcutGroup::Move_bottom)},

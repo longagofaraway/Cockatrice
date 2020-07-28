@@ -278,7 +278,7 @@ AbstractCardItem::TapState AbstractCardItem::nextTapState(TapState state) const
         return Tapped;
     else if (state == Tapped)
         return Reversed;
-    else if (state == Reversed)
+    else
         return Standing;
 }
 

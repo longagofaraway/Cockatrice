@@ -412,6 +412,7 @@ TabGame::TabGame(TabSupervisor *_tabSupervisor,
       currentPhase(-1), activeCard(nullptr), gameClosed(false), replay(nullptr), replayDock(nullptr)
 {
     // THIS CTOR IS USED ON GAMES
+    // focus policy is needed to remove focus from sayEdit on click on any place other than sayEdit
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     gameInfo.set_started(false);
 

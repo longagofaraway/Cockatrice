@@ -216,7 +216,7 @@ private:
     QMenu *sbMenu, *countersMenu, *sayMenu, *createPredefinedTokenMenu, *mRevealLibrary, *mRevealTopCard, *mRevealHand,
         *mRevealRandomHandCard, *mRevealRandomGraveyardCard;
     TearOffMenu *moveGraveMenu, *moveRfgMenu, *graveMenu, *moveHandMenu, *handMenu, *libraryMenu, *rfgMenu, *playerMenu,
-        *clockMenu, *stockMenu;
+        *clockMenu, *stockMenu, *stackMenu;
     QList<QMenu *> playerLists;
     QList<QAction *> allPlayersActions;
     QAction *aMoveHandToTopLibrary, *aMoveHandToBottomLibrary, *aMoveHandToGrave, *aMoveHandToRfg,
@@ -227,8 +227,8 @@ private:
         *aViewSideboard, *aDrawCard, *aDrawCards, *aUndoDraw, *aMulligan, *aShuffle, *aMoveTopToPlay,
         *aMoveTopToPlayFaceDown, *aUntapAll, *aRollDie, *aCreateToken, *aCreateAnotherToken, *aCardMenu,
         *aMoveBottomCardToGrave;
-    QAction *aMoveLevelToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
-        *aShuffleStock;
+    QAction *aMoveClockToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
+        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave;
 
     QList<QAction *> aAddCounter, aSetCounter, aRemoveCounter;
     QAction *aPlay, *aPlayFacedown, *aHide, *aTap, *aDoesntUntap, *aAttach, *aUnattach, *aDrawArrow, *aSetPT, *aResetPT,
