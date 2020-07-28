@@ -152,25 +152,25 @@ MessageLogWidget::getFromStr(CardZone *zone, QString cardName, int position, boo
     } else if (zoneName == stockConstant()) {
         if (cardName.isEmpty()) {
             cardNameContainsStartZone = true;
-            if (position == 0)
-                cardName = tr("the bottom card of their <img height=12 src = \"theme:icons/detective\"> stock");
-            else if (position >= zone->getCards().size())
+            if (position >= zone->getCards().size())
                 cardName = tr("the top card of their stock");
+            else if (position == 0)
+                cardName = tr("the bottom card of their <img height=12 src = \"theme:icons/detective\"> stock");
             else
                 cardName = tr("a card from the middle <img height=12 src = \"theme:icons/detective\"> of their stock");
         } else {
-            if (position == 0)
-                fromStr = tr(" from the bottom <img height=12 src = \"theme:icons/detective\"> of their stock");
-            else if (position >= zone->getCards().size())
+            if (position >= zone->getCards().size())
                 fromStr = tr(" from the top of their stock");
+            else if (position == 0)
+                fromStr = tr(" from the bottom <img height=12 src = \"theme:icons/detective\"> of their stock");
             else
                 fromStr = tr(" from the middle <img height=12 src = \"theme:icons/detective\"> of their stock");
         }
     } else if (zoneName == clockConstant()) {
-        if (position == 0)
-            fromStr = tr(" from the bottom <img height=12 src = \"theme:icons/detective\"> of their clock");
-        else if (position >= zone->getCards().size())
+        if (position >= zone->getCards().size())
             fromStr = tr(" from the top of their clock");
+        else if (position == 0)
+            fromStr = tr(" from the bottom <img height=12 src = \"theme:icons/detective\"> of their clock");
         else
             fromStr = tr(" from the middle <img height=12 src = \"theme:icons/detective\"> of their clock");
     }
