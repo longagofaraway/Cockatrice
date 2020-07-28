@@ -412,6 +412,7 @@ TabGame::TabGame(TabSupervisor *_tabSupervisor,
       currentPhase(-1), activeCard(nullptr), gameClosed(false), replay(nullptr), replayDock(nullptr)
 {
     // THIS CTOR IS USED ON GAMES
+    setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     gameInfo.set_started(false);
 
     createCardInfoDock();
