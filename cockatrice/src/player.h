@@ -164,6 +164,7 @@ public slots:
     void actMoveTopCardsToExile();
     void actMoveTopCardToBottom();
     void actMoveBottomCardToGrave();
+    void actMoveTopStockToGrave();
 
     void actViewLibrary();
     void actViewHand();
@@ -229,7 +230,8 @@ private:
         *aMoveTopToPlayFaceDown, *aUntapAll, *aRollDie, *aCreateToken, *aCreateAnotherToken, *aCardMenu,
         *aMoveBottomCardToGrave;
     QAction *aMoveClockToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
-        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave, *aTapHovered, *aRefresh;
+        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave, *aTapHovered, *aRefresh,
+        *aMoveTopStockToGraveyard;
 
     QList<QAction *> aAddCounter, aSetCounter, aRemoveCounter;
     QAction *aPlay, *aPlayFacedown, *aHide, *aTap, *aDoesntUntap, *aAttach, *aUnattach, *aDrawArrow, *aSetPT, *aResetPT,

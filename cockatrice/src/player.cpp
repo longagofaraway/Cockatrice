@@ -221,6 +221,8 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         aMoveClockToGrave = new QAction(this);
         aMoveClockToGrave->setData(QList<QVariant>() << "grave" << 0);
         connect(aMoveClockToGrave, SIGNAL(triggered()), clock, SLOT(moveAllToZone()));
+        aMoveTopStockToGraveyard = new QAction(this);
+        connect(aMoveTopStockToGraveyard, SIGNAL(triggered()), this, SLOT(actMoveTopStockToGrave()));
         aShuffleStock = new QAction(this);
         aShuffleStock->setData("stock");
         connect(aShuffleStock, SIGNAL(triggered()), this, SLOT(actShuffle()));
@@ -333,8 +335,9 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         clock->setMenu(clockMenu);
 
         stockMenu = playerMenu->addTearOffMenu(QString());
-        stockMenu->addAction(aShuffleStock);
         stockMenu->addAction(aViewStock);
+        stockMenu->addAction(aShuffleStock);
+        stockMenu->addAction(aMoveTopStockToGraveyard);
         stock->setMenu(stockMenu);
 
         stackMenu = playerMenu->addTearOffMenu(QString());
@@ -809,6 +812,7 @@ void Player::retranslateUi()
         stackMenu->setTitle(tr("Stack"));
         aViewStock->setText(tr("&View stock"));
         aShuffleStock->setText(tr("&Shuffle stock"));
+        aMoveTopStockToGraveyard->setText(tr("Move top card to grave&yard"));
         aRefresh->setText(tr("&Refresh"));
         aMoveStackToStock->setText(tr("Move stack to &stock"));
         aMoveStackToClock->setText(tr("Move stack to &clock"));
@@ -983,6 +987,7 @@ void Player::setShortcutsActive()
     aMoveStackToClock->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToClock"));
     aMoveStackToGrave->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToGrave"));
     aRefresh->setShortcut(shortcuts.getSingleShortcut("Player/aRefresh"));
+    aMoveTopStockToGraveyard->setShortcut(shortcuts.getSingleShortcut("Player/aMoveTopStockToGraveyard"));
 }
 
 void Player::setShortcutsInactive()
@@ -1015,6 +1020,7 @@ void Player::setShortcutsInactive()
     aMoveStackToClock->setShortcut(QKeySequence());
     aMoveStackToGrave->setShortcut(QKeySequence());
     aRefresh->setShortcut(QKeySequence());
+    aMoveTopStockToGraveyard->setShortcut(QKeySequence());
 
     QMapIterator<int, AbstractCounter *> counterIterator(counters);
     while (counterIterator.hasNext()) {
@@ -1332,6 +1338,20 @@ void Player::actMoveBottomCardToGrave()
     CardZone *zone = zones.value("deck");
     Command_MoveCard cmd;
     cmd.set_start_zone("deck");
+    cmd.mutable_cards_to_move()->add_card()->set_card_id(zone->getCards().size() - 1);
+    cmd.set_target_player_id(getId());
+    cmd.set_target_zone("grave");
+    cmd.set_x(0);
+    cmd.set_y(0);
+
+    sendGameCommand(cmd);
+}
+
+void Player::actMoveTopStockToGrave()
+{
+    CardZone *zone = zones.value("stock");
+    Command_MoveCard cmd;
+    cmd.set_start_zone("stock");
     cmd.mutable_cards_to_move()->add_card()->set_card_id(zone->getCards().size() - 1);
     cmd.set_target_player_id(getId());
     cmd.set_target_zone("grave");
