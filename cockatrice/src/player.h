@@ -151,6 +151,7 @@ public slots:
     void actCreateToken();
     void actCreateAnotherToken();
     void actShuffle();
+    void actRefresh();
     void actDrawCard();
     void actDrawCards();
     void actUndoDraw();
@@ -228,7 +229,7 @@ private:
         *aMoveTopToPlayFaceDown, *aUntapAll, *aRollDie, *aCreateToken, *aCreateAnotherToken, *aCardMenu,
         *aMoveBottomCardToGrave;
     QAction *aMoveClockToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
-        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave, *aTapHovered;
+        *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave, *aTapHovered, *aRefresh;
 
     QList<QAction *> aAddCounter, aSetCounter, aRemoveCounter;
     QAction *aPlay, *aPlayFacedown, *aHide, *aTap, *aDoesntUntap, *aAttach, *aUnattach, *aDrawArrow, *aSetPT, *aResetPT,

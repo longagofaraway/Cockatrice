@@ -224,6 +224,8 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         aShuffleStock = new QAction(this);
         aShuffleStock->setData("stock");
         connect(aShuffleStock, SIGNAL(triggered()), this, SLOT(actShuffle()));
+        aRefresh = new QAction(this);
+        connect(aRefresh, SIGNAL(triggered()), this, SLOT(actRefresh()));
 
         aMoveStackToStock = new QAction(this);
         aMoveStackToClock = new QAction(this);
@@ -364,6 +366,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     rfg->setMenu(rfgMenu, aViewRfg);
 
     if (local || judge) {
+        graveMenu->addAction(aRefresh);
         graveMenu->addSeparator();
         moveGraveMenu = graveMenu->addTearOffMenu(QString());
         moveGraveMenu->addAction(aMoveGraveToTopLibrary);
@@ -806,6 +809,7 @@ void Player::retranslateUi()
         stackMenu->setTitle(tr("Stack"));
         aViewStock->setText(tr("&View stock"));
         aShuffleStock->setText(tr("&Shuffle stock"));
+        aRefresh->setText(tr("&Refresh"));
         aMoveStackToStock->setText(tr("Move stack to &stock"));
         aMoveStackToClock->setText(tr("Move stack to &clock"));
         aMoveStackToGrave->setText(tr("Move stack to &grave"));
@@ -978,6 +982,7 @@ void Player::setShortcutsActive()
     aMoveStackToStock->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToStock"));
     aMoveStackToClock->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToClock"));
     aMoveStackToGrave->setShortcut(shortcuts.getSingleShortcut("Player/aMoveStackToGrave"));
+    aRefresh->setShortcut(shortcuts.getSingleShortcut("Player/aRefresh"));
 }
 
 void Player::setShortcutsInactive()
@@ -1009,6 +1014,7 @@ void Player::setShortcutsInactive()
     aMoveStackToStock->setShortcut(QKeySequence());
     aMoveStackToClock->setShortcut(QKeySequence());
     aMoveStackToGrave->setShortcut(QKeySequence());
+    aRefresh->setShortcut(QKeySequence());
 
     QMapIterator<int, AbstractCounter *> counterIterator(counters);
     while (counterIterator.hasNext()) {
@@ -1136,6 +1142,12 @@ void Player::actShuffle()
     Command_Shuffle cmd;
     cmd.set_zone_name(zone.toStdString());
     sendGameCommand(cmd);
+}
+
+void Player::actRefresh()
+{
+    aMoveGraveToTopLibrary->trigger();
+    aShuffle->trigger();
 }
 
 void Player::actDrawCard()
