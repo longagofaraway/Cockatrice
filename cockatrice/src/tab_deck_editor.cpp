@@ -6,6 +6,7 @@
 #include "decklistmodel.h"
 #include "deckstats_interface.h"
 #include "dlg_load_deck_from_clipboard.h"
+#include "dlg_load_deck_from_encoredecks.h"
 #include "filterbuilder.h"
 #include "filtertreemodel.h"
 #include "main.h"
@@ -276,6 +277,9 @@ void TabDeckEditor::createMenus()
     aLoadDeckFromClipboard = new QAction(QString(), this);
     connect(aLoadDeckFromClipboard, SIGNAL(triggered()), this, SLOT(actLoadDeckFromClipboard()));
 
+    aLoadDeckFromEncoreDecks = new QAction(QString(), this);
+    connect(aLoadDeckFromEncoreDecks, SIGNAL(triggered()), this, SLOT(actLoadDeckFromEncoreDecks()));
+
     aSaveDeckToClipboard = new QAction(QString(), this);
     connect(aSaveDeckToClipboard, SIGNAL(triggered()), this, SLOT(actSaveDeckToClipboard()));
 
@@ -320,6 +324,7 @@ void TabDeckEditor::createMenus()
     deckMenu->addAction(aSaveDeck);
     deckMenu->addAction(aSaveDeckAs);
     deckMenu->addSeparator();
+    deckMenu->addAction(aLoadDeckFromEncoreDecks);
     deckMenu->addAction(aLoadDeckFromClipboard);
     deckMenu->addMenu(saveDeckToClipboardMenu);
     deckMenu->addSeparator();
@@ -631,6 +636,7 @@ void TabDeckEditor::retranslateUi()
     aSaveDeck->setText(tr("&Save deck"));
     aSaveDeckAs->setText(tr("Save deck &as..."));
     aLoadDeckFromClipboard->setText(tr("Load deck from cl&ipboard..."));
+    aLoadDeckFromEncoreDecks->setText(tr("Load deck from Encore Decks"));
 
     saveDeckToClipboardMenu->setTitle(tr("Save deck to clipboard"));
     aSaveDeckToClipboard->setText(tr("Annotated"));
@@ -853,6 +859,20 @@ void TabDeckEditor::actLoadDeckFromClipboard()
         return;
 
     DlgLoadDeckFromClipboard dlg(this);
+    if (!dlg.exec())
+        return;
+
+    setDeck(dlg.getDeckList());
+    setModified(true);
+    setSaveStatus(true);
+}
+
+void TabDeckEditor::actLoadDeckFromEncoreDecks()
+{
+    if (!confirmClose())
+        return;
+
+    DlgLoadDeckFromEncoreDecks dlg(this);
     if (!dlg.exec())
         return;
 

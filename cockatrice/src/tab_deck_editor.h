@@ -62,6 +62,7 @@ private slots:
     bool actSaveDeck();
     bool actSaveDeckAs();
     void actLoadDeckFromClipboard();
+    void actLoadDeckFromEncoreDecks();
     void actSaveDeckToClipboard();
     void actSaveDeckToClipboardRaw();
     void actPrintDeck();
@@ -131,7 +132,7 @@ private:
         *saveDeckToClipboardMenu;
     QAction *aNewDeck, *aLoadDeck, *aSaveDeck, *aSaveDeckAs, *aLoadDeckFromClipboard, *aSaveDeckToClipboard,
         *aSaveDeckToClipboardRaw, *aPrintDeck, *aExportDeckDecklist, *aAnalyzeDeckDeckstats, *aAnalyzeDeckTappedout,
-        *aClose;
+        *aClose, *aLoadDeckFromEncoreDecks;
     QAction *aClearFilterAll, *aClearFilterOne;
     QAction *aAddCard, *aAddCardToSideboard, *aRemoveCard, *aIncrement, *aDecrement;
     QAction *aResetLayout;

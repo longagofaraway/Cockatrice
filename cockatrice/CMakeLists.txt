@@ -45,6 +45,7 @@ SET(cockatrice_SOURCES
     src/decklistmodel.cpp
     src/deck_loader.cpp
     src/dlg_load_deck_from_clipboard.cpp
+    src/dlg_load_deck_from_encoredecks.cpp
     src/dlg_load_remote_deck.cpp
     src/cardinfowidget.cpp
     src/cardframe.cpp
