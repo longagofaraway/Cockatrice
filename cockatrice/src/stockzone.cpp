@@ -24,12 +24,13 @@ void StockZone::addCardImpl(CardItem *card, int /*x*/, int /*y*/)
     card->setParentItem(this);
     card->resetState();
     card->setVisible(true);
+    card->setTapped(AbstractCardItem::Tapped);
     card->update();
 }
 
 QRectF StockZone::boundingRect() const
 {
-    return QRectF(0, 0, 90, zoneHeight);
+    return QRectF(0, 0, CARD_HEIGHT + 15, zoneHeight);
 }
 
 void StockZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
@@ -66,7 +67,7 @@ void StockZone::reorganizeCards()
 {
     if (!cards.isEmpty()) {
         const int cardCount = cards.size();
-        const qreal topOffset = 15;
+        const qreal topOffset = 0;
         const qreal leftOffset = (boundingRect().width() - cards.at(0)->boundingRect().width()) / 2;
         const qreal totalHeight = boundingRect().height();
         const qreal cardHeight = cards.at(0)->boundingRect().height();
@@ -77,10 +78,10 @@ void StockZone::reorganizeCards()
 
         for (int i = 0; i < cardCount; i++) {
             CardItem *c = cards.at(i);
-            qreal x = topOffset + cardOffset * i;
+            qreal y = topOffset + cardOffset * i;
             if (player->getMirrored())
-                x = totalHeight - x - cardHeight;
-            c->setPos(leftOffset, x);
+                y = totalHeight - y - cardHeight;
+            c->setPos(leftOffset, y);
 
             c->setRealZValue(i);
         }
