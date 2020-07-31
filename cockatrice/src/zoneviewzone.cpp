@@ -35,7 +35,8 @@ ZoneViewZone::~ZoneViewZone()
     emit beingDeleted();
     qDebug("ZoneViewZone destructor");
     if (!(revealZone && !writeableRevealZone))
-        origZone->setView(NULL);
+        if (origZone->getView() == this)
+            origZone->setView(NULL);
 }
 
 QRectF ZoneViewZone::boundingRect() const
