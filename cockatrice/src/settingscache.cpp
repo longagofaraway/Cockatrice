@@ -235,7 +235,7 @@ SettingsCache::SettingsCache()
     annotateTokens = settings->value("interface/annotatetokens", false).toBool();
     tabGameSplitterSizes = settings->value("interface/tabgame_splittersizes").toByteArray();
     knownMissingFeatures = settings->value("interface/knownmissingfeatures", "").toString();
-    useTearOffMenus = settings->value("interface/usetearoffmenus", true).toBool();
+    useTearOffMenus = settings->value("interface/usetearoffmenus", false).toBool();
 
     displayCardNames = settings->value("cards/displaycardnames", false).toBool();
     horizontalHand = settings->value("hand/horizontal", true).toBool();
