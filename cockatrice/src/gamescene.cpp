@@ -142,13 +142,15 @@ void GameScene::rearrange()
     processViewSizeChange(viewSize);
 }
 
-void GameScene::toggleZoneView(Player *player, const QString &zoneName, int numberCards)
+void GameScene::toggleZoneView(Player *player, const QString &zoneName, int numberCards, bool addCards)
 {
     for (int i = 0; i < zoneViews.size(); i++) {
         ZoneViewZone *temp = zoneViews[i]->getZone();
         if ((temp->getName() == zoneName) && (temp->getPlayer() == player)) { // view is already open
             zoneViews[i]->close();
-            if (temp->getNumberCards() == numberCards)
+            if (addCards)
+                numberCards += temp->getCards().size();
+            else if (temp->getNumberCards() == numberCards)
                 return;
         }
     }

@@ -14,6 +14,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QLabel>
 #include <QPainter>
+#include <QPushButton>
 #include <QScrollBar>
 #include <QStyleOption>
 #include <QStyleOptionTitleBar>
@@ -33,6 +34,7 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
 
     QGraphicsLinearLayout *vbox = new QGraphicsLinearLayout(Qt::Vertical);
     QGraphicsLinearLayout *hPilebox = 0;
+    QPushButton *toWrButton = nullptr;
 
     if (numberCards < 0) {
         hPilebox = new QGraphicsLinearLayout(Qt::Horizontal);
@@ -58,6 +60,14 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
         QGraphicsProxyWidget *pileViewProxy = new QGraphicsProxyWidget;
         pileViewProxy->setWidget(&pileViewCheckBox);
         hPilebox->addItem(pileViewProxy);
+    } else {
+        QGraphicsLinearLayout *toWrLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+        toWrButton = new QPushButton;
+        toWrButton->setText("Send To Waiting Room");
+        QGraphicsProxyWidget *buttonProxy = new QGraphicsProxyWidget;
+        buttonProxy->setWidget(toWrButton);
+        toWrLayout->addItem(buttonProxy);
+        vbox->addItem(toWrLayout);
     }
 
     if (_origZone->getIsShufflable() && (numberCards == -1)) {
@@ -71,6 +81,7 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
 
     extraHeight = vbox->sizeHint(Qt::PreferredSize).height();
     resize(150, 150);
+    // resize(vbox->sizeHint(Qt::PreferredSize).width(), 150);
 
     QGraphicsLinearLayout *zoneHBox = new QGraphicsLinearLayout(Qt::Horizontal);
 
@@ -93,6 +104,11 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
     zone = new ZoneViewZone(player, _origZone, numberCards, _revealZone, _writeableRevealZone, zoneContainer);
     connect(zone, SIGNAL(wheelEventReceived(QGraphicsSceneWheelEvent *)), scrollBarProxy,
             SLOT(recieveWheelEvent(QGraphicsSceneWheelEvent *)));
+    if (toWrButton) {
+        toWrButton->setObjectName("grave");
+        connect(toWrButton, SIGNAL(released()), zone, SLOT(moveAllToZoneFromButton()));
+        connect(toWrButton, SIGNAL(released()), this, SLOT(close()));
+    }
     zone->setScale(1.7);
 
     // numberCard is the num of cards we want to reveal from an area. Ex: scry the top 3 cards.

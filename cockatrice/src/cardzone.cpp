@@ -198,6 +198,20 @@ void CardZone::moveAllToZone()
     QString targetZone = data[0].toString();
     int targetX = data[1].toInt();
 
+    moveAllToZoneInternal(targetZone, targetX);
+}
+
+void CardZone::moveAllToZoneFromButton()
+{
+    QObject *obj = static_cast<QObject *>(sender());
+    QString targetZone = obj->objectName();
+    int targetX = 0;
+
+    moveAllToZoneInternal(targetZone, targetX);
+}
+
+void CardZone::moveAllToZoneInternal(QString targetZone, int targetX)
+{
     Command_MoveCard cmd;
     cmd.set_start_zone(getName().toStdString());
     cmd.set_target_player_id(player->getId());

@@ -113,8 +113,6 @@ void ZoneViewZone::reorganizeCards()
         rows = minRows;
         cols = ceil((double)cardCount / minRows);
     }
-    if (cols < 2)
-        cols = 2;
 
     qDebug() << "reorganizeCards: rows=" << rows << "cols=" << cols;
 
@@ -167,10 +165,10 @@ void ZoneViewZone::reorganizeCards()
 
     qreal aleft = 0;
     qreal atop = 0;
-    qreal awidth = (pileView && sortByType) ? qMax(typeColumn + 1, 3) * cardWidth + (cardWidth / 2)
+    qreal awidth = (pileView && sortByType) ? (typeColumn + 1) * cardWidth + (cardWidth / 2)
                                             : qMax(cols, 1) * cardWidth + (cardWidth / 2);
     qreal aheight = (pileView && sortByType) ? (longestRow * cardHeight) / 3 + cardHeight * 1.3
-                                             : (rows * cardHeight) / 3 + cardHeight * 1.3;
+                                             : (rows * cardHeight) / 3 + cardHeight /** 1.3*/;
     optimumRect = QRectF(aleft, atop, awidth, aheight);
 
     updateGeometry();

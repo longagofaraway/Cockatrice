@@ -35,7 +35,11 @@ signals:
     void cardCountChanged();
 public slots:
     void moveAllToZone();
+    void moveAllToZoneFromButton();
     bool showContextMenu(const QPoint &screenPos);
+
+private:
+    void moveAllToZoneInternal(QString targetZone, int targetX);
 
 public:
     enum

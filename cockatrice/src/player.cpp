@@ -241,6 +241,8 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
 
         aTapHovered = new QAction(this);
         connect(aTapHovered, SIGNAL(triggered()), table, SLOT(actTapHovered()));
+        aViewNextTopCard = new QAction(this);
+        connect(aViewNextTopCard, SIGNAL(triggered()), this, SLOT(actViewNextTopCard()));
     }
 
     aViewGraveyard = new QAction(this);
@@ -309,6 +311,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         libraryMenu->addAction(aShuffle);
         libraryMenu->addSeparator();
         libraryMenu->addAction(aViewLibrary);
+        libraryMenu->addAction(aViewNextTopCard);
         libraryMenu->addAction(aViewTopCards);
         libraryMenu->addSeparator();
         playerLists.append(mRevealLibrary = libraryMenu->addMenu(QString()));
@@ -772,6 +775,7 @@ void Player::retranslateUi()
         aViewLibrary->setText(tr("&View library"));
         aViewHand->setText(tr("&View hand"));
         aViewTopCards->setText(tr("View &top cards of library..."));
+        aViewNextTopCard->setText(tr("View next top card of library"));
         mRevealLibrary->setTitle(tr("Reveal &library to..."));
         mRevealTopCard->setTitle(tr("Reveal t&op cards to..."));
         aAlwaysRevealTopCard->setText(tr("&Always reveal top card"));
@@ -960,6 +964,7 @@ void Player::setShortcutsActive()
     aViewLibrary->setShortcut(shortcuts.getSingleShortcut("Player/aViewLibrary"));
     aViewHand->setShortcut(shortcuts.getSingleShortcut("Player/aViewHand"));
     aViewTopCards->setShortcut(shortcuts.getSingleShortcut("Player/aViewTopCards"));
+    aViewNextTopCard->setShortcut(shortcuts.getSingleShortcut("Player/aViewNextTopCard"));
     aViewGraveyard->setShortcut(shortcuts.getSingleShortcut("Player/aViewGraveyard"));
     aDrawCard->setShortcut(shortcuts.getSingleShortcut("Player/aDrawCard"));
     aDrawCards->setShortcut(shortcuts.getSingleShortcut("Player/aDrawCards"));
@@ -998,6 +1003,7 @@ void Player::setShortcutsInactive()
     aViewLibrary->setShortcut(QKeySequence());
     aViewHand->setShortcut(QKeySequence());
     aViewTopCards->setShortcut(QKeySequence());
+    aViewNextTopCard->setShortcut(QKeySequence());
     aViewGraveyard->setShortcut(QKeySequence());
     aDrawCard->setShortcut(QKeySequence());
     aDrawCards->setShortcut(QKeySequence());
@@ -1021,6 +1027,7 @@ void Player::setShortcutsInactive()
     aMoveStackToGrave->setShortcut(QKeySequence());
     aRefresh->setShortcut(QKeySequence());
     aMoveTopStockToGraveyard->setShortcut(QKeySequence());
+    aTapHovered->setShortcut(QKeySequence());
 
     QMapIterator<int, AbstractCounter *> counterIterator(counters);
     while (counterIterator.hasNext()) {
@@ -1094,6 +1101,11 @@ void Player::actViewTopCards()
         defaultNumberTopCards = number;
         static_cast<GameScene *>(scene())->toggleZoneView(this, "deck", number);
     }
+}
+
+void Player::actViewNextTopCard()
+{
+    static_cast<GameScene *>(scene())->toggleZoneView(this, "deck", 1, true /*addCards*/);
 }
 
 void Player::actAlwaysRevealTopCard()
