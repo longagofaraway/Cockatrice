@@ -2111,16 +2111,16 @@ void Player::eventRevealCards(const Event_RevealCards &event)
                 continue;
             }
             cardItem->setName(cardCode);
-            emit logRevealCards(this, zone, card->id(), cardItem->getName(), cardItem->getCode(), this, true, 1);
+            emit logRevealCards(this, zone, card->id(), cardItem, this, true, 1);
         }
     } else {
         bool showZoneView = true;
-        QString cardName, cardCode;
+        CardItem *cardItem = nullptr;
         if (cardList.size() == 1) {
-            cardCode = QString::fromStdString(cardList.first()->name());
+            QString cardCode = QString::fromStdString(cardList.first()->name());
             if ((event.card_id() == 0) && dynamic_cast<PileZone *>(zone)) {
-                zone->getCards().first()->setName(cardCode);
-                cardName = zone->getCards().first()->getName();
+                cardItem = zone->getCards().first();
+                cardItem->setName(cardCode);
                 zone->update();
                 showZoneView = false;
             }
@@ -2129,7 +2129,7 @@ void Player::eventRevealCards(const Event_RevealCards &event)
             static_cast<GameScene *>(scene())->addRevealedZoneView(this, zone, cardList, event.grant_write_access());
         }
 
-        emit logRevealCards(this, zone, event.card_id(), cardName, cardCode, otherPlayer, false,
+        emit logRevealCards(this, zone, event.card_id(), cardItem, otherPlayer, false,
                             event.has_number_of_cards() ? event.number_of_cards() : cardList.size());
     }
 }

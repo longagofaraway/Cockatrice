@@ -136,8 +136,7 @@ signals:
     void logRevealCards(Player *player,
                         CardZone *zone,
                         int cardId,
-                        QString cardName,
-                        QString cardCode,
+                        CardItem *card,
                         Player *otherPlayer,
                         bool faceDown,
                         int amount);

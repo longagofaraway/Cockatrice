@@ -530,7 +530,11 @@ void MessageLogWidget::logRevealCards(Player *player,
                                       bool faceDown,
                                       int amount)
 {
-    QString cardName = card->getName();
+    QString cardName, cardCode;
+    if (card) {
+        cardName = card->getName();
+        cardCode = card->getCode();
+    }
     // getFromStr uses cardname.empty() to check if it should contain the start zone, it's not actually used
     QPair<QString, QString> temp = getFromStr(zone, amount == 1 ? cardName : QString::number(amount), cardId, false);
     bool cardNameContainsStartZone = false;
@@ -551,7 +555,7 @@ void MessageLogWidget::logRevealCards(Player *player,
                           .arg("<font class=\"blue\">" + QString::number(amount) + "</font>");
         }
     } else {
-        cardStr = cardLink(cardName, card->getCode());
+        cardStr = cardLink(cardName, cardCode);
     }
     if (cardId == -1) {
         if (otherPlayer) {
@@ -909,8 +913,8 @@ void MessageLogWidget::connectToPlayer(Player *player)
     connect(player, SIGNAL(logStopDumpZone(Player *, CardZone *)), this, SLOT(logStopDumpZone(Player *, CardZone *)));
     connect(player, SIGNAL(logDrawCards(Player *, int)), this, SLOT(logDrawCards(Player *, int)));
     connect(player, SIGNAL(logUndoDraw(Player *, QString)), this, SLOT(logUndoDraw(Player *, QString)));
-    connect(player, SIGNAL(logRevealCards(Player *, CardZone *, int, QString, QString, Player *, bool, int)), this,
-            SLOT(logRevealCards(Player *, CardZone *, int, QString, QString, Player *, bool, int)));
+    connect(player, SIGNAL(logRevealCards(Player *, CardZone *, int, CardItem *, Player *, bool, int)), this,
+            SLOT(logRevealCards(Player *, CardZone *, int, CardItem *, Player *, bool, int)));
     connect(player, SIGNAL(logAlwaysRevealTopCard(Player *, CardZone *, bool)), this,
             SLOT(logAlwaysRevealTopCard(Player *, CardZone *, bool)));
 }
