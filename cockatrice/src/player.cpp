@@ -233,7 +233,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         aMoveStackToClock = new QAction(this);
         aMoveStackToGrave = new QAction(this);
         aMoveStackToStock->setData(QList<QVariant>() << "stock" << 0);
-        aMoveStackToClock->setData(QList<QVariant>() << "clock" << 0);
+        aMoveStackToClock->setData(QList<QVariant>() << "clock" << -1);
         aMoveStackToGrave->setData(QList<QVariant>() << "grave" << 0);
         connect(aMoveStackToStock, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
         connect(aMoveStackToClock, SIGNAL(triggered()), stack, SLOT(moveAllToZone()));
