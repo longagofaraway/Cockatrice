@@ -31,10 +31,12 @@ QRectF LevelZone::boundingRect() const
 void LevelZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     painter->fillRect(boundingRect(), QBrush(QColor("transparent")));
-    painter->setPen(QColor(255, 255, 255, 40));
-    painter->drawLine(boundingRect().topLeft(), boundingRect().topRight());
-    painter->drawLine(boundingRect().topRight(), boundingRect().bottomRight());
-    painter->drawLine(boundingRect().bottomLeft(), boundingRect().bottomRight());
+
+    painter->save();
+    painter->setOpacity(0.15);
+    QPixmap border = QPixmap("theme:levelZone").scaled(boundingRect().width(), boundingRect().height());
+    painter->drawPixmap(0, 0, border);
+    painter->restore();
 }
 
 void LevelZone::handleDropEvent(const QList<CardDragItem *> &dragItems,

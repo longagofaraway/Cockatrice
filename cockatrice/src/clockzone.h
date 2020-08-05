@@ -8,6 +8,8 @@ class ClockZone : public SelectZone
     Q_OBJECT
 private:
     qreal zoneWidth;
+    qreal xspace = 25;
+    qreal cardOffset = 30;
 
 public:
     ClockZone(Player *_p, int _zoneWidth, QGraphicsItem *parent = nullptr);

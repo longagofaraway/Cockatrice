@@ -4,6 +4,10 @@
         <file>resources/cockatrice.svg</file>
         <file>resources/hand.svg</file>
         <file>resources/hr.jpg</file>
+        <file>resources/clockZone.png</file>
+        <file>resources/stockZone.png</file>
+        <file>resources/levelZone.png</file>
+        <file>resources/climaxZone.png</file>
 
         <file>resources/icons/arrow_bottom_green.svg</file>
         <file>resources/icons/arrow_down_green.svg</file>

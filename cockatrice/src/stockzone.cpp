@@ -36,8 +36,12 @@ QRectF StockZone::boundingRect() const
 void StockZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     painter->fillRect(boundingRect(), QBrush(QColor("transparent")));
-    painter->setPen(QColor(255, 255, 255, 40));
-    painter->drawLine(boundingRect().topRight(), boundingRect().bottomRight());
+
+    painter->save();
+    painter->setOpacity(0.15);
+    QPixmap border = QPixmap("theme:stockZone").scaled(boundingRect().width(), boundingRect().height());
+    painter->drawPixmap(0, 0, border);
+    painter->restore();
 }
 
 void StockZone::handleDropEvent(const QList<CardDragItem *> &dragItems,

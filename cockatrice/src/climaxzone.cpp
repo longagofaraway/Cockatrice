@@ -15,24 +15,13 @@ void ClimaxZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opt
         cards.at(0)->paintPicture(painter, cards.at(0)->getTranslatedSize(painter), -90);
     else {
         painter->save();
-        painter->setOpacity(0.3);
-
-        painter->translate((float)CARD_WIDTH / 2, (float)CARD_HEIGHT / 2);
-        painter->rotate(-90);
-        painter->translate((float)-CARD_WIDTH / 2, (float)-CARD_HEIGHT / 2);
-
-        QPixmap pixmap = QPixmap("theme:icons/climaxes_icons");
-        qreal xOff = (CARD_WIDTH - pixmap.width()) / 2;
-        qreal yOff = (CARD_HEIGHT - pixmap.height()) / 2;
-        painter->drawPixmap(QPointF(xOff, yOff), pixmap);
+        painter->setOpacity(0.15);
+        QPixmap border = QPixmap("theme:climaxZone").scaled(boundingRect().width(), boundingRect().height());
+        painter->drawPixmap(0, 0, border);
         painter->restore();
     }
 
     painter->fillRect(boundingRect(), QBrush(QColor("transparent")));
-    painter->setPen(QColor(255, 255, 255, 40));
-    painter->drawLine(boundingRect().topLeft(), boundingRect().topRight());
-    painter->drawLine(boundingRect().topLeft(), boundingRect().bottomLeft());
-    painter->drawLine(boundingRect().topRight(), boundingRect().bottomRight());
 }
 
 void ClimaxZone::handleDropEvent(const QList<CardDragItem *> &dragItems, CardZone *startZone, const QPoint &dropPoint)
