@@ -456,7 +456,7 @@ public:
     void setLastToken(CardInfoPtr cardInfo);
 
 protected:
-    void wheelEvent(QGraphicsSceneWheelEvent *event);
+    void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 };
 
 #endif

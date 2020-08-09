@@ -108,7 +108,7 @@ void DlgLoadDeckFromEncoreDecks::actDownloadFinished()
         return;
     }
 
-    QJsonObject &json = jsonResponse.object();
+    QJsonObject json = jsonResponse.object();
     if (!json.contains("name") || !json["name"].isString()) {
         QMessageBox::critical(this, tr("Error"), tr("Json parse error: no deck name field"));
         reply->deleteLater();
