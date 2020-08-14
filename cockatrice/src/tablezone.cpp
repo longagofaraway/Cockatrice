@@ -9,6 +9,7 @@
 #include "carddatabase.h"
 #include "carddragitem.h"
 #include "carditem.h"
+#include "pb/command_attach_card.pb.h"
 #include "pb/command_move_card.pb.h"
 #include "pb/command_set_card_attr.pb.h"
 #include "player.h"
@@ -71,8 +72,6 @@ void TableZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
         // this means if the user provides a custom background it will fade
         painter->fillRect(boundingRect(), FADE_MASK);
     }
-
-    // paintLandDivider(painter);
 }
 
 /**
@@ -99,22 +98,6 @@ void TableZone::paintZoneOutline(QPainter *painter)
     painter->fillRect(QRectF(width - BOX_LINE_WIDTH, 0, BOX_LINE_WIDTH, height), QBrush(grad1));
 }
 
-/**
-   Render a division line for land placement
-
-   @painter QPainter object
- */
-void TableZone::paintLandDivider(QPainter *painter)
-{
-    // Place the line 2 grid heights down then back it off just enough to allow
-    // some space between a 3-card stack and the land area.
-    qreal separatorY = MARGIN_TOP + 2 * (CARD_HEIGHT + PADDING_Y) - STACKED_CARD_OFFSET_Y / 2;
-    if (isInverted())
-        separatorY = height - separatorY;
-    painter->setPen(QColor(255, 255, 255, 40));
-    painter->drawLine(QPointF(0, separatorY), QPointF(width, separatorY));
-}
-
 void TableZone::addCardImpl(CardItem *card, int _x, int _y)
 {
     cards.append(card);
@@ -134,6 +117,11 @@ void TableZone::handleDropEventByGrid(const QList<CardDragItem *> &dragItems,
                                       CardZone *startZone,
                                       const QPoint &gridPoint)
 {
+    // if a card already present - attach to it facedown
+    QPoint basePoint = gridPoint;
+    basePoint.setX((basePoint.x() / 3) * 3);
+    CardItem *baseCard = getCardFromGrid(basePoint);
+
     Command_MoveCard cmd;
     cmd.set_start_player_id(startZone->getPlayer()->getId());
     cmd.set_start_zone(startZone->getName().toStdString());
@@ -143,10 +131,11 @@ void TableZone::handleDropEventByGrid(const QList<CardDragItem *> &dragItems,
     cmd.set_y(gridPoint.y());
 
     for (const auto &item : dragItems) {
+        bool attach = baseCard && (baseCard->getId() != item->getId());
         CardToMove *ctm = cmd.mutable_cards_to_move()->add_card();
         ctm->set_card_id(item->getId());
-        ctm->set_face_down(item->getFaceDown());
-        if (startZone->getName() != name && !item->getFaceDown()) { // TODO show power when placed from deck
+        ctm->set_face_down(item->getFaceDown() || attach);
+        if (startZone->getName() != name && !(item->getFaceDown() || attach)) {
             const auto &info = item->getItem()->getInfo();
             if (info) {
                 ctm->set_pt(info->getPowTough().toStdString());
@@ -169,15 +158,23 @@ void TableZone::reorganizeCards()
         if (gridPoint.x() == -1)
             continue;
 
+        int gridPointY = gridPoint.y();
+
         QPointF mapPoint = mapFromGrid(gridPoint);
         qreal x = mapPoint.x();
         qreal y = mapPoint.y();
 
         int numberAttachedCards = cards[i]->getAttachedCards().size();
+        // second row is too close to clock zone
+        if (numberAttachedCards)
+            y += gridPointY * 10 * (isInverted() ? 1 : -1);
         qreal actualX = x + numberAttachedCards * STACKED_CARD_OFFSET_X;
         qreal actualY = y;
+
+        qreal baseCardYOffset = isInverted() ? 0 : 10;
+        qreal attachedCardsOffset = isInverted() ? -10 : 0;
         if (numberAttachedCards)
-            actualY += 15;
+            actualY += baseCardYOffset;
 
         cards[i]->setPos(actualX, actualY);
         cards[i]->setRealZValue((actualY + CARD_HEIGHT) * 100000 + (actualX + 1) * 100);
@@ -188,7 +185,7 @@ void TableZone::reorganizeCards()
             ++j;
             CardItem *attachedCard = attachedCardIterator.next();
             qreal childX = actualX - j * STACKED_CARD_OFFSET_X;
-            qreal childY = y + 5;
+            qreal childY = y + attachedCardsOffset;
             attachedCard->setPos(childX, childY);
             attachedCard->setRealZValue((childY + CARD_HEIGHT) * 100000 + (childX + 1) * 100);
             for (ArrowItem *item : attachedCard->getArrowsFrom()) {
@@ -295,7 +292,7 @@ CardItem *TableZone::getCardFromGrid(const QPoint &gridPoint) const
     for (int i = 0; i < cards.size(); i++)
         if (cards.at(i)->getGridPoint() == gridPoint)
             return cards.at(i);
-    return 0;
+    return nullptr;
 }
 
 CardItem *TableZone::getCardFromCoords(const QPointF &point) const

@@ -163,6 +163,7 @@ public:
     int newArrowId() const;
 
     void addZone(Server_CardZone *zone);
+    Server_CardZone *getZone(const QString &name);
     void addArrow(Server_Arrow *arrow);
     bool deleteArrow(int arrowId);
     void addCounter(Server_Counter *counter);
@@ -180,6 +181,12 @@ public:
                                     bool fixFreeSpaces = true,
                                     bool undoingDraw = false);
     void unattachCard(GameEventStorage &ges, Server_Card *card);
+    void attachCard(GameEventStorage &ges,
+                    Server_Card *card,
+                    Server_CardZone *startzone,
+                    Server_Player *targetPlayer,
+                    Server_CardZone *targetzone,
+                    Server_Card *targetCard);
     Response::ResponseCode setCardAttrHelper(GameEventStorage &ges,
                                              int targetPlayerId,
                                              const QString &zone,

@@ -1941,6 +1941,11 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
     // because the addCard function can modify the card object.
     if (context.HasExtension(Context_UndoDraw::ext)) {
         emit logUndoDraw(this, card->getName());
+    } else if (event.attach() == 1) {
+		CardItem *baseCard = nullptr;
+		if (targetZone->getName() == "table")
+			baseCard = table->getCardFromGrid({ (x / 3) * 3, y });
+        emit logAttachCard(this, card, startZone, logPosition, baseCard, targetZone);
     } else {
         emit logMoveCard(this, card, startZone, logPosition, targetZone, logX);
     }
@@ -2044,12 +2049,6 @@ void Player::eventAttachCard(const Event_AttachCard &event)
     }
     if (oldParent) {
         oldParent->getZone()->reorganizeCards();
-    }
-
-    if (targetCard) {
-        emit logAttachCard(this, startCard, targetPlayer, targetCard);
-    } else {
-        emit logUnattachCard(this, startCard);
     }
 }
 

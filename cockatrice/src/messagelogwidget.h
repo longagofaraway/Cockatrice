@@ -46,7 +46,12 @@ public slots:
     void containerProcessingDone();
     void containerProcessingStarted(const GameEventContext &context);
     void logAlwaysRevealTopCard(Player *player, CardZone *zone, bool reveal);
-    void logAttachCard(Player *player, CardItem *card, Player *targetPlayer, CardItem *targetcard);
+    void logAttachCard(Player *player,
+                       CardItem *card,
+                       CardZone *startZone,
+                       int oldX,
+                       CardItem *targetCard,
+                       CardZone *targetZone);
     void logConcede(Player *player);
     void logUnconcede(Player *player);
     void logConnectionStateChanged(Player *player, bool connectionState);

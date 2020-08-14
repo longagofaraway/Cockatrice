@@ -85,7 +85,10 @@ public:
         return player;
     }
     void getInfo(ServerInfo_Zone *info, Server_Player *playerWhosAsking, bool omniscient);
-
+    Server_Card *getCardFromCoordMap(int x, int y)
+    {
+        return coordinateMap[y][x];
+    }
     int getFreeGridColumn(int x, int y, const QString &cardName, bool dontStackSameName) const;
     bool isColumnEmpty(int x, int y) const;
     bool isColumnStacked(int x, int y) const;

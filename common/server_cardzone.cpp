@@ -180,7 +180,8 @@ int Server_CardZone::getFreeGridColumn(int x, int y, const QString &cardName, bo
     } else if (x >= 0) {
         int resultX = 0;
         x = (x / 3) * 3;
-        if (!coordMap.contains(x))
+        return x;
+        /*if (!coordMap.contains(x))
             resultX = x;
         else if (!coordMap.value(x)->getAttachedCards().isEmpty()) {
             resultX = x;
@@ -197,7 +198,7 @@ int Server_CardZone::getFreeGridColumn(int x, int y, const QString &cardName, bo
             while (coordMap.contains(resultX))
                 resultX += 3;
 
-        return resultX;
+        return resultX;*/
     }
 
     return freeSpaceMap[y];

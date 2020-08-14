@@ -185,7 +185,6 @@ protected:
 
 private:
     void paintZoneOutline(QPainter *painter);
-    void paintLandDivider(QPainter *painter);
 
     /*
     Calculates card stack widths so mapping functions work properly

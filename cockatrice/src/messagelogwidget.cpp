@@ -204,13 +204,41 @@ void MessageLogWidget::logAlwaysRevealTopCard(Player *player, CardZone *zone, bo
                                 .arg(zone->getTranslatedName(true, CaseTopCardsOfZone)));
 }
 
-void MessageLogWidget::logAttachCard(Player *player, CardItem *card, Player *targetPlayer, CardItem *targetcard)
+void MessageLogWidget::logAttachCard(Player *player,
+                                     CardItem *card,
+                                     CardZone *startZone,
+                                     int oldX,
+                                     CardItem *targetCard,
+                                     CardZone *targetZone)
 {
-    appendHtmlServerMessage(tr("%1 attaches %2 to %3's %4.")
-                                .arg(sanitizeHtml(player->getName()))
-                                .arg(cardLink(card->getName(), card->getCode()))
-                                .arg(sanitizeHtml(targetPlayer->getName()))
-                                .arg(cardLink(targetcard->getName(), targetcard->getCode())));
+    QString cardName = card->getName();
+    QPair<QString, QString> nameFrom = getFromStr(startZone, cardName, oldX, false);
+    if (!nameFrom.first.isEmpty()) {
+        cardName = nameFrom.first;
+    }
+
+    QString cardStr;
+    if (!nameFrom.first.isEmpty()) {
+        cardStr = cardName;
+    } else if (cardName.isEmpty()) {
+        cardStr = tr("a card");
+    } else {
+        cardStr = cardLink(cardName, card->getCode());
+    }
+
+    QString finalStr;
+    QString targetZoneName = targetZone->getName();
+    if (targetZoneName == tableConstant()) {
+        soundEngine->playSound("put_marker");
+        finalStr = tr("%1 puts %2%3 underneath %4 as a marker.");
+    }
+
+    QString targetStr;
+    if (targetCard)
+        targetStr = cardLink(targetCard->getName(), targetCard->getCode());
+
+    appendHtmlServerMessage(
+        finalStr.arg(sanitizeHtml(player->getName())).arg(cardStr).arg(nameFrom.second).arg(targetStr));
 }
 
 void MessageLogWidget::logConcede(Player *player)
@@ -906,8 +934,8 @@ void MessageLogWidget::connectToPlayer(Player *player)
     connect(player, SIGNAL(logFlipCard(Player *, QString, bool)), this, SLOT(logFlipCard(Player *, QString, bool)));
     connect(player, SIGNAL(logDestroyCard(Player *, CardItem * card)), this,
             SLOT(logDestroyCard(Player *, CardItem * card)));
-    connect(player, SIGNAL(logAttachCard(Player *, CardItem *, Player *, CardItem *)), this,
-            SLOT(logAttachCard(Player *, CardItem *, Player *, CardItem *)));
+    connect(player, SIGNAL(logAttachCard(Player *, CardItem *, CardZone *, int, CardItem *, CardZone *)), this,
+            SLOT(logAttachCard(Player *, CardItem *, CardZone *, int, CardItem *, CardZone *)));
     connect(player, SIGNAL(logUnattachCard(Player *, CardItem *)), this, SLOT(logUnattachCard(Player *, CardItem *)));
     connect(player, SIGNAL(logDumpZone(Player *, CardZone *, int)), this, SLOT(logDumpZone(Player *, CardZone *, int)));
     connect(player, SIGNAL(logStopDumpZone(Player *, CardZone *)), this, SLOT(logStopDumpZone(Player *, CardZone *)));

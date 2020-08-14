@@ -277,6 +277,11 @@ void Server_Player::addZone(Server_CardZone *zone)
     zones.insert(zone->getName(), zone);
 }
 
+Server_CardZone *Server_Player::getZone(const QString &name)
+{
+    return zones.value(name, nullptr);
+}
+
 void Server_Player::addArrow(Server_Arrow *arrow)
 {
     arrows.insert(arrow->getId(), arrow);
@@ -397,9 +402,6 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
         if (!card) {
             return Response::RespNameNotFound;
         }
-        if (card->getParentCard()) {
-            continue;
-        }
         if (!card->getAttachedCards().isEmpty() && !targetzone->isColumnEmpty(x, y)) {
             continue;
         }
@@ -462,7 +464,21 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
             QList<Server_Card *> attachedCards = card->getAttachedCards();
             for (auto &attachedCard : attachedCards) {
                 attachedCard->getZone()->getPlayer()->unattachCard(ges, attachedCard);
+                auto *cardToMove = new CardToMove;
+                cardToMove->set_card_id(attachedCard->getId());
+                attachedCard->getZone()->getPlayer()->moveCard(ges, attachedCard->getZone(),
+                                                               QList<const CardToMove *>() << cardToMove,
+                                                               getZone("grave"), 0, 0, false);
+                delete cardToMove;
             }
+        }
+
+        if (card->getParentCard()) {
+            card->setParentCard(nullptr);
+            Event_AttachCard event;
+            event.set_start_zone(startzone->getName().toStdString());
+            event.set_card_id(card->getId());
+            ges.enqueueGameEvent(event, playerId);
         }
 
         if (startzone != targetzone) {
@@ -490,11 +506,21 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
 
             card->deleteLater();
         } else {
+            bool attach = false;
             if (!targetzone->hasCoords()) {
                 y = 0;
                 card->resetState();
             } else {
-                newX = targetzone->getFreeGridColumn(newX, y, card->getName(), faceDown);
+                newX = targetzone->getFreeGridColumn(newX, y, card->getName(), true);
+
+                // if adding in existing slot on the table - put as marker
+                // first put as second card in stack
+                // after that - send underneath as a marker
+                if (!targetzone->isColumnEmpty(newX, y)) {
+                    newX++;
+                    attach = true;
+                    faceDown = true;
+                }
             }
 
             // always append to stock
@@ -554,6 +580,7 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
             }
             eventOthers.set_y(y);
             eventOthers.set_face_down(faceDown);
+            eventOthers.set_attach(attach ? 1 : 0);
 
             Event_MoveCard eventPrivate(eventOthers);
             eventPrivate.set_card_id(privateOldCardId);
@@ -600,6 +627,11 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
             if (!ptString.isEmpty()) {
                 setCardAttrHelper(ges, targetzone->getPlayer()->getPlayerId(), targetzone->getName(), card->getId(),
                                   AttrPT, ptString);
+            }
+
+            if (attach) {
+                Server_Card *targetCard = targetzone->getCardFromCoordMap(newX - 1, y);
+                attachCard(ges, card, targetzone, targetzone->getPlayer(), targetzone, targetCard);
             }
         }
         if (startzone->getAlwaysRevealTopCard() && !startzone->getCards().isEmpty() && (originalPosition == 0)) {
@@ -1273,41 +1305,51 @@ Server_Player::cmdAttachCard(const Command_AttachCard &cmd, ResponseContainer & 
     }
 
     if (targetCard) {
-        // Unattach all cards attached to the card being attached.
-        // Make a copy of the list because its contents change during the loop otherwise.
-        QList<Server_Card *> attachedList = card->getAttachedCards();
-        for (const auto &i : attachedList) {
-            i->getZone()->getPlayer()->unattachCard(ges, i);
-        }
-
-        card->setParentCard(targetCard);
-        const int oldX = card->getX();
-        card->setCoords(-1, card->getY());
-        startzone->updateCardCoordinates(card, oldX, card->getY());
-
-        if (targetzone->isColumnStacked(targetCard->getX(), targetCard->getY())) {
-            auto *cardToMove = new CardToMove;
-            cardToMove->set_card_id(targetCard->getId());
-            targetPlayer->moveCard(ges, targetzone, QList<const CardToMove *>() << cardToMove, targetzone,
-                                   targetzone->getFreeGridColumn(-2, targetCard->getY(), targetCard->getName(), false),
-                                   targetCard->getY(), targetCard->getFaceDown());
-            delete cardToMove;
-        }
-
-        Event_AttachCard event;
-        event.set_start_zone(startzone->getName().toStdString());
-        event.set_card_id(card->getId());
-        event.set_target_player_id(targetPlayer->getPlayerId());
-        event.set_target_zone(targetzone->getName().toStdString());
-        event.set_target_card_id(targetCard->getId());
-        ges.enqueueGameEvent(event, playerId);
-
-        startzone->fixFreeSpaces(ges);
+        attachCard(ges, card, startzone, targetPlayer, targetzone, targetCard);
     } else {
         unattachCard(ges, card);
     }
 
     return Response::RespOk;
+}
+
+void Server_Player::attachCard(GameEventStorage &ges,
+                               Server_Card *card,
+                               Server_CardZone *startzone,
+                               Server_Player *targetPlayer,
+                               Server_CardZone *targetzone,
+                               Server_Card *targetCard)
+{
+    // Unattach all cards attached to the card being attached.
+    // Make a copy of the list because its contents change during the loop otherwise.
+    QList<Server_Card *> attachedList = card->getAttachedCards();
+    for (const auto &i : attachedList) {
+        i->getZone()->getPlayer()->unattachCard(ges, i);
+    }
+
+    card->setParentCard(targetCard);
+    const int oldX = card->getX();
+    card->setCoords(-1, card->getY());
+    startzone->updateCardCoordinates(card, oldX, card->getY());
+
+    if (targetzone->isColumnStacked(targetCard->getX(), targetCard->getY())) {
+        auto *cardToMove = new CardToMove;
+        cardToMove->set_card_id(targetCard->getId());
+        targetPlayer->moveCard(ges, targetzone, QList<const CardToMove *>() << cardToMove, targetzone,
+                               targetzone->getFreeGridColumn(-2, targetCard->getY(), targetCard->getName(), true),
+                               targetCard->getY(), targetCard->getFaceDown());
+        delete cardToMove;
+    }
+
+    Event_AttachCard event;
+    event.set_start_zone(startzone->getName().toStdString());
+    event.set_card_id(card->getId());
+    event.set_target_player_id(targetPlayer->getPlayerId());
+    event.set_target_zone(targetzone->getName().toStdString());
+    event.set_target_card_id(targetCard->getId());
+    ges.enqueueGameEvent(event, playerId);
+
+    startzone->fixFreeSpaces(ges);
 }
 
 Response::ResponseCode
