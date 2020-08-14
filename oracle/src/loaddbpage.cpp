@@ -25,7 +25,7 @@
 
 namespace
 {
-constexpr char *gDefaultDbUrl = "https://boardhunt.ru/Weiss_Schwarz_DBv4.zip";
+constexpr const char *gDefaultDbUrl = "https://boardhunt.ru/Weiss_Schwarz_DBv4.zip";
 }
 
 LoadDbPage::LoadDbPage(QWidget *parent) : OracleWizardPage(parent)
@@ -258,7 +258,7 @@ bool LoadDbPage::saveToFile(QByteArray data)
 #endif
     }
 
-    QString defaultPath = settingsCache->getCardDatabasePath();
+    QString defaultPath = SettingsCache::instance().getCardDatabasePath();
     QSaveFile file(defaultPath);
     if (!file.open(QIODevice::WriteOnly))
         return false;

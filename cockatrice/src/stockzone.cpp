@@ -93,7 +93,7 @@ void StockZone::reorganizeCards()
     update();
 }
 
-CardItem *StockZone::takeCard(int position, int cardId, bool canResize)
+CardItem *StockZone::takeCard(int position, int cardId, bool /* canResize */)
 {
     CardItem *result = CardZone::takeCard(position, cardId);
     for (int i = 0; i < cards.size(); ++i)
