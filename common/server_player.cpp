@@ -2242,6 +2242,18 @@ void Server_Player::getInfo(ServerInfo_Player *info,
     }
 }
 
+void Server_Player::standPhase()
+{
+    GameEventStorage ges;
+
+    Server_CardZone *table = zones.value("table");
+    for (Server_Card *card : table->getCards())
+        if (card->getTapped() == Server_Card::Tapped && !card->getParentCard())
+            setCardAttrHelper(ges, playerId, "table", card->getId(), AttrTapped, "0");
+
+    ges.sendToGame(game);
+}
+
 void Server_Player::encorePhase()
 {
     GameEventStorage ges;

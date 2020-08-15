@@ -622,6 +622,8 @@ void Server_Game::setActivePlayer(int _activePlayer)
     event.set_active_player_id(activePlayer);
     sendGameEventContainer(prepareGameEvent(event, -1));
 
+    players.value(activePlayer)->standPhase();
+
     setActivePhase(0);
 }
 

@@ -171,6 +171,7 @@ public:
     void clearZones();
     void setupZones();
 
+    void standPhase();
     void encorePhase();
 
     Response::ResponseCode drawCards(GameEventStorage &ges, int number);
