@@ -2908,6 +2908,9 @@ void Player::actIncPT(int deltaP, int deltaT)
 
 void Player::incPTHovered(int deltaP, int deltaT)
 {
+    if (!local)
+        return;
+
     int playerid = id;
 
     QList<const ::google::protobuf::Message *> commandList;
