@@ -2329,26 +2329,39 @@ void Player::playCard(CardItem *card, bool faceDown, bool tapped)
     CardToMove *cardToMove = cmd.mutable_cards_to_move()->add_card();
     cardToMove->set_card_id(card->getId());
 
+    QString currentZone = card->getZone()->getName();
     CardInfoPtr info = card->getInfo();
     if (!info) {
+        if (currentZone == "stock" && (stock->getCards().size() - 1 == card->getId())) {
+            cmd.set_target_zone("grave");
+            cmd.set_x(0);
+            cmd.set_y(0);
+            sendGameCommand(cmd);
+        }
         return;
     }
 
     int tableRow = info->getTableRow();
     bool playToStack = SettingsCache::instance().getPlayToStack();
-    QString currentZone = card->getZone()->getName();
-    if (currentZone == "stack" && tableRow == 3) {
+    if (info->getMainCardType() == "Climax" && currentZone == "hand") {
+        if (climax->getCards().size() > 0)
+            return;
+        cmd.set_target_zone("climax");
+        cmd.set_x(0);
+        cmd.set_y(0);
+    } else if (currentZone == "stack" && (tableRow == 3 || info->getMainCardType() == "Event")) {
         cmd.set_target_zone("grave");
         cmd.set_x(0);
         cmd.set_y(0);
     } else if (!faceDown &&
-               ((!playToStack && tableRow == 3) || ((playToStack && tableRow != 0) && currentZone != "stack"))) {
+               ((!playToStack && tableRow == 3) || ((playToStack && tableRow != 0) && currentZone != "stack") ||
+                (info->getMainCardType() == "Event"))) {
         cmd.set_target_zone("stack");
         cmd.set_x(0);
         cmd.set_y(0);
     } else {
         tableRow = faceDown ? 2 : info->getTableRow();
-        QPoint gridPoint = QPoint(-1, TableZone::clampValidTableRow(2 - tableRow));
+        QPoint gridPoint = QPoint(-1, 0);
         cardToMove->set_face_down(faceDown);
         if (!faceDown) {
             cardToMove->set_pt(info->getPowTough().toStdString());

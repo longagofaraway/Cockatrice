@@ -298,14 +298,14 @@ void MainWindow::actExit()
 
 void MainWindow::actAbout()
 {
-    QMessageBox mb(
-        QMessageBox::NoIcon, tr("About CockatriceWS"),
-        QString("<font size=\"8\"><b>CockatriceWS</b></font> (" + QString::fromStdString(BUILD_ARCHITECTURE) + ")<br>" +
-                tr("Version") + QString(" %1").arg(VERSION_STRING) + "<br><br><b><a href='" + GITHUB_PAGES_URL + "'>" +
-                tr("CockatriceWS Webpage") + "</a></b><br>" + "<br><b>" + "</b><br>" + "<a href='" +
-                GITHUB_ISSUES_URL + "'>" + tr("Report an Issue") + "</a><br>" + "<a href='" + GITHUB_FAQ_URL +
-                "'>" + tr("Original Cockatrice F.A.Q.") + "</a><br>"),
-        QMessageBox::Ok, this);
+    QMessageBox mb(QMessageBox::NoIcon, tr("About CockatriceWS"),
+                   QString("<font size=\"8\"><b>CockatriceWS</b></font> (" +
+                           QString::fromStdString(BUILD_ARCHITECTURE) + ")<br>" + tr("Version") +
+                           QString(" %1").arg(VERSION_STRING) + "<br><br><b><a href='" + GITHUB_PAGES_URL + "'>" +
+                           tr("CockatriceWS Webpage") + "</a></b><br>" + "<br><b>" + "</b><br>" + "<a href='" +
+                           GITHUB_ISSUES_URL + "'>" + tr("Report an Issue") + "</a><br>" + "<a href='" +
+                           GITHUB_FAQ_URL + "'>" + tr("Original Cockatrice F.A.Q.") + "</a><br>"),
+                   QMessageBox::Ok, this);
     mb.setIconPixmap(QPixmap("theme:cockatrice").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     mb.setTextInteractionFlags(Qt::TextBrowserInteraction);
     mb.exec();
