@@ -657,8 +657,10 @@ void Server_Game::nextTurn()
 
     const QList<int> keys = players.keys();
     int listPos = -1;
-    if (activePlayer != -1)
+    if (activePlayer != -1) {
         listPos = keys.indexOf(activePlayer);
+        players.value(activePlayer)->encorePhase();
+    }
     do {
         if (turnOrderReversed) {
             --listPos;

@@ -2241,3 +2241,38 @@ void Server_Player::getInfo(ServerInfo_Player *info,
         zone->getInfo(info->add_zone_list(), playerWhosAsking, omniscient);
     }
 }
+
+void Server_Player::encorePhase()
+{
+    GameEventStorage ges;
+    Server_CardZone *table = zones.value("table");
+    Server_CardZone *grave = zones.value("grave");
+    Server_CardZone *climax = zones.value("climax");
+
+    QList<Server_Card *> reversedCards;
+    for (Server_Card *card : table->getCards())
+        if (card->getTapped() == Server_Card::Reversed && !card->getParentCard())
+            reversedCards.append(card);
+
+    QList<const CardToMove *> cardsToMove;
+    for (Server_Card *card : reversedCards) {
+        auto *cardToMove = new CardToMove;
+        cardToMove->set_card_id(card->getId());
+        cardsToMove.append(cardToMove);
+    }
+    moveCard(ges, table, cardsToMove, grave, 0, 0);
+    qDeleteAll(cardsToMove);
+
+    if (!climax->getCards().empty()) {
+        auto *cardToMove = new CardToMove;
+        cardToMove->set_card_id(climax->getCards().front()->getId());
+        moveCard(ges, climax, QList<const CardToMove *>() << cardToMove, grave, 0, 0, false);
+        delete cardToMove;
+    }
+
+    for (Server_Card *card : table->getCards())
+        if (!card->getFaceDown())
+            setCardAttrHelper(ges, playerId, "table", card->getId(), AttrPT, "-1");
+
+    ges.sendToGame(game);
+}

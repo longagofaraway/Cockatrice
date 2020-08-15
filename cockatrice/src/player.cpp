@@ -1702,8 +1702,12 @@ void Player::setCardAttrHelper(const GameEventContext &context,
             break;
         }
         case AttrPT: {
-            emit logSetPT(this, card, avalue);
-            card->setPT(avalue);
+            QString pt = avalue;
+            if (avalue == "-1")
+                // reset pt
+                pt = card->getInfo()->getPowTough();
+            emit logSetPT(this, card, pt);
+            card->setPT(pt);
             break;
         }
     }

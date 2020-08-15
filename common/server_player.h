@@ -171,6 +171,8 @@ public:
     void clearZones();
     void setupZones();
 
+    void encorePhase();
+
     Response::ResponseCode drawCards(GameEventStorage &ges, int number);
     Response::ResponseCode moveCard(GameEventStorage &ges,
                                     Server_CardZone *startzone,
