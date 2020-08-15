@@ -18,6 +18,7 @@
 #include <QScrollBar>
 #include <QStyleOption>
 #include <QStyleOptionTitleBar>
+#include <QtConcurrent>
 
 ZoneViewWidget::ZoneViewWidget(Player *_player,
                                CardZone *_origZone,
@@ -107,7 +108,6 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
     if (toWrButton) {
         toWrButton->setObjectName("grave");
         connect(toWrButton, SIGNAL(released()), zone, SLOT(moveAllToZoneFromButton()));
-        connect(toWrButton, SIGNAL(released()), this, SLOT(close()));
     }
     zone->setScale(1.7);
 
@@ -129,6 +129,7 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
 
     connect(zone, SIGNAL(optimumRectChanged()), this, SLOT(resizeToZoneContents()));
     connect(zone, SIGNAL(beingDeleted()), this, SLOT(zoneDeleted()));
+    connect(zone, SIGNAL(closeZone()), this, SLOT(queueClose()));
     zone->initializeCards(cardList);
 }
 
@@ -214,7 +215,7 @@ void ZoneViewWidget::handleScrollBarChange(int value)
     zone->setY(-value);
 }
 
-void ZoneViewWidget::closeEvent(QCloseEvent *event)
+void ZoneViewWidget::logAndClose()
 {
     disconnect(zone, SIGNAL(beingDeleted()), this, 0);
     if (zone->getNumberCards() != -2) {
@@ -230,6 +231,11 @@ void ZoneViewWidget::closeEvent(QCloseEvent *event)
     }
     emit closePressed(this);
     deleteLater();
+}
+
+void ZoneViewWidget::closeEvent(QCloseEvent *event)
+{
+    logAndClose();
     event->accept();
 }
 
@@ -237,6 +243,14 @@ void ZoneViewWidget::zoneDeleted()
 {
     emit closePressed(this);
     deleteLater();
+}
+
+void ZoneViewWidget::queueClose()
+{
+    // we have to do this in another thread because
+    // here we are still processing move event, server_player has its mutex locked
+    // so we cannot send commands from here
+    QtConcurrent::run(this, &ZoneViewWidget::logAndClose);
 }
 
 void ZoneViewWidget::initStyleOption(QStyleOption *option) const

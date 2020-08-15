@@ -61,6 +61,7 @@ public slots:
 private slots:
     void zoneDumpReceived(const Response &r);
 signals:
+    void closeZone();
     void beingDeleted();
     void optimumRectChanged();
     void wheelEventReceived(QGraphicsSceneWheelEvent *event);

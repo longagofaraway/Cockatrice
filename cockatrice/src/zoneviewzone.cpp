@@ -228,7 +228,10 @@ void ZoneViewZone::removeCard(int position)
 
     CardItem *card = cards.takeAt(position);
     card->deleteLater();
-    reorganizeCards();
+    if (!cards.size())
+        emit closeZone();
+    else
+        reorganizeCards();
 }
 
 void ZoneViewZone::setGeometry(const QRectF &rect)

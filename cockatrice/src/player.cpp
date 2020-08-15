@@ -1948,9 +1948,9 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
     if (context.HasExtension(Context_UndoDraw::ext)) {
         emit logUndoDraw(this, card->getName());
     } else if (event.attach() == 1) {
-		CardItem *baseCard = nullptr;
-		if (targetZone->getName() == "table")
-			baseCard = table->getCardFromGrid({ (x / 3) * 3, y });
+        CardItem *baseCard = nullptr;
+        if (targetZone->getName() == "table")
+            baseCard = table->getCardFromGrid({(x / 3) * 3, y});
         emit logAttachCard(this, card, startZone, logPosition, baseCard, targetZone);
     } else {
         emit logMoveCard(this, card, startZone, logPosition, targetZone, logX);

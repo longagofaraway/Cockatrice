@@ -56,6 +56,7 @@ private slots:
     void resizeToZoneContents();
     void handleScrollBarChange(int value);
     void zoneDeleted();
+    void queueClose();
     void moveEvent(QGraphicsSceneMoveEvent * /* event */);
 
 public:
@@ -78,6 +79,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
     void initStyleOption(QStyleOption *option) const;
+    void logAndClose();
 };
 
 #endif
