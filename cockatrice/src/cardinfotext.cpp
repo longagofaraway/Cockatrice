@@ -43,6 +43,14 @@ void CardInfoText::setCard(CardInfoPtr card)
     for (const QString &key : cardProps) {
         if (key.contains("-"))
             continue;
+        if (key == "maintype" || key == "colors")
+            continue;
+        if (card->getMainCardType() == "Climax")
+            if (key == "manacost" || key == "pt")
+                continue;
+        if (card->getMainCardType() == "Event")
+            if (key == "pt")
+                continue;
         QString keyText = Mtg::getNicePropertyName(key).toHtmlEscaped() + ":";
         text +=
             QString("<tr><td>%1</td><td></td><td>%2</td></tr>").arg(keyText, card->getProperty(key).toHtmlEscaped());
