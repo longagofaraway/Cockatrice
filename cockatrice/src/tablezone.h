@@ -93,6 +93,7 @@ public slots:
     void reorganizeCards();
 
     void actTapHovered();
+    void actFlipHovered();
 
 public:
     /**

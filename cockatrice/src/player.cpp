@@ -241,6 +241,8 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
 
         aTapHovered = new QAction(this);
         connect(aTapHovered, SIGNAL(triggered()), table, SLOT(actTapHovered()));
+        aFlipHovered = new QAction(this);
+        connect(aFlipHovered, SIGNAL(triggered()), table, SLOT(actFlipHovered()));
         aViewNextTopCard = new QAction(this);
         connect(aViewNextTopCard, SIGNAL(triggered()), this, SLOT(actViewNextTopCard()));
     }
@@ -414,6 +416,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         countersMenu = nullptr;
         playerMenu->addAction(aUntapAll);
         playerMenu->addAction(aTapHovered);
+        playerMenu->addAction(aFlipHovered);
         playerMenu->addSeparator();
         playerMenu->addAction(aRollDie);
         playerMenu->addSeparator();
@@ -803,7 +806,8 @@ void Player::retranslateUi()
         libraryMenu->setTitle(tr("&Library"));
 
         aUntapAll->setText(tr("&Untap all permanents"));
-        aTapHovered->setText(tr("Tap Hovered Card"));
+        aTapHovered->setText(tr("Tap hovered card"));
+        aFlipHovered->setText(tr("Turn over hovered card"));
         aRollDie->setText(tr("R&oll die..."));
         aCreateToken->setText(tr("&Create token..."));
         aCreateAnotherToken->setText(tr("C&reate another token"));
@@ -973,6 +977,7 @@ void Player::setShortcutsActive()
     aShuffle->setShortcut(shortcuts.getSingleShortcut("Player/aShuffle"));
     aUntapAll->setShortcut(shortcuts.getSingleShortcut("Player/aUntapAll"));
     aTapHovered->setShortcut(shortcuts.getSingleShortcut("Player/aTapHovered"));
+    aFlipHovered->setShortcut(shortcuts.getSingleShortcut("Player/aFlipHovered"));
     aRollDie->setShortcut(shortcuts.getSingleShortcut("Player/aRollDie"));
     aCreateToken->setShortcut(shortcuts.getSingleShortcut("Player/aCreateToken"));
     aCreateAnotherToken->setShortcut(shortcuts.getSingleShortcut("Player/aCreateAnotherToken"));
@@ -1028,6 +1033,7 @@ void Player::setShortcutsInactive()
     aRefresh->setShortcut(QKeySequence());
     aMoveTopStockToGraveyard->setShortcut(QKeySequence());
     aTapHovered->setShortcut(QKeySequence());
+    aFlipHovered->setShortcut(QKeySequence());
 
     QMapIterator<int, AbstractCounter *> counterIterator(counters);
     while (counterIterator.hasNext()) {

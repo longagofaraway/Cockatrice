@@ -10,6 +10,7 @@
 #include "carddragitem.h"
 #include "carditem.h"
 #include "pb/command_attach_card.pb.h"
+#include "pb/command_flip_card.pb.h"
 #include "pb/command_move_card.pb.h"
 #include "pb/command_set_card_attr.pb.h"
 #include "player.h"
@@ -244,11 +245,33 @@ void TableZone::actTapHovered()
     for (int i = 0; i < cards.size(); i++) {
         if (cards[i]->getHovered()) {
             QList<const ::google::protobuf::Message *> cmdList;
-            Command_SetCardAttr *cmd = new Command_SetCardAttr;
+            auto *cmd = new Command_SetCardAttr;
             cmd->set_zone(name.toStdString());
             cmd->set_card_id(cards[i]->getId());
             cmd->set_attribute(AttrTapped);
             cmd->set_attr_value(std::to_string(cards[i]->nextTapState()));
+            cmdList.append(cmd);
+            player->sendGameCommand(player->prepareGameCommand(cmdList));
+            break;
+        }
+    }
+}
+
+void TableZone::actFlipHovered()
+{
+    for (int i = 0; i < cards.size(); i++) {
+        if (cards[i]->getHovered()) {
+            QList<const ::google::protobuf::Message *> cmdList;
+            auto *cmd = new Command_FlipCard;
+            cmd->set_zone(name.toStdString());
+            cmd->set_card_id(cards[i]->getId());
+            cmd->set_face_down(!cards[i]->getFaceDown());
+            if (cards[i]->getFaceDown()) {
+                CardInfoPtr ci = cards[i]->getInfo();
+                if (ci) {
+                    cmd->set_pt(ci->getPowTough().toStdString());
+                }
+            }
             cmdList.append(cmd);
             player->sendGameCommand(player->prepareGameCommand(cmdList));
             break;
