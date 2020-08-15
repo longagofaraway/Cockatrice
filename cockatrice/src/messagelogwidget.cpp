@@ -429,7 +429,7 @@ void MessageLogWidget::logMoveCard(Player *player,
     } else if (targetZoneName == climaxConstant()) {
         finalStr = tr("%1 puts %2%3 into the climax zone.");
     } else if (targetZoneName == clockConstant()) {
-        if (newX == 0)
+        if (newX == 0 && targetZone->getCards().size() > 0)
             finalStr = tr("%1 puts %2%3 onto the bottom of their clock.");
         else
             finalStr = tr("%1 puts %2%3 into the clock.");
