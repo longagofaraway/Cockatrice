@@ -64,12 +64,12 @@
 #include <QtConcurrent>
 #include <QtNetwork>
 
-#define GITHUB_PAGES_URL "https://cockatrice.github.io"
+#define GITHUB_PAGES_URL "https://github.com/longagofaraway/Cockatrice"
 #define GITHUB_CONTRIBUTORS_URL "https://github.com/Cockatrice/Cockatrice/graphs/contributors?type=c"
 #define GITHUB_CONTRIBUTE_URL "https://github.com/Cockatrice/Cockatrice#cockatrice"
 #define GITHUB_TRANSIFEX_TRANSLATORS_URL "https://github.com/Cockatrice/Cockatrice/wiki/Translator-Hall-of-Fame"
 #define GITHUB_TRANSLATOR_FAQ_URL "https://github.com/Cockatrice/Cockatrice/wiki/Translation-FAQ"
-#define GITHUB_ISSUES_URL "https://github.com/Cockatrice/Cockatrice/issues"
+#define GITHUB_ISSUES_URL "https://github.com/longagofaraway/Cockatrice/issues"
 #define GITHUB_TROUBLESHOOTING_URL "https://github.com/Cockatrice/Cockatrice/wiki/Troubleshooting"
 #define GITHUB_FAQ_URL "https://github.com/Cockatrice/Cockatrice/wiki/Frequently-Asked-Questions"
 
@@ -300,19 +300,11 @@ void MainWindow::actAbout()
 {
     QMessageBox mb(
         QMessageBox::NoIcon, tr("About CockatriceWS"),
-        QString("<font size=\"8\"><b>Cockatrice</b></font> (" + QString::fromStdString(BUILD_ARCHITECTURE) + ")<br>" +
+        QString("<font size=\"8\"><b>CockatriceWS</b></font> (" + QString::fromStdString(BUILD_ARCHITECTURE) + ")<br>" +
                 tr("Version") + QString(" %1").arg(VERSION_STRING) + "<br><br><b><a href='" + GITHUB_PAGES_URL + "'>" +
-                tr("Cockatrice Webpage") + "</a></b><br>" + "<br><b>" + tr("Project Manager:") +
-                "</b><br>Zach Halpern<br><br>" + "<b>" + tr("Past Project Managers:") +
-                "</b><br>Gavin Bisesi<br>Max-Wilhelm Bruker<br>Marcus Schütz<br><br>" + "<b>" + tr("Developers:") +
-                "</b><br>" + "<a href='" + GITHUB_CONTRIBUTORS_URL + "'>" + tr("Our Developers") + "</a><br>" +
-                "<a href='" + GITHUB_CONTRIBUTE_URL + "'>" + tr("Help Develop!") + "</a><br><br>" + "<b>" +
-                tr("Translators:") + "</b><br>" + "<a href='" + GITHUB_TRANSIFEX_TRANSLATORS_URL + "'>" +
-                tr("Our Translators") + "</a><br>" + "<a href='" + GITHUB_TRANSLATOR_FAQ_URL + "'>" +
-                tr("Help Translate!") + "</a><br><br>" + "<b>" + tr("Support:") + "</b><br>" + "<a href='" +
-                GITHUB_ISSUES_URL + "'>" + tr("Report an Issue") + "</a><br>" + "<a href='" +
-                GITHUB_TROUBLESHOOTING_URL + "'>" + tr("Troubleshooting") + "</a><br>" + "<a href='" + GITHUB_FAQ_URL +
-                "'>" + tr("F.A.Q.") + "</a><br>"),
+                tr("CockatriceWS Webpage") + "</a></b><br>" + "<br><b>" + "</b><br>" + "<a href='" +
+                GITHUB_ISSUES_URL + "'>" + tr("Report an Issue") + "</a><br>" + "<a href='" + GITHUB_FAQ_URL +
+                "'>" + tr("Original Cockatrice F.A.Q.") + "</a><br>"),
         QMessageBox::Ok, this);
     mb.setIconPixmap(QPixmap("theme:cockatrice").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     mb.setTextInteractionFlags(Qt::TextBrowserInteraction);
