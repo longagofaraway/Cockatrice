@@ -207,7 +207,7 @@ void DlgConnect::rebuildComboBoxList(int failure)
                 if (saveName.compare(autoConnectSaveName) == 0) {
                     previousHosts->setCurrentIndex(index);
                 }
-            } else if (saveName.compare("Rooster Ranges") == 0) {
+            } else if (saveName.compare("Boardhunt") == 0) {
                 previousHosts->setCurrentIndex(index);
             }
 
