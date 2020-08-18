@@ -658,11 +658,14 @@ void Server_Game::nextTurn()
     QMutexLocker locker(&gameMutex);
 
     const QList<int> keys = players.keys();
+
+    for (auto key : keys)
+        if (!players.value(key)->getSpectator() && !players.value(key)->getConceded())
+            players.value(key)->encorePhase();
+
     int listPos = -1;
-    if (activePlayer != -1) {
+    if (activePlayer != -1)
         listPos = keys.indexOf(activePlayer);
-        players.value(activePlayer)->encorePhase();
-    }
     do {
         if (turnOrderReversed) {
             --listPos;
