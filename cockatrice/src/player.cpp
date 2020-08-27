@@ -141,8 +141,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     stack = new StackZone(this, (int)table->boundingRect().height(), this);
     stock = new StockZone(this, (int)table->boundingRect().height(), this);
     level = new LevelZone(this, this);
-    clock = new ClockZone(
-        this, table->boundingRect().width() - stock->boundingRect().width() - level->boundingRect().width(), this);
+    clock = new ClockZone(this, this);
     climax = new ClimaxZone(this, this);
 
     hand = new HandZone(this, _local || (_parent->getSpectator() && _parent->getSpectatorsSeeEverything()),
