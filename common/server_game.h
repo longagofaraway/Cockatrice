@@ -183,6 +183,7 @@ public:
     void setActivePlayer(int _activePlayer);
     void setActivePhase(int _activePhase);
     void nextTurn();
+    void dealCards();
     int getSecondsElapsed() const
     {
         return secondsElapsed;

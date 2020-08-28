@@ -344,6 +344,7 @@ void Server_Game::doStartGameIfReady()
 
     activePlayer = -1;
     nextTurn();
+    dealCards();
 
     locker.unlock();
 
@@ -681,6 +682,18 @@ void Server_Game::nextTurn()
     } while (players.value(keys[listPos])->getSpectator() || players.value(keys[listPos])->getConceded());
 
     setActivePlayer(keys[listPos]);
+}
+
+void Server_Game::dealCards()
+{
+    QMutexLocker locker(&gameMutex);
+
+    GameEventStorage ges;
+    for (auto key : players.keys())
+        if (!players.value(key)->getSpectator() && !players.value(key)->getConceded())
+            players.value(key)->drawCards(ges, 5);
+
+    ges.sendToGame(this);
 }
 
 void Server_Game::createGameJoinedEvent(Server_Player *player, ResponseContainer &rc, bool resuming)
