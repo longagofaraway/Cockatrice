@@ -88,8 +88,11 @@ QString MessageLogWidget::cardLink(const QString cardName, const QString cardCod
     return QString("<i><a href=\"card://%1\">%2</a></i>").arg(sanitizeHtml(cardCode)).arg(sanitizeHtml(cardName));
 }
 
-QPair<QString, QString>
-MessageLogWidget::getFromStr(CardZone *zone, QString cardName, int position, bool ownerChange) const
+QPair<QString, QString> MessageLogWidget::getFromStr(CardZone *zone,
+                                                     QString cardName,
+                                                     int position,
+                                                     bool ownerChange,
+                                                     CardZone *targetZone) const
 {
     bool cardNameContainsStartZone = false;
     QString fromStr;
@@ -170,7 +173,12 @@ MessageLogWidget::getFromStr(CardZone *zone, QString cardName, int position, boo
         if (position >= zone->getCards().size())
             fromStr = tr(" from the top of their clock");
         else if (position == 0)
-            fromStr = tr(" from the bottom <img height=12 src = \"theme:icons/detective\"> of their clock");
+            if (targetZone->getName() == "level")
+                fromStr = tr(" from the bottom of their clock");
+            else
+                fromStr = tr(" from the bottom <img height=12 src = \"theme:icons/detective\"> of their clock");
+        else if (targetZone->getName() == "level")
+            fromStr = tr(" from the middle of their clock");
         else
             fromStr = tr(" from the middle <img height=12 src = \"theme:icons/detective\"> of their clock");
     }
@@ -372,7 +380,7 @@ void MessageLogWidget::logMoveCard(Player *player,
     }
 
     QString cardName = card->getName();
-    QPair<QString, QString> nameFrom = getFromStr(startZone, cardName, oldX, ownerChanged);
+    QPair<QString, QString> nameFrom = getFromStr(startZone, cardName, oldX, ownerChanged, targetZone);
     if (!nameFrom.first.isEmpty()) {
         cardName = nameFrom.first;
     }

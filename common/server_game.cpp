@@ -688,12 +688,12 @@ void Server_Game::dealCards()
 {
     QMutexLocker locker(&gameMutex);
 
-    GameEventStorage ges;
     for (auto key : players.keys())
-        if (!players.value(key)->getSpectator() && !players.value(key)->getConceded())
+        if (!players.value(key)->getSpectator() && !players.value(key)->getConceded()) {
+            GameEventStorage ges;
             players.value(key)->drawCards(ges, 5);
-
-    ges.sendToGame(this);
+            ges.sendToGame(this);
+        }
 }
 
 void Server_Game::createGameJoinedEvent(Server_Player *player, ResponseContainer &rc, bool resuming)

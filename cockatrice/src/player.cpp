@@ -2356,6 +2356,13 @@ void Player::playCard(CardItem *card, bool faceDown, bool tapped)
         cmd.set_target_zone("grave");
         cmd.set_x(0);
         cmd.set_y(0);
+    } else if (currentZone == "clock") {
+        if (card->getZone()->getCards().size() >= 7)
+            cmd.set_target_zone("level");
+        else
+            cmd.set_target_zone("grave");
+        cmd.set_x(0);
+        cmd.set_y(0);
     } else if (!faceDown &&
                ((!playToStack && tableRow == 3) || ((playToStack && tableRow != 0) && currentZone != "stack") ||
                 (info->getMainCardType() == "Event"))) {

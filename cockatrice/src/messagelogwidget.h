@@ -40,7 +40,8 @@ private:
 
     QString sanitizeHtml(QString dirty) const;
     QString cardLink(QString cardName, QString cardCode) const;
-    QPair<QString, QString> getFromStr(CardZone *zone, QString cardName, int position, bool ownerChange) const;
+    QPair<QString, QString>
+    getFromStr(CardZone *zone, QString cardName, int position, bool ownerChange, CardZone *targetZone = nullptr) const;
 
 public slots:
     void containerProcessingDone();
