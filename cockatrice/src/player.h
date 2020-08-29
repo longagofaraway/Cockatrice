@@ -369,6 +369,7 @@ public:
     void clearCounters();
 
     void incPTHovered(int deltaP, int deltaT);
+    void incSoulAll(int power, int soul);
 
     ArrowItem *addArrow(const ServerInfo_Arrow &arrow);
     ArrowItem *addArrow(int arrowId, CardItem *startCard, ArrowTarget *targetItem, const QColor &color);
@@ -462,6 +463,7 @@ public:
     void sendGameCommand(const google::protobuf::Message &command);
 
     void setLastToken(CardInfoPtr cardInfo);
+    void processClimax(CardItem *card);
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;

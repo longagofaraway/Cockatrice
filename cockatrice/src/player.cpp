@@ -75,6 +75,7 @@
 #include <QPainter>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QtConcurrent>
 
 PlayerArea::PlayerArea(QGraphicsItem *parentItem) : QObject(), QGraphicsItem(parentItem)
 {
@@ -1985,6 +1986,9 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
             i->delArrow();
         }
     }
+
+    if (targetPlayer == this && targetZone->getName() == "climax" && card->getInfo()->getMainCardType() == "Climax")
+        processClimax(card);
 }
 
 void Player::eventFlipCard(const Event_FlipCard &event)
@@ -3639,4 +3643,40 @@ void Player::wheelEvent(QGraphicsSceneWheelEvent *event)
         else if (event->delta() < 0)
             incPTHovered(-500, 0);
     }
+}
+
+void Player::processClimax(CardItem *card)
+{
+    const QString &text = card->getInfo()->getText();
+    if (text.contains("+1 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive)) {
+        QtConcurrent::run(this, &Player::incSoulAll, 0, 1);
+    }
+    if (text.contains("+2 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive)) {
+        QtConcurrent::run(this, &Player::incSoulAll, 0, 2);
+    }
+}
+
+void Player::incSoulAll(int power, int soul)
+{
+    QList<const ::google::protobuf::Message *> commandList;
+    const CardList &cardsOnTable = table->getCards();
+    for (int i = 0; i < cardsOnTable.size(); i++) {
+        if (cardsOnTable[i]->getFaceDown() || cardsOnTable[i]->getAttachedTo())
+            continue;
+        if (cardsOnTable[i]->getGridPoint().y() != 0)
+            continue;
+
+        QString pt = cardsOnTable[i]->getPT();
+        const auto ptList = parsePT(pt);
+        QString newpt = addPowerToughness(ptList, power, soul);
+
+        auto *cmd = new Command_SetCardAttr;
+        cmd->set_zone(cardsOnTable[i]->getZone()->getName().toStdString());
+        cmd->set_card_id(cardsOnTable[i]->getId());
+        cmd->set_attribute(AttrPT);
+        cmd->set_attr_value(newpt.toStdString());
+        commandList.append(cmd);
+    }
+
+    game->sendGameCommand(prepareGameCommand(commandList), id);
 }
