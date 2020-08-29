@@ -3603,8 +3603,15 @@ void Player::setLastToken(CardInfoPtr cardInfo)
 
 void Player::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-    if (event->delta() > 0)
-        incPTHovered(500, 0);
-    else if (event->delta() < 0)
-        incPTHovered(-500, 0);
+    if (event->modifiers() == Qt::ControlModifier) {
+        if (event->delta() > 0)
+            incPTHovered(0, 1);
+        else if (event->delta() < 0)
+            incPTHovered(0, -1);
+    } else {
+        if (event->delta() > 0)
+            incPTHovered(500, 0);
+        else if (event->delta() < 0)
+            incPTHovered(-500, 0);
+    }
 }
