@@ -161,6 +161,18 @@ Server_Card *Server_CardZone::getCard(int id, int *position, bool remove)
     }
 }
 
+Server_Card *Server_CardZone::getCardByIndex(int idx, bool remove)
+{
+    if ((idx >= cards.size()) || (idx < 0))
+        return nullptr;
+    Server_Card *tmp = cards[idx];
+    if (remove) {
+        cards.removeAt(idx);
+        tmp->setZone(nullptr);
+    }
+    return tmp;
+}
+
 int Server_CardZone::getFreeGridColumn(int x, int y, const QString &cardName, bool dontStackSameName) const
 {
     const QMap<int, Server_Card *> &coordMap = coordinateMap.value(y);

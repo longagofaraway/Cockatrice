@@ -24,6 +24,7 @@
 #include "pb/command_mulligan.pb.h"
 #include "pb/command_next_turn.pb.h"
 #include "pb/command_ready_start.pb.h"
+#include "pb/command_refresh.pb.h"
 #include "pb/command_reveal_cards.pb.h"
 #include "pb/command_reverse_turn.pb.h"
 #include "pb/command_roll_die.pb.h"
@@ -58,6 +59,7 @@
 #include "pb/event_game_say.pb.h"
 #include "pb/event_move_card.pb.h"
 #include "pb/event_player_properties_changed.pb.h"
+#include "pb/event_refresh.pb.h"
 #include "pb/event_reveal_cards.pb.h"
 #include "pb/event_reverse_turn.pb.h"
 #include "pb/event_roll_die.pb.h"
@@ -2069,6 +2071,43 @@ Server_Player::cmdReverseTurn(const Command_ReverseTurn & /*cmd*/, ResponseConta
 }
 
 Response::ResponseCode
+Server_Player::cmdRefresh(const Command_Refresh & /*cmd*/, ResponseContainer & /*rc*/, GameEventStorage &ges)
+{
+    if (spectator) {
+        return Response::RespFunctionNotAllowed;
+    }
+
+    if (!game->getGameStarted()) {
+        return Response::RespGameNotStarted;
+    }
+    if (conceded) {
+        return Response::RespContextError;
+    }
+
+    Server_CardZone *deckZone = zones.value("deck");
+    Server_CardZone *graveZone = zones.value("grave");
+
+    int cardCount = graveZone->getCards().size();
+    for (int i = 0; i < cardCount; ++i) {
+        Server_Card *card = graveZone->getCardByIndex(0, true);
+        deckZone->insertCard(card, -1, 0);
+    }
+
+    Event_Refresh event;
+    ges.enqueueGameEvent(event, playerId);
+
+    deckZone->shuffle(0, -1);
+
+    Event_Shuffle eventSh;
+    eventSh.set_zone_name(deckZone->getName().toStdString());
+    eventSh.set_start(0);
+    eventSh.set_end(-1);
+    ges.enqueueGameEvent(eventSh, playerId);
+
+    return Response::RespOk;
+}
+
+Response::ResponseCode
 Server_Player::processGameCommand(const GameCommand &command, ResponseContainer &rc, GameEventStorage &ges)
 {
     switch ((GameCommand::GameCommandType)getPbExtension(command)) {
@@ -2176,6 +2215,9 @@ Server_Player::processGameCommand(const GameCommand &command, ResponseContainer 
             break;
         case GameCommand::REVERSE_TURN:
             return cmdReverseTurn(command.GetExtension(Command_ReverseTurn::ext), rc, ges);
+            break;
+        case GameCommand::REFRESH:
+            return cmdRefresh(command.GetExtension(Command_Refresh::ext), rc, ges);
             break;
         default:
             return Response::RespInvalidCommand;

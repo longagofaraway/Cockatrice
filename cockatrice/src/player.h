@@ -67,6 +67,7 @@ class Event_AttachCard;
 class Event_DrawCards;
 class Event_RevealCards;
 class Event_ChangeZoneProperties;
+class Event_Refresh;
 class PendingCommand;
 
 const int MAX_TOKENS_PER_DIALOG = 99;
@@ -146,6 +147,7 @@ signals:
                         bool faceDown,
                         int amount);
     void logAlwaysRevealTopCard(Player *player, CardZone *zone, bool reveal);
+    void logRefresh(Player *player, int climaxCount);
 
     void sizeChanged();
     void playerCountChanged();
@@ -315,6 +317,7 @@ private:
     void eventDestroyCard(const Event_DestroyCard &event);
     void eventAttachCard(const Event_AttachCard &event);
     void eventDrawCards(const Event_DrawCards &event);
+    void eventRefresh(const Event_Refresh &event);
     void eventRevealCards(const Event_RevealCards &event);
     void eventChangeZoneProperties(const Event_ChangeZoneProperties &event);
 

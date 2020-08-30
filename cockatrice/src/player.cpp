@@ -25,6 +25,7 @@
 #include "pb/command_game_say.pb.h"
 #include "pb/command_move_card.pb.h"
 #include "pb/command_mulligan.pb.h"
+#include "pb/command_refresh.pb.h"
 #include "pb/command_reveal_cards.pb.h"
 #include "pb/command_roll_die.pb.h"
 #include "pb/command_set_card_attr.pb.h"
@@ -46,6 +47,7 @@
 #include "pb/event_flip_card.pb.h"
 #include "pb/event_game_say.pb.h"
 #include "pb/event_move_card.pb.h"
+#include "pb/event_refresh.pb.h"
 #include "pb/event_reveal_cards.pb.h"
 #include "pb/event_roll_die.pb.h"
 #include "pb/event_set_card_attr.pb.h"
@@ -1169,8 +1171,8 @@ void Player::actShuffle()
 
 void Player::actRefresh()
 {
-    aMoveGraveToTopLibrary->trigger();
-    aShuffle->trigger();
+    Command_Refresh cmd;
+    sendGameCommand(cmd);
 }
 
 void Player::actDrawCard()
@@ -2086,6 +2088,26 @@ void Player::eventDrawCards(const Event_DrawCards &event)
     emit logDrawCards(this, event.number());
 }
 
+void Player::eventRefresh(const Event_Refresh &event)
+{
+    CardZone *deck = zones.value("deck");
+    CardZone *grave = zones.value("grave");
+
+    int climaxCount = 0;
+    int cardCount = grave->getCards().size();
+    for (int i = 0; i < cardCount; ++i) {
+        CardItem *card = grave->takeCard(0, -1);
+        if (card->getInfo()->getMainCardType() == "Climax")
+            climaxCount++;
+        deck->addCard(card, false, 0);
+    }
+
+    deck->reorganizeCards();
+    grave->reorganizeCards();
+
+    emit logRefresh(this, climaxCount);
+}
+
 void Player::eventRevealCards(const Event_RevealCards &event)
 {
     CardZone *zone = zones.value(QString::fromStdString(event.zone_name()));
@@ -2217,6 +2239,9 @@ void Player::processGameEvent(GameEvent::GameEventType type, const GameEvent &ev
             break;
         case GameEvent::CHANGE_ZONE_PROPERTIES:
             eventChangeZoneProperties(event.GetExtension(Event_ChangeZoneProperties::ext));
+            break;
+        case GameEvent::REFRESH:
+            eventRefresh(event.GetExtension(Event_Refresh::ext));
             break;
         default: {
             qDebug() << "unhandled game event" << type;

@@ -33,6 +33,7 @@ SET(PROTO_FILES
     command_mulligan.proto
     command_next_turn.proto
     command_ready_start.proto
+    command_refresh.proto
     command_replay_delete_match.proto
     command_replay_list.proto
     command_replay_download.proto
@@ -86,6 +87,7 @@ SET(PROTO_FILES
     event_list_rooms.proto
     event_move_card.proto
     event_player_properties_changed.proto
+    event_refresh.proto
     event_remove_from_list.proto
     event_replay_added.proto
     event_reveal_cards.proto

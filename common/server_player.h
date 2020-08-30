@@ -63,6 +63,7 @@ class Command_SetSideboardPlan;
 class Command_DeckSelect;
 class Command_SetSideboardLock;
 class Command_ChangeZoneProperties;
+class Command_Refresh;
 
 class Server_Player : public Server_ArrowTarget, public ServerInfo_User_Container
 {
@@ -242,6 +243,7 @@ public:
     cmdReverseTurn(const Command_ReverseTurn & /*cmd*/, ResponseContainer & /*rc*/, GameEventStorage &ges);
     Response::ResponseCode
     cmdChangeZoneProperties(const Command_ChangeZoneProperties &cmd, ResponseContainer &rc, GameEventStorage &ges);
+    Response::ResponseCode cmdRefresh(const Command_Refresh &cmd, ResponseContainer &rc, GameEventStorage &ges);
 
     Response::ResponseCode processGameCommand(const GameCommand &command, ResponseContainer &rc, GameEventStorage &ges);
     void sendGameEvent(const GameEventContainer &event);

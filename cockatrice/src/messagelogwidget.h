@@ -105,6 +105,7 @@ public slots:
     void logStopDumpZone(Player *player, CardZone *zone);
     void logUnattachCard(Player *player, CardItem *card);
     void logUndoDraw(Player *player, QString cardName);
+    void logRefresh(Player *player, int climaxCount);
     void setContextJudgeName(QString player);
     void appendHtmlServerMessage(const QString &html,
                                  bool optionalIsBold = false,

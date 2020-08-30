@@ -36,6 +36,7 @@ message GameCommand {
         UNCONCEDE = 1032;
         JUDGE = 1033;
         REVERSE_TURN = 1034;
+        REFRESH = 1100;
     }
     extensions 100 to max;
 }
