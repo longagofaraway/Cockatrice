@@ -379,8 +379,7 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
                                                bool undoingDraw)
 {
     // Disallow controller change to other zones than the table.
-    if (((targetzone->getType() != ServerInfo_Zone::PublicZone) || !targetzone->hasCoords()) &&
-        (startzone->getPlayer() != targetzone->getPlayer()) && !judge) {
+    if (startzone->getPlayer() != targetzone->getPlayer()) {
         return Response::RespContextError;
     }
 
