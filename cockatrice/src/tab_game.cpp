@@ -732,7 +732,10 @@ void TabGame::actNextPhaseAction()
         sendGameCommand(cmd);
     }
 
-    phasesToolbar->triggerPhaseAction(phase);
+    Player *active = players.value(activePlayer, 0);
+    if (active)
+        if (active->getLocal())
+            phasesToolbar->triggerPhaseAction(phase);
 }
 
 void TabGame::actNextTurn()
