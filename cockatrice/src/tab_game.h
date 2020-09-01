@@ -301,6 +301,7 @@ public:
     bool isSpectator();
     Player *getActiveLocalPlayer() const;
     AbstractClient *getClientForPlayer(int playerId) const;
+    Player *getInactivePlayer() const;
 
     void setActiveCard(CardItem *_card)
     {
@@ -309,6 +310,10 @@ public:
     CardItem *getActiveCard() const
     {
         return activeCard;
+    }
+    int getCurrentPhase() const
+    {
+        return currentPhase;
     }
 
     void processGameEventContainer(const GameEventContainer &cont, AbstractClient *client);

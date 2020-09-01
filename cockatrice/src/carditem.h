@@ -19,10 +19,19 @@ const int ROTATION_DEGREES_PER_FRAME = 10;
 class CardItem : public AbstractCardItem
 {
     Q_OBJECT
+public:
+    enum AttackState
+    {
+        NoAttack,
+        Front,
+        Side,
+        Direct
+    };
+
 private:
     CardZone *zone;
     bool revealedCard;
-    bool attacking;
+    AttackState attackState;
     QMap<int, int> counters;
     QString annotation;
     QString pt;
@@ -85,11 +94,11 @@ public:
     {
         return revealedCard;
     }
-    bool getAttacking() const
+    AttackState getAttackState() const
     {
-        return attacking;
+        return attackState;
     }
-    void setAttacking(bool _attacking);
+    void setAttackState(AttackState _attacking);
     const QMap<int, int> &getCounters() const
     {
         return counters;

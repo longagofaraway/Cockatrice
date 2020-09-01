@@ -3,6 +3,7 @@
 
 #include "abstractgraphicsitem.h"
 #include "carddatabase.h"
+#include "carditem.h"
 #include "pb/card_attributes.pb.h"
 #include "pb/game_event.pb.h"
 #include "tearoffmenu.h"
@@ -148,6 +149,7 @@ signals:
                         int amount);
     void logAlwaysRevealTopCard(Player *player, CardZone *zone, bool reveal);
     void logRefresh(Player *player, int climaxCount);
+    void logSetAttackState(Player *player, CardItem *card, CardItem::AttackState state);
 
     void sizeChanged();
     void playerCountChanged();
@@ -238,7 +240,7 @@ private:
         *aMoveBottomCardToGrave;
     QAction *aMoveClockToGrave, *aViewClock, *aViewStock, *aMoveToStock, *aMoveToClock, *aMoveToBottomClock,
         *aShuffleStock, *aMoveStackToStock, *aMoveStackToClock, *aMoveStackToGrave, *aTapHovered, *aRefresh,
-        *aMoveTopStockToGraveyard, *aViewNextTopCard, *aFlipHovered;
+        *aMoveTopStockToGraveyard, *aViewNextTopCard, *aFlipHovered, *aSideAttack;
 
     QList<QAction *> aAddCounter, aSetCounter, aRemoveCounter;
     QAction *aPlay, *aPlayFacedown, *aHide, *aTap, *aDoesntUntap, *aAttach, *aUnattach, *aDrawArrow, *aSetPT, *aResetPT,
@@ -264,6 +266,8 @@ private:
     bool dialogSemaphore;
     bool clearCardsToDelete();
     QList<CardItem *> cardsToDelete;
+
+    CardItem *attackingCard;
 
     DeckLoader *deck;
     QStringList predefinedTokens;
@@ -332,6 +336,7 @@ public:
         cmDoesntUntap,
         cmFlip,
         cmPeek,
+        cmSideAttack,
         cmClone,
         cmMoveToTopLibrary,
         cmMoveToBottomLibrary,
@@ -464,6 +469,13 @@ public:
 
     void setLastToken(CardInfoPtr cardInfo);
     void processClimax(CardItem *card);
+    void setCardAttackState(QList<const ::google::protobuf::Message *> &commandList,
+                            CardItem *card,
+                            CardItem::AttackState state);
+    void attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card);
+    void setAttackingCard(CardItem *card);
+    void cardLeftTable(CardItem *card);
+    void resetAttackingCard();
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;

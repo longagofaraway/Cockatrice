@@ -911,6 +911,22 @@ void MessageLogWidget::logRefresh(Player *player, int climaxCount)
                                 .arg("<font class=\"blue\">" + QString::number(climaxCount) + "</font>"));
 }
 
+void MessageLogWidget::logSetAttackState(Player *player, CardItem *card, CardItem::AttackState state)
+{
+    QString attackStr;
+    if (state == CardItem::Front)
+        attackStr = "front";
+    else if (state == CardItem::Side)
+        attackStr = "side";
+    else if (state == CardItem::Direct)
+        attackStr = "direct";
+
+    appendHtmlServerMessage(tr("%1 declares %2 attack with %3.")
+                                .arg(sanitizeHtml(player->getName()))
+                                .arg(attackStr)
+                                .arg(cardLink(card->getName(), card->getCode())));
+}
+
 void MessageLogWidget::setContextJudgeName(QString name)
 {
     messagePrefix = QString("<span style=\"color:black\">");
@@ -961,6 +977,8 @@ void MessageLogWidget::connectToPlayer(Player *player)
     connect(player, SIGNAL(logAlwaysRevealTopCard(Player *, CardZone *, bool)), this,
             SLOT(logAlwaysRevealTopCard(Player *, CardZone *, bool)));
     connect(player, SIGNAL(logRefresh(Player *, int)), this, SLOT(logRefresh(Player *, int)));
+    connect(player, SIGNAL(logSetAttackState(Player *, CardItem *, CardItem::AttackState)), this,
+            SLOT(logSetAttackState(Player *, CardItem *, CardItem::AttackState)));
 }
 
 MessageLogWidget::MessageLogWidget(const TabSupervisor *_tabSupervisor,

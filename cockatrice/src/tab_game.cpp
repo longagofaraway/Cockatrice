@@ -1297,6 +1297,10 @@ void TabGame::eventSetActivePlayer(const Event_SetActivePlayer &event,
                                    int /*eventPlayerId*/,
                                    const GameEventContext & /*context*/)
 {
+    Player *active = players.value(activePlayer, 0);
+    if (active)
+        active->resetAttackingCard();
+
     Player *player = setActivePlayer(event.active_player_id());
     if (!player)
         return;
@@ -1386,6 +1390,22 @@ Player *TabGame::getActiveLocalPlayer() const
     while (playerIterator.hasNext()) {
         Player *temp = playerIterator.next().value();
         if (temp->getLocal())
+            return temp;
+    }
+
+    return nullptr;
+}
+
+Player *TabGame::getInactivePlayer() const
+{
+    Player *active = players.value(activePlayer, nullptr);
+    if (!active)
+        return nullptr;
+
+    QMapIterator<int, Player *> playerIterator(players);
+    while (playerIterator.hasNext()) {
+        Player *temp = playerIterator.next().value();
+        if (!temp->getActive())
             return temp;
     }
 

@@ -1,6 +1,7 @@
 #ifndef MESSAGELOGWIDGET_H
 #define MESSAGELOGWIDGET_H
 
+#include "carditem.h"
 #include "chatview/chatview.h"
 #include "translation.h"
 #include "user_level.h"
@@ -8,7 +9,6 @@
 class Player;
 class CardZone;
 class GameEventContext;
-class CardItem;
 
 class MessageLogWidget : public ChatView
 {
@@ -106,6 +106,7 @@ public slots:
     void logUnattachCard(Player *player, CardItem *card);
     void logUndoDraw(Player *player, QString cardName);
     void logRefresh(Player *player, int climaxCount);
+    void logSetAttackState(Player *player, CardItem *card, CardItem::AttackState state);
     void setContextJudgeName(QString player);
     void appendHtmlServerMessage(const QString &html,
                                  bool optionalIsBold = false,

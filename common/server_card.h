@@ -39,6 +39,12 @@ public:
         Tapped,
         Reversed
     };
+    enum AttackState
+    {
+        NoAttack,
+        Front,
+        Side
+    };
 
 private:
     Server_CardZone *zone;
@@ -47,7 +53,7 @@ private:
     QString name;
     QMap<int, int> counters;
     TapState tapped;
-    bool attacking;
+    AttackState attackState;
     bool facedown;
     QString color;
     QString ptString;
@@ -99,9 +105,9 @@ public:
     {
         return tapped;
     }
-    bool getAttacking() const
+    AttackState getAttackState() const
     {
-        return attacking;
+        return attackState;
     }
     bool getFaceDown() const
     {
@@ -154,9 +160,9 @@ public:
     {
         tapped = _tapped;
     }
-    void setAttacking(bool _attacking)
+    void setAttackState(AttackState _attackState)
     {
-        attacking = _attacking;
+        attackState = _attackState;
     }
     void setFaceDown(bool _facedown)
     {

@@ -247,6 +247,9 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
         connect(aFlipHovered, SIGNAL(triggered()), table, SLOT(actFlipHovered()));
         aViewNextTopCard = new QAction(this);
         connect(aViewNextTopCard, SIGNAL(triggered()), this, SLOT(actViewNextTopCard()));
+        aSideAttack = new QAction(this);
+        aSideAttack->setData(cmSideAttack);
+        connect(aSideAttack, SIGNAL(triggered()), this, SLOT(cardMenuAction()));
     }
 
     aViewGraveyard = new QAction(this);
@@ -827,6 +830,7 @@ void Player::retranslateUi()
         aMoveStackToStock->setText(tr("Move stack to &stock"));
         aMoveStackToClock->setText(tr("Move stack to &clock"));
         aMoveStackToGrave->setText(tr("Move stack to &grave"));
+        aSideAttack->setText(tr("Side attack"));
 
         QMapIterator<int, AbstractCounter *> counterIterator(counters);
         while (counterIterator.hasNext()) {
@@ -1673,15 +1677,35 @@ void Player::setCardAttrHelper(const GameEventContext &context,
                 break;
 
             if (!(tapState == AbstractCardItem::Standing && card->getDoesntUntap() && allCards)) {
-                if (!allCards) {
+                // tap is attack on attack decl phase
+                if (!allCards && game->getCurrentPhase() != 4)
                     emit logSetTapped(this, card, tapState);
-                }
                 card->setTapped(tapState, !moveCardContext);
             }
+
             break;
         }
         case AttrAttacking: {
-            card->setAttacking(avalue == "1");
+            CardItem::AttackState attState;
+            if (avalue == "0")
+                attState = CardItem::NoAttack;
+            else if (avalue == "1")
+                attState = CardItem::Front;
+            else if (avalue == "2")
+                attState = CardItem::Side;
+            else
+                break;
+            card->setAttackState(attState);
+
+            setAttackingCard(card);
+            if (attState != CardItem::NoAttack) {
+                Player *opponent = game->getInactivePlayer();
+                if (!opponent)
+                    break;
+                CardItem *battleOpponent =
+                    static_cast<TableZone *>(opponent->getZones()["table"])->getCardFromGrid(card->getGridPoint());
+                emit logSetAttackState(this, card, battleOpponent ? attState : CardItem::Direct);
+            }
             break;
         }
         case AttrFaceDown: {
@@ -2722,6 +2746,8 @@ void Player::cardMenuAction()
                     cmd->set_attribute(AttrTapped);
                     cmd->set_attr_value(std::to_string(card->nextTapState()));
                     commandList.append(cmd);
+
+                    attackOnTap(commandList, card);
                     break;
                 }
                 case cmDoesntUntap: {
@@ -2753,6 +2779,10 @@ void Player::cardMenuAction()
                     cmd->set_card_id(card->getId());
                     cmd->set_player_id(id);
                     commandList.append(cmd);
+                    break;
+                }
+                case cmSideAttack: {
+                    setCardAttackState(commandList, card, CardItem::Side);
                     break;
                 }
                 case cmClone: {
@@ -3368,6 +3398,11 @@ void Player::updateCardMenu(const CardItem *card)
                     ptMenu->addAction(aResetPT);
                 }
 
+                if (local) {
+                    cardMenu->addAction(aSideAttack);
+                    cardMenu->addSeparator();
+                }
+
                 cardMenu->addAction(aTap);
                 cardMenu->addAction(aDoesntUntap);
                 cardMenu->addAction(aFlip);
@@ -3390,14 +3425,6 @@ void Player::updateCardMenu(const CardItem *card)
                 cardMenu->addSeparator();
                 cardMenu->addMenu(moveMenu);
 
-                for (int i = 0; i < aAddCounter.size(); ++i) {
-                    cardMenu->addSeparator();
-                    cardMenu->addAction(aAddCounter[i]);
-                    if (card->getCounters().contains(i)) {
-                        cardMenu->addAction(aRemoveCounter[i]);
-                    }
-                    cardMenu->addAction(aSetCounter[i]);
-                }
                 cardMenu->addSeparator();
             } else if (card->getZone()->getName() == "stack") {
                 // Card is on the stack
@@ -3679,4 +3706,56 @@ void Player::incSoulAll(int power, int soul)
     }
 
     game->sendGameCommand(prepareGameCommand(commandList), id);
+}
+
+void Player::setCardAttackState(QList<const ::google::protobuf::Message *> &commandList,
+                                CardItem *card,
+                                CardItem::AttackState state)
+{
+    if (card->getTapped() == AbstractCardItem::TapState::Standing && game->getCurrentPhase() == 4) {
+        auto *cmd = new Command_SetCardAttr;
+        cmd->set_zone(card->getZone()->getName().toStdString());
+        cmd->set_card_id(card->getId());
+        cmd->set_attribute(AttrTapped);
+        cmd->set_attr_value(std::to_string(card->nextTapState()));
+        commandList.append(cmd);
+
+        auto *attCmd = new Command_SetCardAttr;
+        attCmd->set_zone(card->getZone()->getName().toStdString());
+        attCmd->set_card_id(card->getId());
+        attCmd->set_attribute(AttrAttacking);
+        attCmd->set_attr_value(std::to_string(state));
+        commandList.append(attCmd);
+    }
+}
+
+void Player::attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card)
+{
+    if (card->nextTapState() == AbstractCardItem::Tapped && game->getCurrentPhase() == 4) { // attack decl phase
+        auto *cmd = new Command_SetCardAttr;
+        cmd->set_zone(card->getZone()->getName().toStdString());
+        cmd->set_card_id(card->getId());
+        cmd->set_attribute(AttrAttacking);
+        cmd->set_attr_value(std::to_string(CardItem::AttackState::Front));
+        commandList.append(cmd);
+    }
+}
+
+void Player::setAttackingCard(CardItem *card)
+{
+    if (card->getAttackState() == CardItem::AttackState::NoAttack)
+        attackingCard = nullptr;
+    else
+        attackingCard = card;
+}
+
+void Player::cardLeftTable(CardItem *card)
+{
+    if (card == attackingCard)
+        attackingCard = nullptr;
+}
+
+void Player::resetAttackingCard()
+{
+    attackingCard = nullptr;
 }

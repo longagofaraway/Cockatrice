@@ -19,7 +19,7 @@
 #include <QPainter>
 
 CardItem::CardItem(Player *_owner, const QString &cardCode, int _cardid, bool _revealedCard, QGraphicsItem *parent)
-    : AbstractCardItem(cardCode, _owner, _cardid, parent), zone(0), revealedCard(_revealedCard), attacking(false),
+    : AbstractCardItem(cardCode, _owner, _cardid, parent), zone(0), revealedCard(_revealedCard), attackState(NoAttack),
       destroyOnZoneChange(false), doesntUntap(false), dragItem(0), attachedTo(0)
 {
     owner->addCard(this);
@@ -160,9 +160,9 @@ void CardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     painter->restore();
 }
 
-void CardItem::setAttacking(bool _attacking)
+void CardItem::setAttackState(AttackState _attacking)
 {
-    attacking = _attacking;
+    attackState = _attacking;
     update();
 }
 
@@ -216,7 +216,7 @@ void CardItem::setAttachedTo(CardItem *_attachedTo)
 
 void CardItem::resetState()
 {
-    attacking = false;
+    attackState = NoAttack;
     facedown = false;
     counters.clear();
     pt.clear();
@@ -241,7 +241,7 @@ void CardItem::processCardInfo(const ServerInfo_Card &info)
 
     setId(info.id());
     setName(QString::fromStdString(info.name()));
-    setAttacking(info.attacking());
+    setAttackState(static_cast<CardItem::AttackState>(info.attacking()));
     setFaceDown(info.face_down());
     setPT(QString::fromStdString(info.pt()));
     setAnnotation(QString::fromStdString(info.annotation()));

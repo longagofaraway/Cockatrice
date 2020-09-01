@@ -24,7 +24,7 @@
 #include "server_player.h"
 
 Server_Card::Server_Card(QString _name, int _id, int _coord_x, int _coord_y, Server_CardZone *_zone)
-    : zone(_zone), id(_id), coord_x(_coord_x), coord_y(_coord_y), name(_name), tapped(Standing), attacking(false),
+    : zone(_zone), id(_id), coord_x(_coord_x), coord_y(_coord_y), name(_name), tapped(Standing), attackState(NoAttack),
       facedown(false), color(), ptString(), annotation(), destroyOnZoneChange(false), doesntUntap(false), parentCard(0)
 {
 }
@@ -43,7 +43,7 @@ void Server_Card::resetState()
 {
     counters.clear();
     setTapped(Standing);
-    setAttacking(false);
+    setAttackState(NoAttack);
     setPT(QString());
     setAnnotation(QString());
     setDoesntUntap(false);
@@ -68,7 +68,17 @@ QString Server_Card::setAttribute(CardAttribute attribute, const QString &avalue
             break;
         }
         case AttrAttacking:
-            setAttacking(avalue == "1");
+            AttackState attState;
+            if (avalue == "0")
+                attState = NoAttack;
+            else if (avalue == "1")
+                attState = Front;
+            else if (avalue == "2")
+                attState = Side;
+            else
+                break;
+
+            setAttackState(attState);
             break;
         case AttrFaceDown:
             setFaceDown(avalue == "1");
@@ -118,9 +128,7 @@ void Server_Card::getInfo(ServerInfo_Card *info)
         info->set_face_down(true);
     }
     info->set_tapped(tapped);
-    if (attacking) {
-        info->set_attacking(true);
-    }
+    info->set_attacking(attackState);
     if (!color.isEmpty()) {
         info->set_color(color.toStdString());
     }

@@ -235,6 +235,9 @@ void TableZone::toggleTapped()
             cmd->set_attribute(AttrTapped);
             cmd->set_attr_value(std::to_string(temp->nextTapState(srcState)));
             cmdList.append(cmd);
+
+            if (i == 0)
+                player->attackOnTap(cmdList, temp);
         }
     }
     player->sendGameCommand(player->prepareGameCommand(cmdList));
@@ -251,6 +254,9 @@ void TableZone::actTapHovered()
             cmd->set_attribute(AttrTapped);
             cmd->set_attr_value(std::to_string(cards[i]->nextTapState()));
             cmdList.append(cmd);
+
+            player->attackOnTap(cmdList, cards[i]);
+
             player->sendGameCommand(player->prepareGameCommand(cmdList));
             break;
         }
@@ -284,6 +290,7 @@ CardItem *TableZone::takeCard(int position, int cardId, bool canResize)
     CardItem *result = CardZone::takeCard(position, cardId);
     if (canResize)
         resizeToContents();
+    player->cardLeftTable(result);
     return result;
 }
 
