@@ -15,7 +15,7 @@ public:
 
 struct Phases
 {
-    const static int phaseTypesCount = 11;
+    const static int phaseTypesCount = 10;
     const static Phase unknownPhase;
     const static Phase phases[phaseTypesCount];
 

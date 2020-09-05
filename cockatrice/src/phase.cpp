@@ -17,13 +17,12 @@ Phase Phases::getPhase(int phase)
 const Phase Phases::unknownPhase(QT_TRANSLATE_NOOP("Phase", "Unknown Phase"), "black", "unknown_phase");
 const Phase Phases::phases[Phases::phaseTypesCount] = {
     {QT_TRANSLATE_NOOP("Phase", "Untap"), "green", "untap_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Upkeep"), "green", "upkeep_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Draw"), "green", "draw_step"},
-    {QT_TRANSLATE_NOOP("Phase", "First Main"), "blue", "main_1"},
-    {QT_TRANSLATE_NOOP("Phase", "Beginning of Combat"), "red", "start_combat"},
-    {QT_TRANSLATE_NOOP("Phase", "Declare Attackers"), "red", "attack_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Declare Blockers"), "red", "block_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Combat Damage"), "red", "damage_step"},
-    {QT_TRANSLATE_NOOP("Phase", "End of Combat"), "red", "end_combat"},
-    {QT_TRANSLATE_NOOP("Phase", "Second Main"), "blue", "main_2"},
-    {QT_TRANSLATE_NOOP("Phase", "End/Cleanup"), "green", "end_step"}};
+    {QT_TRANSLATE_NOOP("Phase", "Draw"), "green", "upkeep_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Clock"), "green", "draw_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Main"), "blue", "main_1"},
+    {QT_TRANSLATE_NOOP("Phase", "Attack Declaration"), "red", "start_combat"},
+    {QT_TRANSLATE_NOOP("Phase", "Trigger"), "red", "attack_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Counter"), "red", "block_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Damage"), "red", "damage_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Batle"), "red", "end_combat"},
+    {QT_TRANSLATE_NOOP("Phase", "Encore"), "green", "end_step"}};
