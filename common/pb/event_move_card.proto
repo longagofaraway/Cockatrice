@@ -1,5 +1,6 @@
 syntax = "proto2";
 import "game_event.proto";
+import "super_commands.proto";
 
 message Event_MoveCard {
     extend GameEvent {
@@ -17,4 +18,5 @@ message Event_MoveCard {
     optional sint32 new_card_id = 10 [default = -1];
     optional bool face_down = 11;
     optional sint32 attach = 12 [default = 0];
+	optional SuperCommand superCommand = 13;
 }

@@ -438,3 +438,11 @@ QVariant CardItem::itemChange(GraphicsItemChange change, const QVariant &value)
     }
     return QGraphicsItem::itemChange(change, value);
 }
+
+bool CardItem::hasDoubleTriggerCheckAbility()
+{
+    const QString &text = info->getText();
+    if (text.contains("trigger", Qt::CaseInsensitive) && text.contains("twice", Qt::CaseInsensitive))
+        return true;
+    return false;
+}

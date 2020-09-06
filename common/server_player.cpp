@@ -376,7 +376,8 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
                                                int x,
                                                int y,
                                                bool fixFreeSpaces,
-                                               bool undoingDraw)
+                                               bool undoingDraw,
+                                               SuperCommand superCommand)
 {
     // Disallow controller change to other zones than the table.
     if (startzone->getPlayer() != targetzone->getPlayer()) {
@@ -582,6 +583,8 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
             eventOthers.set_y(y);
             eventOthers.set_face_down(faceDown);
             eventOthers.set_attach(attach ? 1 : 0);
+            if (superCommand != SuperCommandNoCommand)
+                eventOthers.set_supercommand(superCommand);
 
             Event_MoveCard eventPrivate(eventOthers);
             eventPrivate.set_card_id(privateOldCardId);
@@ -1171,6 +1174,8 @@ Server_Player::cmdMoveCard(const Command_MoveCard &cmd, ResponseContainer & /*rc
         cardsToMove.append(&cmd.cards_to_move().card(i));
     }
 
+    if (cmd.has_supercommand())
+        return moveCard(ges, startZone, cardsToMove, targetZone, cmd.x(), cmd.y(), true, false, cmd.supercommand());
     return moveCard(ges, startZone, cardsToMove, targetZone, cmd.x(), cmd.y());
 }
 

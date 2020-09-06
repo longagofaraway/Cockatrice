@@ -13,6 +13,8 @@
 #include "pb/command_set_card_attr.pb.h"
 #include "phasestoolbar.h"
 #include "pixmapgenerator.h"
+#include "player.h"
+#include "tab_game.h"
 
 PhaseButton::PhaseButton(const QString &_name, QGraphicsItem *parent, QAction *_doubleClickAction, bool _highlightable)
     : QObject(), QGraphicsItem(parent), name(_name), active(false), highlightable(_highlightable),
@@ -104,20 +106,22 @@ void PhaseButton::triggerDoubleClickAction()
         doubleClickAction->trigger();
 }
 
-PhasesToolbar::PhasesToolbar(QGraphicsItem *parent)
-    : QGraphicsItem(parent), width(100), height(100), ySpacing(1), symbolSize(8)
+PhasesToolbar::PhasesToolbar(TabGame *tabGame, QGraphicsItem *parent)
+    : QGraphicsItem(parent), game(tabGame), width(100), height(100), ySpacing(1), symbolSize(8)
 {
     auto *aUntapAll = new QAction(this);
     connect(aUntapAll, SIGNAL(triggered()), this, SLOT(actUntapAll()));
     auto *aDrawCard = new QAction(this);
     connect(aDrawCard, SIGNAL(triggered()), this, SLOT(actDrawCard()));
+    auto *aTrigger = new QAction(this);
+    connect(aTrigger, SIGNAL(triggered()), this, SLOT(actTrigger()));
 
     PhaseButton *untapButton = new PhaseButton("untap", this, aUntapAll);
     PhaseButton *drawButton = new PhaseButton("draw", this, aDrawCard);
     PhaseButton *clockButton = new PhaseButton("clock", this);
     PhaseButton *mainButton = new PhaseButton("main", this);
     PhaseButton *attackDeclarationButton = new PhaseButton("declare_attack", this);
-    PhaseButton *combatTriggerButton = new PhaseButton("combat_trigger", this);
+    PhaseButton *combatTriggerButton = new PhaseButton("combat_trigger", this, aTrigger);
     PhaseButton *combatCounterButton = new PhaseButton("combat_counter", this);
     PhaseButton *combatDamageButton = new PhaseButton("combat_damage", this);
     PhaseButton *combatBattleButton = new PhaseButton("combat_battle", this);
@@ -271,4 +275,12 @@ void PhasesToolbar::actDrawCard()
     cmd.set_number(1);
 
     emit sendGameCommand(cmd, -1);
+}
+
+void PhasesToolbar::actTrigger()
+{
+    Player *player = game->getActiveLocalPlayer();
+    if (!player)
+        return;
+    player->doTrigger();
 }

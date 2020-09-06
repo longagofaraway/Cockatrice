@@ -21,8 +21,8 @@ const Phase Phases::phases[Phases::phaseTypesCount] = {
     {QT_TRANSLATE_NOOP("Phase", "Clock"), "green", "draw_step"},
     {QT_TRANSLATE_NOOP("Phase", "Main"), "blue", "main_1"},
     {QT_TRANSLATE_NOOP("Phase", "Attack Declaration"), "red", "start_combat"},
-    {QT_TRANSLATE_NOOP("Phase", "Trigger"), "red", "attack_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Counter"), "red", "block_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Damage"), "red", "damage_step"},
-    {QT_TRANSLATE_NOOP("Phase", "Batle"), "red", "end_combat"},
+    {QT_TRANSLATE_NOOP("Phase", "Trigger Step"), "red", "attack_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Counter Step"), "red", "block_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Damage Step"), "red", "damage_step"},
+    {QT_TRANSLATE_NOOP("Phase", "Battle Step"), "red", "end_combat"},
     {QT_TRANSLATE_NOOP("Phase", "Encore"), "green", "end_step"}};

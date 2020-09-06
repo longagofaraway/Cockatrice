@@ -315,6 +315,10 @@ public:
     {
         return currentPhase;
     }
+    void nextPhase()
+    {
+        actNextPhase();
+    }
 
     void processGameEventContainer(const GameEventContainer &cont, AbstractClient *client);
     PendingCommand *prepareGameCommand(const ::google::protobuf::Message &cmd);

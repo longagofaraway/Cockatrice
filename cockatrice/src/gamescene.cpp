@@ -142,7 +142,11 @@ void GameScene::rearrange()
     processViewSizeChange(viewSize);
 }
 
-void GameScene::toggleZoneView(Player *player, const QString &zoneName, int numberCards, bool addCards)
+void GameScene::toggleZoneView(Player *player,
+                               const QString &zoneName,
+                               int numberCards,
+                               bool addCards,
+                               int closeOnCardsTaken)
 {
     for (int i = 0; i < zoneViews.size(); i++) {
         ZoneViewZone *temp = zoneViews[i]->getZone();
@@ -155,16 +159,17 @@ void GameScene::toggleZoneView(Player *player, const QString &zoneName, int numb
         }
     }
 
-    ZoneViewWidget *item = new ZoneViewWidget(player, player->getZones().value(zoneName), numberCards, false);
+    ZoneViewWidget *item = new ZoneViewWidget(player, player->getZones().value(zoneName), numberCards, false, false,
+                                              QList<const ServerInfo_Card *>(), closeOnCardsTaken);
     zoneViews.append(item);
     connect(item, SIGNAL(closePressed(ZoneViewWidget *)), this, SLOT(removeZoneView(ZoneViewWidget *)));
     addItem(item);
     if (zoneName == "grave")
-        item->setPos(200, 100);
+        item->setPos(400, 100);
     else if (zoneName == "rfg")
-        item->setPos(200, 120);
+        item->setPos(400, 120);
     else
-        item->setPos(200, 80);
+        item->setPos(400, 80);
 }
 
 void GameScene::addRevealedZoneView(Player *player,

@@ -150,6 +150,9 @@ signals:
     void logAlwaysRevealTopCard(Player *player, CardZone *zone, bool reveal);
     void logRefresh(Player *player, int climaxCount);
     void logSetAttackState(Player *player, CardItem *card, CardItem::AttackState state);
+    void logTrigger(Player *player, CardItem *card);
+    void logTreasure(Player *player);
+    void logBounce(Player *player);
 
     void sizeChanged();
     void playerCountChanged();
@@ -374,7 +377,8 @@ public:
     void clearCounters();
 
     void incPTHovered(int deltaP, int deltaT);
-    void incSoulAll(int power, int soul);
+    void incPTFrontRow(int power, int soul);
+    void incCardPT(CardItem *card, int deltaP, int deltaS);
 
     ArrowItem *addArrow(const ServerInfo_Arrow &arrow);
     ArrowItem *addArrow(int arrowId, CardItem *startCard, ArrowTarget *targetItem, const QColor &color);
@@ -469,13 +473,21 @@ public:
 
     void setLastToken(CardInfoPtr cardInfo);
     void processClimax(CardItem *card);
+    void processTrigger(CardItem *card);
+    void processOpponentTrigger(CardItem *card);
     void setCardAttackState(QList<const ::google::protobuf::Message *> &commandList,
                             CardItem *card,
                             CardItem::AttackState state);
     void attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card);
     void setAttackingCard(CardItem *card);
+    CardItem *getAttackingCard()
+    {
+        return attackingCard;
+    }
     void cardLeftTable(CardItem *card);
     void resetAttackingCard();
+    void doTrigger();
+    void moveCard(CardItem *card, QString targetZone);
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;

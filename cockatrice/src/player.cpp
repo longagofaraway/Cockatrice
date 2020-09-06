@@ -75,7 +75,7 @@
 #include <QPainter>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
-#include <QtConcurrent>
+#include <QTimer>
 
 PlayerArea::PlayerArea(QGraphicsItem *parentItem) : QObject(), QGraphicsItem(parentItem)
 {
@@ -104,7 +104,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     : QObject(_parent), game(_parent), shortcutsActive(false), defaultNumberTopCards(1),
       defaultNumberTopCardsToPlaceBelow(1), lastTokenDestroy(true), lastTokenTableRow(0), id(_id), active(false),
       local(_local), judge(_judge), mirrored(false), handVisible(false), conceded(false), dialogSemaphore(false),
-      deck(nullptr)
+      deck(nullptr), attackingCard(nullptr)
 {
     userInfo = new ServerInfo_User;
     userInfo->CopyFrom(info);
@@ -365,6 +365,8 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     graveMenu->addAction(aViewGraveyard);
 
     if (local || judge) {
+        graveMenu->addAction(aRefresh);
+        graveMenu->addSeparator();
         mRevealRandomGraveyardCard = graveMenu->addMenu(QString());
         QAction *newAction = mRevealRandomGraveyardCard->addAction(QString());
         newAction->setData(-1);
@@ -379,8 +381,6 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     rfg->setMenu(rfgMenu, aViewRfg);
 
     if (local || judge) {
-        graveMenu->addAction(aRefresh);
-        graveMenu->addSeparator();
         moveGraveMenu = graveMenu->addTearOffMenu(QString());
         moveGraveMenu->addAction(aMoveGraveToTopLibrary);
         moveGraveMenu->addAction(aMoveGraveToBottomLibrary);
@@ -1982,6 +1982,8 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
         if (targetZone->getName() == "table")
             baseCard = table->getCardFromGrid({(x / 3) * 3, y});
         emit logAttachCard(this, card, startZone, logPosition, baseCard, targetZone);
+    } else if (event.has_supercommand() && event.supercommand() == SuperCommandTrigger) {
+        emit logTrigger(this, card);
     } else {
         emit logMoveCard(this, card, startZone, logPosition, targetZone, logX);
     }
@@ -2013,6 +2015,8 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
 
     if (targetPlayer == this && targetZone->getName() == "climax" && card->getInfo()->getMainCardType() == "Climax")
         processClimax(card);
+    if (active && event.has_supercommand() && event.supercommand() == SuperCommandTrigger)
+        processTrigger(card);
 }
 
 void Player::eventFlipCard(const Event_FlipCard &event)
@@ -2976,8 +2980,6 @@ void Player::incPTHovered(int deltaP, int deltaT)
     if (!local)
         return;
 
-    int playerid = id;
-
     QList<const ::google::protobuf::Message *> commandList;
     const CardList &cardsOnTable = table->getCards();
     for (int i = 0; i < cardsOnTable.size(); i++) {
@@ -2993,13 +2995,21 @@ void Player::incPTHovered(int deltaP, int deltaT)
         cmd->set_attribute(AttrPT);
         cmd->set_attr_value(newpt.toStdString());
         commandList.append(cmd);
-
-        if (local) {
-            playerid = cardsOnTable[i]->getZone()->getPlayer()->getId();
-        }
     }
 
-    game->sendGameCommand(prepareGameCommand(commandList), playerid);
+    sendGameCommand(prepareGameCommand(commandList));
+}
+
+void Player::incCardPT(CardItem *card, int deltaP, int deltaS)
+{
+    QString newpt = addPowerToughness(parsePT(card->getPT()), deltaP, deltaS);
+    Command_SetCardAttr cmd;
+    cmd.set_zone(card->getZone()->getName().toStdString());
+    cmd.set_card_id(card->getId());
+    cmd.set_attribute(AttrPT);
+    cmd.set_attr_value(newpt.toStdString());
+
+    sendGameCommand(cmd);
 }
 
 void Player::actResetPT()
@@ -3675,15 +3685,89 @@ void Player::wheelEvent(QGraphicsSceneWheelEvent *event)
 void Player::processClimax(CardItem *card)
 {
     const QString &text = card->getInfo()->getText();
-    if (text.contains("+1 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive)) {
-        QtConcurrent::run(this, &Player::incSoulAll, 0, 1);
-    }
-    if (text.contains("+2 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive)) {
-        QtConcurrent::run(this, &Player::incSoulAll, 0, 2);
+    int soulInc = 0;
+    if (text.contains("+1 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive))
+        soulInc = 1;
+    if (text.contains("+2 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive))
+        soulInc = 2;
+    if (soulInc)
+        QTimer::singleShot(0, this, [this, soulInc]() { this->incPTFrontRow(0, soulInc); });
+}
+
+void Player::processOpponentTrigger(CardItem *card)
+{
+    if (!card->getInfo()->getProperties().contains("triggers"))
+        return;
+
+    QStringList triggers = card->getInfo()->getProperty("triggers").split(" - ");
+    if (triggers.empty())
+        return;
+
+    for (const auto &trigger : triggers) {
+        if (trigger == "Bounce" || trigger == "Return")
+            emit logBounce(this);
+        else if (trigger == "Treasure" || trigger == "Stock" || trigger == "Bag" || trigger == "Pool")
+            emit logTreasure(this);
     }
 }
 
-void Player::incSoulAll(int power, int soul)
+void Player::processTrigger(CardItem *card)
+{
+    if (!local) {
+        processOpponentTrigger(card);
+        return;
+    }
+
+    if (!zones.value("deck")->getCards().size())
+        QTimer::singleShot(0, this, &Player::actRefresh);
+
+    bool actionResolved = true;
+    QString targetZone = "stock";
+    do {
+        if (!card->getInfo()->getProperties().contains("triggers"))
+            break;
+
+        QStringList triggers = card->getInfo()->getProperty("triggers").split(" - ");
+        if (triggers.empty())
+            break;
+
+        int soulInc = 0;
+        for (const auto &trigger : triggers) {
+            if (trigger == "Soul")
+                soulInc++;
+            else if ((trigger == "Gate" || trigger == "Salvage" || trigger == "Comeback" || trigger == "Standby" ||
+                      trigger == "Choice" || trigger == "Door" || trigger == "Pants") &&
+                     zones.value("grave")->getCards().size()) {
+                QTimer::singleShot(500, this, [this]() {
+                    dynamic_cast<GameScene *>(this->scene())->toggleZoneView(this, "grave", -1, false, 1);
+                });
+            } else if (trigger == "Bounce" || trigger == "Return") {
+                if (game->getInactivePlayer()->getZones().value("table")->getCards().size()) {
+                    actionResolved = false;
+                    emit logBounce(this);
+                }
+            } else if (trigger == "Treasure") {
+                targetZone = "hand";
+                emit logTreasure(this);
+            } else if (trigger == "Stock" || trigger == "Bag" || trigger == "Pool") {
+                actionResolved = false;
+                emit logTreasure(this);
+            } else if (trigger == "Draw")
+                QTimer::singleShot(500, this, &Player::actDrawCard);
+        }
+
+        if (attackingCard && soulInc)
+            QTimer::singleShot(0, this, [this, soulInc]() { this->incCardPT(this->getAttackingCard(), 0, soulInc); });
+    } while (false);
+
+    if (actionResolved)
+        QTimer::singleShot(1400, this, [this, card, targetZone]() { this->moveCard(card, targetZone); });
+
+    if (attackingCard && !attackingCard->hasDoubleTriggerCheckAbility())
+        QTimer::singleShot(1500, game, &TabGame::nextPhase);
+}
+
+void Player::incPTFrontRow(int deltaP, int deltaS)
 {
     QList<const ::google::protobuf::Message *> commandList;
     const CardList &cardsOnTable = table->getCards();
@@ -3695,7 +3779,7 @@ void Player::incSoulAll(int power, int soul)
 
         QString pt = cardsOnTable[i]->getPT();
         const auto ptList = parsePT(pt);
-        QString newpt = addPowerToughness(ptList, power, soul);
+        QString newpt = addPowerToughness(ptList, deltaP, deltaS);
 
         auto *cmd = new Command_SetCardAttr;
         cmd->set_zone(cardsOnTable[i]->getZone()->getName().toStdString());
@@ -3758,4 +3842,35 @@ void Player::cardLeftTable(CardItem *card)
 void Player::resetAttackingCard()
 {
     attackingCard = nullptr;
+}
+
+void Player::doTrigger()
+{
+    if (!attackingCard)
+        return;
+
+    Command_MoveCard cmd;
+    cmd.set_start_zone("deck");
+    CardToMove *cardToMove = cmd.mutable_cards_to_move()->add_card();
+    cardToMove->set_card_id(0);
+    cmd.set_target_player_id(id);
+    cmd.set_target_zone("stack");
+    cmd.set_x(0);
+    cmd.set_y(0);
+    cmd.set_supercommand(SuperCommandTrigger);
+
+    sendGameCommand(cmd);
+}
+
+void Player::moveCard(CardItem *card, QString targetZone)
+{
+    Command_MoveCard cmd;
+    cmd.set_start_zone(card->getZone()->getName().toStdString());
+    CardToMove *cardToMove = cmd.mutable_cards_to_move()->add_card();
+    cardToMove->set_card_id(card->getId());
+    cmd.set_target_zone(targetZone.toStdString());
+    cmd.set_target_player_id(id);
+    cmd.set_x(0);
+
+    sendGameCommand(cmd);
 }

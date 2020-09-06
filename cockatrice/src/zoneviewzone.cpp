@@ -21,10 +21,12 @@ ZoneViewZone::ZoneViewZone(Player *_p,
                            int _numberCards,
                            bool _revealZone,
                            bool _writeableRevealZone,
+                           int _closeOnCardsTaken,
                            QGraphicsItem *parent)
     : SelectZone(_p, _origZone->getName(), false, false, true, parent, true), bRect(QRectF()), minRows(0),
       numberCards(_numberCards), origZone(_origZone), revealZone(_revealZone),
-      writeableRevealZone(_writeableRevealZone), sortByName(false), sortByType(false)
+      writeableRevealZone(_writeableRevealZone), sortByName(false), sortByType(false),
+      closeOnCardsTaken(_closeOnCardsTaken), cardsTaken(0)
 {
     if (!(revealZone && !writeableRevealZone))
         origZone->setView(this);
@@ -228,10 +230,20 @@ void ZoneViewZone::removeCard(int position)
 
     CardItem *card = cards.takeAt(position);
     card->deleteLater();
-    if (!cards.size())
+
+    if (!cards.size()) {
         emit closeZone();
-    else
-        reorganizeCards();
+        return;
+    }
+    if (closeOnCardsTaken) {
+        cardsTaken++;
+        if (cardsTaken == closeOnCardsTaken) {
+            emit closeZone();
+            return;
+        }
+    }
+
+    reorganizeCards();
 }
 
 void ZoneViewZone::setGeometry(const QRectF &rect)

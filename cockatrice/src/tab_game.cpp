@@ -1666,7 +1666,7 @@ void TabGame::actResetLayout()
 
 void TabGame::createPlayAreaWidget(bool bReplay)
 {
-    phasesToolbar = new PhasesToolbar;
+    phasesToolbar = new PhasesToolbar(this);
     if (!bReplay)
         connect(phasesToolbar, SIGNAL(sendGameCommand(const ::google::protobuf::Message &, int)), this,
                 SLOT(sendGameCommand(const ::google::protobuf::Message &, int)));

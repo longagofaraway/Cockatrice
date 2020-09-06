@@ -165,6 +165,7 @@ public:
     void deleteDragItem();
     void drawArrow(const QColor &arrowColor);
     void playCard(bool faceDown);
+    bool hasDoubleTriggerCheckAbility();
 
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

@@ -927,6 +927,23 @@ void MessageLogWidget::logSetAttackState(Player *player, CardItem *card, CardIte
                                 .arg(cardLink(card->getName(), card->getCode())));
 }
 
+void MessageLogWidget::logTrigger(Player *player, CardItem *card)
+{
+    appendHtmlServerMessage(
+        tr("%1 triggers %2.").arg(sanitizeHtml(player->getName())).arg(cardLink(card->getName(), card->getCode())));
+}
+
+void MessageLogWidget::logTreasure(Player *player)
+{
+    appendHtmlServerMessage(tr("%1 may now blindstock.").arg(sanitizeHtml(player->getName())));
+}
+
+void MessageLogWidget::logBounce(Player *player)
+{
+    appendHtmlServerMessage(
+        tr("%1 chooses opponent's card to return to their hand.").arg(sanitizeHtml(player->getName())));
+}
+
 void MessageLogWidget::setContextJudgeName(QString name)
 {
     messagePrefix = QString("<span style=\"color:black\">");
@@ -979,6 +996,9 @@ void MessageLogWidget::connectToPlayer(Player *player)
     connect(player, SIGNAL(logRefresh(Player *, int)), this, SLOT(logRefresh(Player *, int)));
     connect(player, SIGNAL(logSetAttackState(Player *, CardItem *, CardItem::AttackState)), this,
             SLOT(logSetAttackState(Player *, CardItem *, CardItem::AttackState)));
+    connect(player, SIGNAL(logTrigger(Player *, CardItem *)), this, SLOT(logTrigger(Player *, CardItem *)));
+    connect(player, SIGNAL(logTreasure(Player *)), this, SLOT(logTreasure(Player *)));
+    connect(player, SIGNAL(logBounce(Player *)), this, SLOT(logBounce(Player *)));
 }
 
 MessageLogWidget::MessageLogWidget(const TabSupervisor *_tabSupervisor,

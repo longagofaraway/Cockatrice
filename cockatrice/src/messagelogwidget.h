@@ -107,6 +107,9 @@ public slots:
     void logUndoDraw(Player *player, QString cardName);
     void logRefresh(Player *player, int climaxCount);
     void logSetAttackState(Player *player, CardItem *card, CardItem::AttackState state);
+    void logTrigger(Player *player, CardItem *card);
+    void logTreasure(Player *player);
+    void logBounce(Player *player);
     void setContextJudgeName(QString player);
     void appendHtmlServerMessage(const QString &html,
                                  bool optionalIsBold = false,

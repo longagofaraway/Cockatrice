@@ -47,6 +47,7 @@ private:
     bool canBeShuffled;
     int extraHeight;
     Player *player;
+    int closeOnCardsTaken;
 signals:
     void closePressed(ZoneViewWidget *zv);
 private slots:
@@ -65,7 +66,8 @@ public:
                    int numberCards = 0,
                    bool _revealZone = false,
                    bool _writeableRevealZone = false,
-                   const QList<const ServerInfo_Card *> &cardList = QList<const ServerInfo_Card *>());
+                   const QList<const ServerInfo_Card *> &cardList = QList<const ServerInfo_Card *>(),
+                   int _closeOnCardsTaken = 0);
     ZoneViewZone *getZone() const
     {
         return zone;

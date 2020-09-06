@@ -3,6 +3,7 @@
 
 #include "pb/card_attributes.pb.h"
 #include "pb/response.pb.h"
+#include "pb/super_commands.pb.h"
 #include "server_arrowtarget.h"
 #include "serverinfo_user_container.h"
 
@@ -183,7 +184,8 @@ public:
                                     int x,
                                     int y,
                                     bool fixFreeSpaces = true,
-                                    bool undoingDraw = false);
+                                    bool undoingDraw = false,
+                                    SuperCommand superComand = SuperCommandNoCommand);
     void unattachCard(GameEventStorage &ges, Server_Card *card);
     void attachCard(GameEventStorage &ges,
                     Server_Card *card,

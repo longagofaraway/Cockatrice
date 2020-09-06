@@ -22,6 +22,8 @@ private:
     bool revealZone, writeableRevealZone;
     bool sortByName, sortByType;
     bool pileView;
+    int cardsTaken;
+    int closeOnCardsTaken;
 
 public:
     ZoneViewZone(Player *_p,
@@ -29,6 +31,7 @@ public:
                  int _numberCards = -1,
                  bool _revealZone = false,
                  bool _writeableRevealZone = false,
+                 int _closeOnCardsTaken = 0,
                  QGraphicsItem *parent = nullptr);
     ~ZoneViewZone();
     QRectF boundingRect() const;

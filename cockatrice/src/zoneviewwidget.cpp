@@ -25,8 +25,10 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
                                int numberCards,
                                bool _revealZone,
                                bool _writeableRevealZone,
-                               const QList<const ServerInfo_Card *> &cardList)
-    : QGraphicsWidget(0, Qt::Window), canBeShuffled(_origZone->getIsShufflable()), player(_player)
+                               const QList<const ServerInfo_Card *> &cardList,
+                               int _closeOnCardsTaken)
+    : QGraphicsWidget(0, Qt::Window), canBeShuffled(_origZone->getIsShufflable()), player(_player),
+      closeOnCardsTaken(_closeOnCardsTaken)
 {
     setAcceptHoverEvents(true);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -102,7 +104,8 @@ ZoneViewWidget::ZoneViewWidget(Player *_player,
 
     vbox->addItem(zoneHBox);
 
-    zone = new ZoneViewZone(player, _origZone, numberCards, _revealZone, _writeableRevealZone, zoneContainer);
+    zone = new ZoneViewZone(player, _origZone, numberCards, _revealZone, _writeableRevealZone, closeOnCardsTaken,
+                            zoneContainer);
     connect(zone, SIGNAL(wheelEventReceived(QGraphicsSceneWheelEvent *)), scrollBarProxy,
             SLOT(recieveWheelEvent(QGraphicsSceneWheelEvent *)));
     if (toWrButton) {
@@ -247,10 +250,10 @@ void ZoneViewWidget::zoneDeleted()
 
 void ZoneViewWidget::queueClose()
 {
-    // we have to do this in another thread because
     // here we are still processing move event, server_player has its mutex locked
     // so we cannot send commands from here
-    QtConcurrent::run(this, &ZoneViewWidget::logAndClose);
+    // QtConcurrent::run(this, &ZoneViewWidget::logAndClose);
+    QTimer::singleShot(0, this, &ZoneViewWidget::logAndClose);
 }
 
 void ZoneViewWidget::initStyleOption(QStyleOption *option) const

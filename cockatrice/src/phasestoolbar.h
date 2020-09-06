@@ -16,6 +16,7 @@ class Message;
 } // namespace google
 class Player;
 class GameCommand;
+class TabGame;
 
 class PhaseButton : public QObject, public QGraphicsItem
 {
@@ -60,6 +61,7 @@ class PhasesToolbar : public QObject, public QGraphicsItem
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
 private:
+    TabGame *game;
     QList<PhaseButton *> buttonList;
     PhaseButton *nextTurnButton;
     double width, height, ySpacing, symbolSize;
@@ -69,7 +71,7 @@ private:
     void rearrangeButtons();
 
 public:
-    explicit PhasesToolbar(QGraphicsItem *parent = nullptr);
+    explicit PhasesToolbar(TabGame *game, QGraphicsItem *parent = nullptr);
     QRectF boundingRect() const override;
     void retranslateUi();
     void setHeight(double _height);
@@ -90,6 +92,7 @@ private slots:
     void actNextTurn();
     void actUntapAll();
     void actDrawCard();
+    void actTrigger();
 signals:
     void sendGameCommand(const ::google::protobuf::Message &command, int playerId);
 
