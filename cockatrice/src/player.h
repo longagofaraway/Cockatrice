@@ -102,6 +102,12 @@ public:
     void setSize(qreal width, qreal height);
 };
 
+struct TakeDamageOp
+{
+    int damage;
+    int damageTaken;
+};
+
 class Player : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -153,6 +159,8 @@ signals:
     void logTrigger(Player *player, CardItem *card);
     void logTreasure(Player *player);
     void logBounce(Player *player);
+    void logTakeDamage(Player *player, int damage);
+    void logCancelDamage(Player *player);
 
     void sizeChanged();
     void playerCountChanged();
@@ -271,6 +279,7 @@ private:
     QList<CardItem *> cardsToDelete;
 
     CardItem *attackingCard;
+    TakeDamageOp damageOp;
 
     DeckLoader *deck;
     QStringList predefinedTokens;
@@ -327,8 +336,6 @@ private:
     void eventRefresh(const Event_Refresh &event);
     void eventRevealCards(const Event_RevealCards &event);
     void eventChangeZoneProperties(const Event_ChangeZoneProperties &event);
-
-    QVariantList parsePT(const QString &pt);
 
 public:
     static const int counterAreaWidth = 55;
@@ -487,6 +494,11 @@ public:
     void cardLeftTable(CardItem *card);
     void resetAttackingCard();
     void doTrigger();
+    void takeDamage();
+    void takeDamageInit(int _damage);
+    void takeDamageUpdate(CardItem *card);
+    void takeDamageCommand();
+    int getIncomingDamage();
     void moveCard(CardItem *card, QString targetZone);
 
 protected:

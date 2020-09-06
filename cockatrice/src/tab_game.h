@@ -302,6 +302,7 @@ public:
     Player *getActiveLocalPlayer() const;
     AbstractClient *getClientForPlayer(int playerId) const;
     Player *getInactivePlayer() const;
+    Player *getActivePlayer() const;
 
     void setActiveCard(CardItem *_card)
     {

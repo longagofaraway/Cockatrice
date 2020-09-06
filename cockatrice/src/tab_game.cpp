@@ -708,6 +708,12 @@ void TabGame::actPhaseAction()
 
 void TabGame::actNextPhase()
 {
+    Player *active = players.value(activePlayer, 0);
+    if (active)
+        if (active->getLocal() && (currentPhase == 6 || currentPhase == 7) && !isLocalGame)
+            // counter step and damage step are performed by inactive player
+            return;
+
     int phase = currentPhase;
     if (++phase >= phasesToolbar->phaseCount())
         phase = 0;
@@ -718,6 +724,12 @@ void TabGame::actNextPhase()
 
 void TabGame::actNextPhaseAction()
 {
+    Player *active = players.value(activePlayer, 0);
+    if (active)
+        if (active->getLocal() && currentPhase == 6 && !isLocalGame)
+            // counter step and damage step are performed by inactive player
+            return;
+
     int phase = currentPhase + 1;
     if (phase >= phasesToolbar->phaseCount()) {
         phase = 0;
@@ -732,10 +744,14 @@ void TabGame::actNextPhaseAction()
         sendGameCommand(cmd);
     }
 
-    Player *active = players.value(activePlayer, 0);
-    if (active)
-        if (active->getLocal())
-            phasesToolbar->triggerPhaseAction(phase);
+    if (phase != 7) {
+        active = players.value(activePlayer, 0);
+        if (active)
+            if (active->getLocal())
+                phasesToolbar->triggerPhaseAction(phase);
+    } else {
+        phasesToolbar->triggerPhaseAction(phase);
+    }
 }
 
 void TabGame::actNextTurn()
@@ -1398,18 +1414,19 @@ Player *TabGame::getActiveLocalPlayer() const
 
 Player *TabGame::getInactivePlayer() const
 {
-    Player *active = players.value(activePlayer, nullptr);
-    if (!active)
-        return nullptr;
-
     QMapIterator<int, Player *> playerIterator(players);
     while (playerIterator.hasNext()) {
         Player *temp = playerIterator.next().value();
-        if (!temp->getActive())
+        if (!temp->getActive() && !temp->getJudge())
             return temp;
     }
 
     return nullptr;
+}
+
+Player *TabGame::getActivePlayer() const
+{
+    return players.value(activePlayer, nullptr);
 }
 
 void TabGame::updateCardMenu(AbstractCardItem *card)

@@ -110,6 +110,8 @@ public slots:
     void logTrigger(Player *player, CardItem *card);
     void logTreasure(Player *player);
     void logBounce(Player *player);
+    void logTakeDamage(Player *player, int damage);
+    void logCancelDamage(Player *player);
     void setContextJudgeName(QString player);
     void appendHtmlServerMessage(const QString &html,
                                  bool optionalIsBold = false,

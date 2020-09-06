@@ -405,7 +405,7 @@ private:
                                           parseSequenceString("Ctrl+Space;Tab"),
                                           ShortcutGroup::Game_Phases)},
         {"Player/aNextPhaseAction", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Next Phase Action"),
-                                                parseSequenceString("Shift+Tab"),
+                                                parseSequenceString("Space"),
                                                 ShortcutGroup::Game_Phases)},
         {"Player/aNextTurn", ShortcutKey(QT_TRANSLATE_NOOP("shortcutsTab", "Next Turn"),
                                          parseSequenceString("Ctrl+Return;Ctrl+Enter"),

@@ -1786,7 +1786,8 @@ Response::ResponseCode Server_Player::cmdSetActivePhase(const Command_SetActiveP
         }
 
         if (game->getActivePlayer() != playerId) {
-            return Response::RespContextError;
+            if (cmd.phase() != 7 && cmd.phase() != 8)
+                return Response::RespContextError;
         }
     }
 

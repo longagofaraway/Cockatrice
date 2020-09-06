@@ -1,0 +1,6 @@
+syntax = "proto2";
+enum SuperCommand {
+	SuperCommandNoCommand = 0;
+	SuperCommandTrigger = 1;
+	SuperCommandTakeDamage = 2;
+}

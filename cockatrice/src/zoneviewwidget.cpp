@@ -18,7 +18,7 @@
 #include <QScrollBar>
 #include <QStyleOption>
 #include <QStyleOptionTitleBar>
-#include <QtConcurrent>
+#include <QTimer>
 
 ZoneViewWidget::ZoneViewWidget(Player *_player,
                                CardZone *_origZone,
@@ -252,7 +252,6 @@ void ZoneViewWidget::queueClose()
 {
     // here we are still processing move event, server_player has its mutex locked
     // so we cannot send commands from here
-    // QtConcurrent::run(this, &ZoneViewWidget::logAndClose);
     QTimer::singleShot(0, this, &ZoneViewWidget::logAndClose);
 }
 

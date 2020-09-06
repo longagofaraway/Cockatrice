@@ -8,6 +8,7 @@
 #include "main.h"
 #include "pb/serverinfo_card.pb.h"
 #include "player.h"
+#include "pt.h"
 #include "settingscache.h"
 #include "tab_game.h"
 #include "tablezone.h"
@@ -439,10 +440,24 @@ QVariant CardItem::itemChange(GraphicsItemChange change, const QVariant &value)
     return QGraphicsItem::itemChange(change, value);
 }
 
-bool CardItem::hasDoubleTriggerCheckAbility()
+bool CardItem::hasDoubleTriggerCheckAbility() const
 {
     const QString &text = info->getText();
     if (text.contains("trigger", Qt::CaseInsensitive) && text.contains("twice", Qt::CaseInsensitive))
         return true;
     return false;
+}
+
+int CardItem::getSoul() const
+{
+    const auto ptList = parsePT(pt);
+    if (ptList.size() < 2)
+        return 0;
+    return ptList.at(1).toInt();
+}
+
+int CardItem::getLevel() const
+{
+    QString mc = info->getManaCost();
+    return mc.split('/').at(0).toInt();
 }

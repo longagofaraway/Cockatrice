@@ -130,6 +130,7 @@ SET(cockatrice_SOURCES
     src/phase.cpp
     src/customlineedit.cpp
     src/translatecountername.cpp
+    src/pt.cpp
     ${VERSION_STRING_CPP}
     )
 

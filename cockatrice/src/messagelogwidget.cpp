@@ -944,6 +944,18 @@ void MessageLogWidget::logBounce(Player *player)
         tr("%1 chooses opponent's card to return to their hand.").arg(sanitizeHtml(player->getName())));
 }
 
+void MessageLogWidget::logTakeDamage(Player *player, int damage)
+{
+    appendHtmlServerMessage(tr("%1 takes %2 damage.")
+                                .arg(sanitizeHtml(player->getName()))
+                                .arg("<font class=\"blue\">" + QString::number(damage) + "</font>"));
+}
+
+void MessageLogWidget::logCancelDamage(Player *player)
+{
+    appendHtmlServerMessage(tr("%1 cancels the damage.").arg(sanitizeHtml(player->getName())));
+}
+
 void MessageLogWidget::setContextJudgeName(QString name)
 {
     messagePrefix = QString("<span style=\"color:black\">");
@@ -999,6 +1011,8 @@ void MessageLogWidget::connectToPlayer(Player *player)
     connect(player, SIGNAL(logTrigger(Player *, CardItem *)), this, SLOT(logTrigger(Player *, CardItem *)));
     connect(player, SIGNAL(logTreasure(Player *)), this, SLOT(logTreasure(Player *)));
     connect(player, SIGNAL(logBounce(Player *)), this, SLOT(logBounce(Player *)));
+    connect(player, SIGNAL(logTakeDamage(Player *, int)), this, SLOT(logTakeDamage(Player *, int)));
+    connect(player, SIGNAL(logCancelDamage(Player *)), this, SLOT(logCancelDamage(Player *)));
 }
 
 MessageLogWidget::MessageLogWidget(const TabSupervisor *_tabSupervisor,
