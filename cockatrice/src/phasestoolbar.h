@@ -94,6 +94,7 @@ private slots:
     void actDrawCard();
     void actTrigger();
     void actTakeDamage();
+    void actBattle();
 signals:
     void sendGameCommand(const ::google::protobuf::Message &command, int playerId);
 

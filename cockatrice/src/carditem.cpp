@@ -456,6 +456,14 @@ int CardItem::getSoul() const
     return ptList.at(1).toInt();
 }
 
+int CardItem::getPower() const
+{
+    const auto ptList = parsePT(pt);
+    if (ptList.size() < 2)
+        return 0;
+    return ptList.at(0).toInt();
+}
+
 int CardItem::getLevel() const
 {
     QString mc = info->getManaCost();

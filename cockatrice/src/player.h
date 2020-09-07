@@ -500,6 +500,7 @@ public:
     void takeDamageCommand();
     int getIncomingDamage();
     void moveCard(CardItem *card, QString targetZone);
+    void performBattle();
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;

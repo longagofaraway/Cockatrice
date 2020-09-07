@@ -117,6 +117,8 @@ PhasesToolbar::PhasesToolbar(TabGame *tabGame, QGraphicsItem *parent)
     connect(aTrigger, SIGNAL(triggered()), this, SLOT(actTrigger()));
     auto *aTakeDamage = new QAction(this);
     connect(aTakeDamage, SIGNAL(triggered()), this, SLOT(actTakeDamage()));
+    auto *aBattle = new QAction(this);
+    connect(aBattle, SIGNAL(triggered()), this, SLOT(actBattle()));
 
     PhaseButton *untapButton = new PhaseButton("untap", this, aUntapAll);
     PhaseButton *drawButton = new PhaseButton("draw", this, aDrawCard);
@@ -126,7 +128,7 @@ PhasesToolbar::PhasesToolbar(TabGame *tabGame, QGraphicsItem *parent)
     PhaseButton *combatTriggerButton = new PhaseButton("combat_trigger", this, aTrigger);
     PhaseButton *combatCounterButton = new PhaseButton("combat_counter", this);
     PhaseButton *combatDamageButton = new PhaseButton("combat_damage", this, aTakeDamage);
-    PhaseButton *combatBattleButton = new PhaseButton("combat_battle", this);
+    PhaseButton *combatBattleButton = new PhaseButton("combat_battle", this, aBattle);
     PhaseButton *encoreButton = new PhaseButton("encore", this);
 
     buttonList << untapButton << drawButton << clockButton << mainButton << attackDeclarationButton
@@ -297,4 +299,12 @@ void PhasesToolbar::actTakeDamage()
         return;
 
     player->takeDamage();
+}
+
+void PhasesToolbar::actBattle()
+{
+    Player *player = game->getActiveLocalPlayer();
+    if (!player)
+        return;
+    player->performBattle();
 }

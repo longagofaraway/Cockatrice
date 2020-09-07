@@ -167,6 +167,7 @@ public:
     void playCard(bool faceDown);
     bool hasDoubleTriggerCheckAbility() const;
     int getSoul() const;
+    int getPower() const;
     int getLevel() const;
 
 protected:

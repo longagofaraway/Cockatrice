@@ -738,13 +738,14 @@ void TabGame::actNextPhaseAction()
     if (phase == 0) {
         Command_NextTurn cmd;
         sendGameCommand(cmd);
+        return;
     } else {
         Command_SetActivePhase cmd;
         cmd.set_phase(static_cast<google::protobuf::uint32>(phase));
         sendGameCommand(cmd);
     }
 
-    if (phase != 7) {
+    if (phase != 7 && phase != 8) {
         active = players.value(activePlayer, 0);
         if (active)
             if (active->getLocal())

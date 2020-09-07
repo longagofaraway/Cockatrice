@@ -3916,3 +3916,63 @@ void Player::takeDamageUpdate(CardItem *card)
 
     QTimer::singleShot(1300, this, &Player::takeDamageCommand);
 }
+
+void Player::performBattle()
+{
+    Player *opponent;
+    if (active)
+        opponent = game->getInactivePlayer();
+    else
+        opponent = game->getActivePlayer();
+
+    if (!opponent)
+        return;
+
+    CardItem *attCard;
+    if (active)
+        attCard = attackingCard;
+    else
+        attCard = opponent->getAttackingCard();
+
+    if (!attCard)
+        return;
+
+    CardItem *battleOpponent;
+    if (active)
+        battleOpponent =
+            static_cast<TableZone *>(opponent->getZones()["table"])->getCardFromGrid(attCard->getGridPoint());
+    else
+        battleOpponent = static_cast<TableZone *>(zones["table"])->getCardFromGrid(attCard->getGridPoint());
+
+    if (!battleOpponent)
+        return;
+
+    bool attRev = false;
+    bool defRev = false;
+    if (attCard->getPower() > battleOpponent->getPower())
+        defRev = true;
+    else if (attCard->getPower() < battleOpponent->getPower())
+        attRev = true;
+    else
+        attRev = defRev = true;
+
+    if (attRev) {
+        Command_SetCardAttr cmd;
+        cmd.set_zone(attCard->getZone()->getName().toStdString());
+        cmd.set_card_id(attCard->getId());
+        cmd.set_attribute(AttrTapped);
+        cmd.set_attr_value(std::to_string(CardItem::Reversed));
+        cmd.set_target_player_id(attCard->getZone()->getPlayer()->getId());
+        sendGameCommand(cmd);
+    }
+
+    if (defRev) {
+        Command_SetCardAttr cmd2;
+        cmd2.set_zone(battleOpponent->getZone()->getName().toStdString());
+        cmd2.set_card_id(battleOpponent->getId());
+        cmd2.set_attribute(AttrTapped);
+        cmd2.set_attr_value(std::to_string(CardItem::Reversed));
+        cmd2.set_target_player_id(battleOpponent->getZone()->getPlayer()->getId());
+        sendGameCommand(cmd2);
+    }
+}

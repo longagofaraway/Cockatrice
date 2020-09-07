@@ -194,7 +194,7 @@ public:
                     Server_CardZone *targetzone,
                     Server_Card *targetCard);
     Response::ResponseCode setCardAttrHelper(GameEventStorage &ges,
-                                             int targetPlayerId,
+                                             Server_Player *targetPlayer,
                                              const QString &zone,
                                              int cardId,
                                              CardAttribute attribute,

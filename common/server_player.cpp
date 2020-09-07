@@ -624,13 +624,11 @@ Response::ResponseCode Server_Player::moveCard(GameEventStorage &ges,
             ges.enqueueGameEvent(eventOthers, playerId, GameEventStorageItem::SendToOthers);
 
             if (thisCardProperties->tapped()) {
-                setCardAttrHelper(ges, targetzone->getPlayer()->getPlayerId(), targetzone->getName(), card->getId(),
-                                  AttrTapped, "1");
+                setCardAttrHelper(ges, targetzone->getPlayer(), targetzone->getName(), card->getId(), AttrTapped, "1");
             }
             QString ptString = QString::fromStdString(thisCardProperties->pt());
             if (!ptString.isEmpty()) {
-                setCardAttrHelper(ges, targetzone->getPlayer()->getPlayerId(), targetzone->getName(), card->getId(),
-                                  AttrPT, ptString);
+                setCardAttrHelper(ges, targetzone->getPlayer(), targetzone->getName(), card->getId(), AttrPT, ptString);
             }
 
             if (attach) {
@@ -690,13 +688,13 @@ void Server_Player::unattachCard(GameEventStorage &ges, Server_Card *card)
 }
 
 Response::ResponseCode Server_Player::setCardAttrHelper(GameEventStorage &ges,
-                                                        int targetPlayerId,
+                                                        Server_Player *targetPlayer,
                                                         const QString &zoneName,
                                                         int cardId,
                                                         CardAttribute attribute,
                                                         const QString &attrValue)
 {
-    Server_CardZone *zone = getZones().value(zoneName);
+    Server_CardZone *zone = targetPlayer->getZones().value(zoneName);
     if (!zone) {
         return Response::RespNameNotFound;
     }
@@ -731,7 +729,7 @@ Response::ResponseCode Server_Player::setCardAttrHelper(GameEventStorage &ges,
     }
     event.set_attribute(attribute);
     event.set_attr_value(result.toStdString());
-    ges.enqueueGameEvent(event, targetPlayerId);
+    ges.enqueueGameEvent(event, targetPlayer->getPlayerId());
 
     return Response::RespOk;
 }
@@ -1224,7 +1222,7 @@ Server_Player::cmdFlipCard(const Command_FlipCard &cmd, ResponseContainer & /*rc
 
     QString ptString = QString::fromStdString(cmd.pt());
     if (!ptString.isEmpty() && !faceDown) {
-        setCardAttrHelper(ges, playerId, zone->getName(), card->getId(), AttrPT, ptString);
+        setCardAttrHelper(ges, this, zone->getName(), card->getId(), AttrPT, ptString);
     }
 
     return Response::RespOk;
@@ -1548,7 +1546,12 @@ Server_Player::cmdSetCardAttr(const Command_SetCardAttr &cmd, ResponseContainer 
         return Response::RespContextError;
     }
 
-    return setCardAttrHelper(ges, playerId, QString::fromStdString(cmd.zone()), cmd.card_id(), cmd.attribute(),
+    Server_Player *targetPlayer =
+        game->getPlayers().value(cmd.has_target_player_id() ? cmd.target_player_id() : playerId);
+    if (!targetPlayer)
+        return Response::RespNameNotFound;
+
+    return setCardAttrHelper(ges, targetPlayer, QString::fromStdString(cmd.zone()), cmd.card_id(), cmd.attribute(),
                              QString::fromStdString(cmd.attr_value()));
 }
 
@@ -2296,7 +2299,7 @@ void Server_Player::standPhase()
     Server_CardZone *table = zones.value("table");
     for (Server_Card *card : table->getCards())
         if (card->getTapped() == Server_Card::Tapped && !card->getParentCard())
-            setCardAttrHelper(ges, playerId, "table", card->getId(), AttrTapped, "0");
+            setCardAttrHelper(ges, this, "table", card->getId(), AttrTapped, "0");
 
     ges.sendToGame(game);
 }
@@ -2331,7 +2334,7 @@ void Server_Player::encorePhase()
 
     for (Server_Card *card : table->getCards())
         if (!card->getFaceDown())
-            setCardAttrHelper(ges, playerId, "table", card->getId(), AttrPT, "-1");
+            setCardAttrHelper(ges, this, "table", card->getId(), AttrPT, "-1");
 
     ges.sendToGame(game);
 }
