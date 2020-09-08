@@ -66,6 +66,20 @@ class Command_SetSideboardLock;
 class Command_ChangeZoneProperties;
 class Command_Refresh;
 
+enum
+{
+    UntapPhase = 0,
+    DrawPhase,
+    ClockPhase,
+    MainPhase,
+    AttackDeclarationPhase,
+    TriggerPhase,
+    CounterPhase,
+    DamagePhase,
+    BattlePhase,
+    EncorePhase
+};
+
 class Server_Player : public Server_ArrowTarget, public ServerInfo_User_Container
 {
     Q_OBJECT
@@ -173,7 +187,6 @@ public:
     void clearZones();
     void setupZones();
 
-    void standPhase();
     void encorePhase();
 
     Response::ResponseCode drawCards(GameEventStorage &ges, int number);

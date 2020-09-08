@@ -499,6 +499,8 @@ public:
     void takeDamageUpdate(CardItem *card);
     void takeDamageCommand();
     int getIncomingDamage();
+    void nextAfterDamageStep();
+    void setActivePhase(int phase);
     void moveCard(CardItem *card, QString targetZone);
     void performBattle();
 

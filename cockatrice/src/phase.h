@@ -22,4 +22,18 @@ struct Phases
     static Phase getPhase(int);
 };
 
+enum
+{
+    UntapPhase = 0,
+    DrawPhase,
+    ClockPhase,
+    MainPhase,
+    AttackDeclarationPhase,
+    TriggerPhase,
+    CounterPhase,
+    DamagePhase,
+    BattlePhase,
+    EncorePhase
+};
+
 #endif // PHASE_H

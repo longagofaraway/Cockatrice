@@ -6,4 +6,5 @@ message Event_SetActivePhase {
         optional Event_SetActivePhase ext = 2017;
     }
     optional sint32 phase = 1;
+    optional sint32 with_action = 2;
 }

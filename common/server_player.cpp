@@ -1789,12 +1789,13 @@ Response::ResponseCode Server_Player::cmdSetActivePhase(const Command_SetActiveP
         }
 
         if (game->getActivePlayer() != playerId) {
-            if (cmd.phase() != 7 && cmd.phase() != 8)
+            if (cmd.phase() != DamagePhase && cmd.phase() != BattlePhase && cmd.phase() != AttackDeclarationPhase &&
+                cmd.phase() != EncorePhase)
                 return Response::RespContextError;
         }
     }
 
-    game->setActivePhase(cmd.phase());
+    game->setActivePhase(cmd.phase(), cmd.has_with_action() ? true : false);
 
     return Response::RespOk;
 }
@@ -2290,18 +2291,6 @@ void Server_Player::getInfo(ServerInfo_Player *info,
     for (Server_CardZone *zone : zones) {
         zone->getInfo(info->add_zone_list(), playerWhosAsking, omniscient);
     }
-}
-
-void Server_Player::standPhase()
-{
-    GameEventStorage ges;
-
-    Server_CardZone *table = zones.value("table");
-    for (Server_Card *card : table->getCards())
-        if (card->getTapped() == Server_Card::Tapped && !card->getParentCard())
-            setCardAttrHelper(ges, this, "table", card->getId(), AttrTapped, "0");
-
-    ges.sendToGame(game);
 }
 
 void Server_Player::encorePhase()

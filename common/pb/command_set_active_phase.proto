@@ -5,4 +5,5 @@ message Command_SetActivePhase {
         optional Command_SetActivePhase ext = 1023;
     }
     optional uint32 phase = 1;
+    optional sint32 with_action = 2;
 }

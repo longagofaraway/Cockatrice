@@ -180,9 +180,9 @@ public:
     {
         return activePhase;
     }
-    void setActivePlayer(int _activePlayer);
-    void setActivePhase(int _activePhase);
-    void nextTurn();
+    void setActivePlayer(int _activePlayer, bool firstTurn = false);
+    void setActivePhase(int _activePhase, bool withAction = false);
+    void nextTurn(bool firstTurn = false);
     void dealCards();
     int getSecondsElapsed() const
     {

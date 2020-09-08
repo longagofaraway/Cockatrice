@@ -45,6 +45,7 @@
 #include "pb/game_replay.pb.h"
 #include "pb/response_deck_download.pb.h"
 #include "pending_command.h"
+#include "phase.h"
 #include "phasestoolbar.h"
 #include "pictureloader.h"
 #include "player.h"
@@ -743,6 +744,9 @@ void TabGame::actNextPhaseAction()
         Command_SetActivePhase cmd;
         cmd.set_phase(static_cast<google::protobuf::uint32>(phase));
         sendGameCommand(cmd);
+
+        if (phase == DrawPhase)
+            QTimer::singleShot(600, this, [this]() { setActivePhaseCmd(ClockPhase); });
     }
 
     if (phase != 7 && phase != 8) {
@@ -1333,15 +1337,42 @@ void TabGame::setActivePhase(int phase)
     }
 }
 
+void TabGame::setActivePhaseCmd(int phase)
+{
+    Command_SetActivePhase cmd;
+    cmd.set_phase(phase);
+    sendGameCommand(cmd);
+}
+
+void TabGame::triggerPhaseAction()
+{
+    Player *player = players.value(activePlayer, 0);
+    if (player && player->getLocal() && currentPhase == UntapPhase || currentPhase == DrawPhase) {
+        phasesToolbar->triggerPhaseAction(currentPhase);
+        Command_SetActivePhase cmd;
+        cmd.set_phase(currentPhase + 1);
+        cmd.set_with_action(1);
+        sendGameCommand(cmd);
+    }
+}
+
 void TabGame::eventSetActivePhase(const Event_SetActivePhase &event,
                                   int /*eventPlayerId*/,
                                   const GameEventContext & /*context*/)
 {
     const int phase = event.phase();
-    if (currentPhase != phase)
+    bool firstEvent = false;
+    if (currentPhase != phase) {
+        firstEvent = true;
         messageLog->logSetActivePhase(phase);
+    }
     setActivePhase(phase);
     emitUserEvent();
+
+    // each player gets this event
+    if (firstEvent && event.has_with_action()) {
+        QTimer::singleShot(600, this, &TabGame::triggerPhaseAction);
+    }
 }
 
 void TabGame::newCardAdded(AbstractCardItem *card)

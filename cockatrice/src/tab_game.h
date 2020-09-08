@@ -320,6 +320,12 @@ public:
     {
         actNextPhase();
     }
+    void nextPhaseAction()
+    {
+        actNextPhaseAction();
+    }
+    void triggerPhaseAction();
+    void setActivePhaseCmd(int phase);
 
     void processGameEventContainer(const GameEventContainer &cont, AbstractClient *client);
     PendingCommand *prepareGameCommand(const ::google::protobuf::Message &cmd);

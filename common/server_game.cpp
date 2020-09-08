@@ -343,7 +343,7 @@ void Server_Game::doStartGameIfReady()
     sendGameStateToPlayers();
 
     activePlayer = -1;
-    nextTurn();
+    nextTurn(true);
     dealCards();
 
     locker.unlock();
@@ -613,7 +613,7 @@ bool Server_Game::kickPlayer(int playerId)
     return true;
 }
 
-void Server_Game::setActivePlayer(int _activePlayer)
+void Server_Game::setActivePlayer(int _activePlayer, bool firstTurn)
 {
     QMutexLocker locker(&gameMutex);
 
@@ -623,12 +623,10 @@ void Server_Game::setActivePlayer(int _activePlayer)
     event.set_active_player_id(activePlayer);
     sendGameEventContainer(prepareGameEvent(event, -1));
 
-    players.value(activePlayer)->standPhase();
-
-    setActivePhase(0);
+    setActivePhase(0, firstTurn ? false : true);
 }
 
-void Server_Game::setActivePhase(int _activePhase)
+void Server_Game::setActivePhase(int _activePhase, bool withAction)
 {
     QMutexLocker locker(&gameMutex);
 
@@ -651,10 +649,12 @@ void Server_Game::setActivePhase(int _activePhase)
 
     Event_SetActivePhase event;
     event.set_phase(activePhase);
+    if (withAction)
+        event.set_with_action(1);
     sendGameEventContainer(prepareGameEvent(event, -1));
 }
 
-void Server_Game::nextTurn()
+void Server_Game::nextTurn(bool firstTurn)
 {
     QMutexLocker locker(&gameMutex);
 
@@ -681,7 +681,7 @@ void Server_Game::nextTurn()
         }
     } while (players.value(keys[listPos])->getSpectator() || players.value(keys[listPos])->getConceded());
 
-    setActivePlayer(keys[listPos]);
+    setActivePlayer(keys[listPos], firstTurn);
 }
 
 void Server_Game::dealCards()
