@@ -9,8 +9,18 @@
 
 #include <QPainter>
 
+namespace
+{
+const int BOX_LINE_WIDTH = 10;
+
+const QColor BACKGROUND_COLOR = QColor(100, 100, 100);
+const QColor FADE_MASK = QColor(0, 0, 0, 80);
+const QColor GRADIENT_COLOR = QColor(255, 255, 255, 150);
+const QColor GRADIENT_COLORLESS = QColor(255, 255, 255, 0);
+} // namespace
+
 HandZone::HandZone(Player *_p, bool _contentsKnown, int _zoneHeight, QGraphicsItem *parent)
-    : SelectZone(_p, "hand", false, false, _contentsKnown, parent), zoneHeight(_zoneHeight)
+    : SelectZone(_p, "hand", false, false, _contentsKnown, parent), zoneHeight(_zoneHeight), active(false)
 {
     connect(themeManager, SIGNAL(themeChanged()), this, SLOT(updateBg()));
     updateBg();
@@ -77,6 +87,29 @@ QRectF HandZone::boundingRect() const
 void HandZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     painter->fillRect(boundingRect(), themeManager->getHandBgBrush());
+    if (active)
+        paintZoneOutline(painter);
+}
+
+void HandZone::paintZoneOutline(QPainter *painter)
+{
+    qreal w = boundingRect().width();
+    qreal h = boundingRect().height();
+    QLinearGradient grad1(0, 0, 0, 1);
+    grad1.setCoordinateMode(QGradient::ObjectBoundingMode);
+    grad1.setColorAt(0, GRADIENT_COLOR);
+    grad1.setColorAt(1, GRADIENT_COLORLESS);
+    painter->fillRect(QRectF(0, 0, w, BOX_LINE_WIDTH), QBrush(grad1));
+
+    grad1.setFinalStop(1, 0);
+    painter->fillRect(QRectF(0, 0, BOX_LINE_WIDTH, h), QBrush(grad1));
+
+    grad1.setStart(0, 1);
+    grad1.setFinalStop(0, 0);
+    painter->fillRect(QRectF(0, h - BOX_LINE_WIDTH, width, BOX_LINE_WIDTH), QBrush(grad1));
+
+    grad1.setStart(1, 0);
+    painter->fillRect(QRectF(w - BOX_LINE_WIDTH, 0, BOX_LINE_WIDTH, h), QBrush(grad1));
 }
 
 void HandZone::reorganizeCards()

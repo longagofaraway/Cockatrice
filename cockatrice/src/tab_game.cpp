@@ -1361,6 +1361,11 @@ void TabGame::eventSetActivePhase(const Event_SetActivePhase &event,
                                   const GameEventContext & /*context*/)
 {
     const int phase = event.phase();
+
+    bool clockEnd = false;
+    if (currentPhase == ClockPhase && phase != ClockPhase)
+        clockEnd = true;
+
     bool firstEvent = false;
     if (currentPhase != phase) {
         firstEvent = true;
@@ -1372,6 +1377,18 @@ void TabGame::eventSetActivePhase(const Event_SetActivePhase &event,
     // each player gets this event
     if (firstEvent && event.has_with_action()) {
         QTimer::singleShot(600, this, &TabGame::triggerPhaseAction);
+    }
+    // highlight hand area during clock phase
+    if (firstEvent && phase == ClockPhase) {
+        Player *player = getActivePlayer();
+        if (player && player->getLocal())
+            player->clockPhase(true);
+    }
+
+    if (firstEvent && clockEnd) {
+        Player *player = getActivePlayer();
+        if (player && player->getLocal())
+            player->clockPhase(false);
     }
 }
 

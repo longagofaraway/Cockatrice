@@ -692,7 +692,8 @@ Response::ResponseCode Server_Player::setCardAttrHelper(GameEventStorage &ges,
                                                         const QString &zoneName,
                                                         int cardId,
                                                         CardAttribute attribute,
-                                                        const QString &attrValue)
+                                                        const QString &attrValue,
+                                                        bool noLog)
 {
     Server_CardZone *zone = targetPlayer->getZones().value(zoneName);
     if (!zone) {
@@ -729,6 +730,8 @@ Response::ResponseCode Server_Player::setCardAttrHelper(GameEventStorage &ges,
     }
     event.set_attribute(attribute);
     event.set_attr_value(result.toStdString());
+    if (noLog)
+        event.set_no_log(true);
     ges.enqueueGameEvent(event, targetPlayer->getPlayerId());
 
     return Response::RespOk;
@@ -1552,7 +1555,7 @@ Server_Player::cmdSetCardAttr(const Command_SetCardAttr &cmd, ResponseContainer 
         return Response::RespNameNotFound;
 
     return setCardAttrHelper(ges, targetPlayer, QString::fromStdString(cmd.zone()), cmd.card_id(), cmd.attribute(),
-                             QString::fromStdString(cmd.attr_value()));
+                             QString::fromStdString(cmd.attr_value()), cmd.has_no_log() ? cmd.no_log() : false);
 }
 
 Response::ResponseCode

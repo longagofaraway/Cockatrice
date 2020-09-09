@@ -107,7 +107,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
     : QObject(_parent), game(_parent), shortcutsActive(false), defaultNumberTopCards(1),
       defaultNumberTopCardsToPlaceBelow(1), lastTokenDestroy(true), lastTokenTableRow(0), id(_id), active(false),
       local(_local), judge(_judge), mirrored(false), handVisible(false), conceded(false), dialogSemaphore(false),
-      deck(nullptr), attackingCard(nullptr), damageOp({0, 0})
+      deck(nullptr), attackingCard(nullptr), cardsOp({0, 0})
 {
     userInfo = new ServerInfo_User;
     userInfo->CopyFrom(info);
@@ -1660,7 +1660,8 @@ void Player::setCardAttrHelper(const GameEventContext &context,
                                CardItem *card,
                                CardAttribute attribute,
                                const QString &avalue,
-                               bool allCards)
+                               bool allCards,
+                               bool noLog)
 {
     if (card == nullptr) {
         return;
@@ -1681,7 +1682,7 @@ void Player::setCardAttrHelper(const GameEventContext &context,
 
             if (!(tapState == AbstractCardItem::Standing && card->getDoesntUntap() && allCards)) {
                 // tap is attack on attack decl phase
-                if (!allCards && game->getCurrentPhase() != 4)
+                if (!allCards && !noLog)
                     emit logSetTapped(this, card, tapState);
                 card->setTapped(tapState, !moveCardContext);
             }
@@ -1848,7 +1849,8 @@ void Player::eventSetCardAttr(const Event_SetCardAttr &event, const GameEventCon
             qDebug() << "Player::eventSetCardAttr: card id=" << event.card_id() << "not found";
             return;
         }
-        setCardAttrHelper(context, card, event.attribute(), QString::fromStdString(event.attr_value()), false);
+        setCardAttrHelper(context, card, event.attribute(), QString::fromStdString(event.attr_value()), false,
+                          event.has_no_log() ? event.no_log() : false);
     }
 }
 
@@ -1993,7 +1995,8 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
         emit logAttachCard(this, card, startZone, logPosition, baseCard, targetZone);
     } else if (event.has_supercommand() && event.supercommand() == SuperCommandTrigger) {
         emit logTrigger(this, card);
-    } else if (!event.has_supercommand()) {
+    } else if (!event.has_supercommand() ||
+               (event.has_supercommand() && event.supercommand() != SuperCommandTakeDamage)) {
         emit logMoveCard(this, card, startZone, logPosition, targetZone, logX);
     }
 
@@ -2024,10 +2027,22 @@ void Player::eventMoveCard(const Event_MoveCard &event, const GameEventContext &
 
     if (targetPlayer == this && targetZone->getName() == "climax" && card->getInfo()->getMainCardType() == "Climax")
         processClimax(card);
-    if (active && event.has_supercommand() && event.supercommand() == SuperCommandTrigger)
-        processTrigger(card);
-    if (event.has_supercommand() && event.supercommand() == SuperCommandTakeDamage)
-        takeDamageUpdate(card);
+    if (event.has_supercommand()) {
+        if (active && event.supercommand() == SuperCommandTrigger)
+            processTrigger(card);
+        if (event.supercommand() == SuperCommandTakeDamage)
+            takeDamageUpdate(card);
+    }
+
+    if (active && local &&
+        ((event.has_supercommand() && event.supercommand() == SuperCommandClockPhase) ||
+         (startZone->getName() == "hand" && targetZone->getName() == "clock" && game->getCurrentPhase() == ClockPhase)))
+        processClockPhase(card);
+
+    // skip clock phase if we are already playing cards
+    if (startZone->getName() == "hand" && targetZone->getName() == "table" && game->getCurrentPhase() == ClockPhase &&
+        active && local)
+        QTimer::singleShot(100, this, [this]() { setActivePhase(MainPhase); });
 }
 
 void Player::eventFlipCard(const Event_FlipCard &event)
@@ -2296,6 +2311,7 @@ void Player::setActive(bool _active)
 {
     active = _active;
     table->setActive(active);
+    hand->setActive(false);
     update();
 }
 
@@ -2414,7 +2430,12 @@ void Player::playCard(CardItem *card, bool faceDown, bool tapped)
 
     int tableRow = info->getTableRow();
     bool playToStack = SettingsCache::instance().getPlayToStack();
-    if (info->getMainCardType() == "Climax" && currentZone == "hand") {
+    if (game->getCurrentPhase() == ClockPhase && currentZone == "hand") {
+        cmd.set_target_zone("clock");
+        cmd.set_x(0);
+        cmd.set_y(0);
+        cmd.set_supercommand(SuperCommandClockPhase);
+    } else if (info->getMainCardType() == "Climax" && currentZone == "hand") {
         if (climax->getCards().size() > 0)
             return;
         cmd.set_target_zone("climax");
@@ -2760,9 +2781,11 @@ void Player::cardMenuAction()
                     cmd->set_card_id(card->getId());
                     cmd->set_attribute(AttrTapped);
                     cmd->set_attr_value(std::to_string(card->nextTapState()));
-                    commandList.append(cmd);
 
-                    attackOnTap(commandList, card);
+                    if (attackOnTap(commandList, card))
+                        cmd->set_no_log(true);
+
+                    commandList.append(cmd);
                     break;
                 }
                 case cmDoesntUntap: {
@@ -3760,12 +3783,15 @@ void Player::setCardAttackState(QList<const ::google::protobuf::Message *> &comm
                                 CardItem *card,
                                 CardItem::AttackState state)
 {
-    if (card->getTapped() == AbstractCardItem::TapState::Standing && game->getCurrentPhase() == 4 && active) {
+    if (card->getTapped() == AbstractCardItem::TapState::Standing && active && card->getGridPoint().y() == 0 &&
+        (game->getCurrentPhase() == AttackDeclarationPhase || game->getCurrentPhase() == ClockPhase ||
+         game->getCurrentPhase() == MainPhase)) {
         auto *cmd = new Command_SetCardAttr;
         cmd->set_zone(card->getZone()->getName().toStdString());
         cmd->set_card_id(card->getId());
         cmd->set_attribute(AttrTapped);
         cmd->set_attr_value(std::to_string(card->nextTapState()));
+        cmd->set_no_log(true);
         commandList.append(cmd);
 
         auto *attCmd = new Command_SetCardAttr;
@@ -3774,20 +3800,38 @@ void Player::setCardAttackState(QList<const ::google::protobuf::Message *> &comm
         attCmd->set_attribute(AttrAttacking);
         attCmd->set_attr_value(std::to_string(state));
         commandList.append(attCmd);
+
+        // transition to attack phase if we are tapping characters in the front row
+        if (game->getCurrentPhase() == ClockPhase || game->getCurrentPhase() == MainPhase) {
+            auto *cmd = new Command_SetActivePhase;
+            cmd->set_phase(static_cast<google::protobuf::uint32>(AttackDeclarationPhase));
+            commandList.append(cmd);
+        }
     }
 }
 
-void Player::attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card)
+bool Player::attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card)
 {
-    if (card->nextTapState() == AbstractCardItem::Tapped && game->getCurrentPhase() == 4 &&
-        active) { // attack decl phase
+    if (card->nextTapState() == AbstractCardItem::Tapped && active && card->getGridPoint().y() == 0 &&
+        (game->getCurrentPhase() == AttackDeclarationPhase || game->getCurrentPhase() == ClockPhase ||
+         game->getCurrentPhase() == MainPhase)) {
         auto *cmd = new Command_SetCardAttr;
         cmd->set_zone(card->getZone()->getName().toStdString());
         cmd->set_card_id(card->getId());
         cmd->set_attribute(AttrAttacking);
         cmd->set_attr_value(std::to_string(CardItem::AttackState::Front));
         commandList.append(cmd);
+
+        // transition to attack phase if we are tapping characters in the front row
+        if (game->getCurrentPhase() == ClockPhase || game->getCurrentPhase() == MainPhase) {
+            auto *cmd = new Command_SetActivePhase;
+            cmd->set_phase(static_cast<google::protobuf::uint32>(AttackDeclarationPhase));
+            commandList.append(cmd);
+        }
+
+        return true;
     }
+    return false;
 }
 
 void Player::setAttackingCard(CardItem *card)
@@ -3846,7 +3890,7 @@ void Player::takeDamage()
         // TODO: go to encore or attack decl phase here
         return;
 
-    if (!damageOp.damage)
+    if (!cardsOp.cardsToMove)
         takeDamageCommand();
 }
 
@@ -3865,10 +3909,10 @@ void Player::takeDamageCommand()
     sendGameCommand(cmd);
 }
 
-void Player::takeDamageInit(int _damage)
+void Player::initCardsOp(int count)
 {
-    damageOp.damage = _damage;
-    damageOp.damageTaken = 0;
+    cardsOp.cardsToMove = count;
+    cardsOp.cardsMoved = 0;
 }
 
 int Player::getIncomingDamage()
@@ -3927,17 +3971,17 @@ void Player::nextAfterDamageStep()
 
 void Player::takeDamageUpdate(CardItem *card)
 {
-    if (!damageOp.damage) {
+    if (!cardsOp.cardsToMove) {
         int damage = getIncomingDamage();
         if (damage <= 0)
             return;
-        takeDamageInit(damage);
+        initCardsOp(damage);
     }
 
-    if (!damageOp.damageTaken)
-        emit logTakeDamage(this, damageOp.damage);
+    if (!cardsOp.cardsMoved)
+        emit logTakeDamage(this, cardsOp.cardsToMove);
 
-    damageOp.damageTaken++;
+    cardsOp.cardsMoved++;
 
     bool damageCanceled = false;
     if (card->getInfo()->getMainCardType() == "Climax") {
@@ -3948,11 +3992,11 @@ void Player::takeDamageUpdate(CardItem *card)
     if (!local)
         return;
 
-    if (!zones["table"]->getCards().size())
+    if (!zones["deck"]->getCards().size())
         QTimer::singleShot(500, this, &Player::actRefresh);
 
-    if (damageOp.damageTaken >= damageOp.damage || damageCanceled) {
-        takeDamageInit(0);
+    if (cardsOp.cardsMoved >= cardsOp.cardsToMove || damageCanceled) {
+        initCardsOp(0);
         if (damageCanceled)
             QTimer::singleShot(1300, this, [this]() { aMoveStackToGrave->trigger(); });
         else
@@ -4028,5 +4072,57 @@ void Player::performBattle()
             QTimer::singleShot(1700, this, [this]() { setActivePhase(AttackDeclarationPhase); });
             break;
         }
+    }
+}
+
+void Player::clockPhase(bool on)
+{
+    table->setActive(!on);
+    hand->setActive(on);
+}
+
+void Player::takeCardForClock()
+{
+    Command_MoveCard cmd;
+    cmd.set_start_zone("deck");
+    CardToMove *cardToMove = cmd.mutable_cards_to_move()->add_card();
+    cardToMove->set_card_id(0);
+    cmd.set_target_player_id(id);
+    cmd.set_target_zone("hand");
+    cmd.set_x(0);
+    cmd.set_y(0);
+    cmd.set_supercommand(SuperCommandClockPhase);
+
+    sendGameCommand(cmd);
+}
+
+void Player::processClockPhase(CardItem *card)
+{
+    // if a card is put into clock
+    if (card->getZone()->getName() == "clock") {
+        // has to clear clock first
+        if (card->getZone()->getCards().size() >= 7)
+            return;
+
+        // some cards operation is in progress
+        if (cardsOp.cardsToMove)
+            return;
+
+        initCardsOp(2);
+
+        QTimer::singleShot(600, this, &Player::takeCardForClock);
+    } else if (card->getZone()->getName() == "hand") {
+        cardsOp.cardsMoved++;
+
+        if (!zones["deck"]->getCards().size())
+            QTimer::singleShot(500, this, &Player::actRefresh);
+
+        if (cardsOp.cardsMoved >= cardsOp.cardsToMove) {
+            initCardsOp(0);
+            QTimer::singleShot(500, this, [this]() { setActivePhase(MainPhase); });
+            return;
+        }
+
+        QTimer::singleShot(600, this, &Player::takeCardForClock);
     }
 }

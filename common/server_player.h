@@ -211,7 +211,8 @@ public:
                                              const QString &zone,
                                              int cardId,
                                              CardAttribute attribute,
-                                             const QString &attrValue);
+                                             const QString &attrValue,
+                                             bool noLog = false);
 
     Response::ResponseCode cmdLeaveGame(const Command_LeaveGame &cmd, ResponseContainer &rc, GameEventStorage &ges);
     Response::ResponseCode

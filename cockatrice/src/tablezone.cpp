@@ -234,10 +234,14 @@ void TableZone::toggleTapped()
             cmd->set_card_id(temp->getId());
             cmd->set_attribute(AttrTapped);
             cmd->set_attr_value(std::to_string(temp->nextTapState(srcState)));
-            cmdList.append(cmd);
 
+            bool noLog = false;
             if (i == 0)
-                player->attackOnTap(cmdList, temp);
+                noLog = player->attackOnTap(cmdList, temp);
+
+            if (noLog)
+                cmd->set_no_log(true);
+            cmdList.append(cmd);
         }
     }
     player->sendGameCommand(player->prepareGameCommand(cmdList));
@@ -253,9 +257,11 @@ void TableZone::actTapHovered()
             cmd->set_card_id(cards[i]->getId());
             cmd->set_attribute(AttrTapped);
             cmd->set_attr_value(std::to_string(cards[i]->nextTapState()));
-            cmdList.append(cmd);
 
-            player->attackOnTap(cmdList, cards[i]);
+            if (player->attackOnTap(cmdList, cards[i]))
+                cmd->set_no_log(true);
+
+            cmdList.append(cmd);
 
             player->sendGameCommand(player->prepareGameCommand(cmdList));
             break;

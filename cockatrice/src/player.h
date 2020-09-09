@@ -102,10 +102,10 @@ public:
     void setSize(qreal width, qreal height);
 };
 
-struct TakeDamageOp
+struct CardsOperation
 {
-    int damage;
-    int damageTaken;
+    int cardsToMove;
+    int cardsMoved;
 };
 
 class Player : public QObject, public QGraphicsItem
@@ -279,7 +279,7 @@ private:
     QList<CardItem *> cardsToDelete;
 
     CardItem *attackingCard;
-    TakeDamageOp damageOp;
+    CardsOperation cardsOp;
 
     DeckLoader *deck;
     QStringList predefinedTokens;
@@ -299,7 +299,8 @@ private:
                            CardItem *card,
                            CardAttribute attribute,
                            const QString &avalue,
-                           bool allCards);
+                           bool allCards,
+                           bool noLog = false);
     void addRelatedCardActions(const CardItem *card, QMenu *cardMenu);
     void addRelatedCardView(const CardItem *card, QMenu *cardMenu);
     void createCard(const CardItem *sourceCard, const QString &dbCardName, bool attach = false);
@@ -485,7 +486,7 @@ public:
     void setCardAttackState(QList<const ::google::protobuf::Message *> &commandList,
                             CardItem *card,
                             CardItem::AttackState state);
-    void attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card);
+    bool attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card);
     void setAttackingCard(CardItem *card);
     CardItem *getAttackingCard()
     {
@@ -495,7 +496,7 @@ public:
     void resetAttackingCard();
     void doTrigger();
     void takeDamage();
-    void takeDamageInit(int _damage);
+    void initCardsOp(int count);
     void takeDamageUpdate(CardItem *card);
     void takeDamageCommand();
     int getIncomingDamage();
@@ -503,6 +504,9 @@ public:
     void setActivePhase(int phase);
     void moveCard(CardItem *card, QString targetZone);
     void performBattle();
+    void clockPhase(bool on);
+    void processClockPhase(CardItem *card);
+    void takeCardForClock();
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;

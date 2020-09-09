@@ -10,4 +10,5 @@ message Event_SetCardAttr {
     optional sint32 card_id = 2;
     optional CardAttribute attribute = 3;
     optional string attr_value = 4;
+    optional bool no_log = 5;
 }
