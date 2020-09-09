@@ -1715,6 +1715,9 @@ void Player::setCardAttrHelper(const GameEventContext &context,
                     int soulDecrease = battleOpponent->getLevel();
                     QTimer::singleShot(0, this, [this, card, soulDecrease]() { incCardPT(card, 0, -soulDecrease); });
                 }
+            } else {
+                if (card == attackingCard)
+                    setAttackingCard(nullptr);
             }
             break;
         }
@@ -3810,6 +3813,17 @@ void Player::setCardAttackState(QList<const ::google::protobuf::Message *> &comm
     }
 }
 
+void Player::setCardAttackState(CardItem *card, CardItem::AttackState state)
+{
+    Command_SetCardAttr cmd;
+    cmd.set_zone(card->getZone()->getName().toStdString());
+    cmd.set_card_id(card->getId());
+    cmd.set_attribute(AttrAttacking);
+    cmd.set_attr_value(std::to_string(state));
+    cmd.set_target_player_id(card->getZone()->getPlayer()->getId());
+    sendGameCommand(cmd);
+}
+
 bool Player::attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card)
 {
     if (card->nextTapState() == AbstractCardItem::Tapped && active && card->getGridPoint().y() == 0 &&
@@ -3946,9 +3960,11 @@ void Player::nextAfterDamageStep()
     if (!attCard || attCard->getAttackState() == CardItem::Side)
         noBattleStep = true;
 
-    CardItem *battleOpponent = static_cast<TableZone *>(zones["table"])->getCardFromGrid(attCard->getGridPoint());
-    if (!battleOpponent)
-        noBattleStep = true;
+    if (attCard) {
+        CardItem *battleOpponent = static_cast<TableZone *>(zones["table"])->getCardFromGrid(attCard->getGridPoint());
+        if (!battleOpponent)
+            noBattleStep = true;
+    }
 
     if (noBattleStep) {
         int nextPhase = 0;
@@ -3961,6 +3977,9 @@ void Player::nextAfterDamageStep()
 
         if (!nextPhase)
             nextPhase = EncorePhase;
+
+        if (attCard)
+            QTimer::singleShot(0, this, [this, attCard]() { setCardAttackState(attCard, CardItem::NoAttack); });
 
         QTimer::singleShot(1700, this, [this, nextPhase]() { setActivePhase(nextPhase); });
     } else {
@@ -4035,8 +4054,10 @@ void Player::performBattle()
     else
         battleOpponent = static_cast<TableZone *>(zones["table"])->getCardFromGrid(attCard->getGridPoint());
 
-    if (!battleOpponent)
+    if (!battleOpponent) {
+        setCardAttackState(attCard, CardItem::NoAttack);
         return;
+    }
 
     bool attRev = false;
     bool defRev = false;
@@ -4067,12 +4088,16 @@ void Player::performBattle()
         sendGameCommand(cmd2);
     }
 
+    setCardAttackState(attCard, CardItem::NoAttack);
+
     for (auto card : opponent->getZones()["table"]->getCards()) {
         if (card->getGridPoint().y() == 0 && card->getTapped() == CardItem::Standing) {
-            QTimer::singleShot(1700, this, [this]() { setActivePhase(AttackDeclarationPhase); });
-            break;
+            QTimer::singleShot(1300, this, [this]() { setActivePhase(AttackDeclarationPhase); });
+            return;
         }
     }
+
+    QTimer::singleShot(1300, this, [this]() { setActivePhase(EncorePhase); });
 }
 
 void Player::clockPhase(bool on)

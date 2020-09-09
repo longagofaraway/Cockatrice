@@ -486,6 +486,7 @@ public:
     void setCardAttackState(QList<const ::google::protobuf::Message *> &commandList,
                             CardItem *card,
                             CardItem::AttackState state);
+    void setCardAttackState(CardItem *card, CardItem::AttackState state);
     bool attackOnTap(QList<const ::google::protobuf::Message *> &commandList, CardItem *card);
     void setAttackingCard(CardItem *card);
     CardItem *getAttackingCard()
