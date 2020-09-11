@@ -1829,22 +1829,21 @@ void Player::eventSetCardAttr(const Event_SetCardAttr &event, const GameEventCon
 
     if (!event.has_card_id()) {
         const CardList &cards = zone->getCards();
+        if (event.attribute() == AttrTapped) {
+            AbstractCardItem::TapState tapState;
+            if (event.attr_value() == "0")
+                tapState = AbstractCardItem::Standing;
+            else if (event.attr_value() == "1")
+                tapState = AbstractCardItem::Tapped;
+            else if (event.attr_value() == "2")
+                tapState = AbstractCardItem::Reversed;
+            else
+                return;
+            emit logSetTapped(this, nullptr, tapState);
+        }
         for (int i = 0; i < cards.size(); ++i) {
             setCardAttrHelper(context, cards.at(i), event.attribute(), QString::fromStdString(event.attr_value()),
                               true);
-            if (event.attribute() == AttrTapped) {
-                AbstractCardItem::TapState tapState;
-                if (event.attr_value() == "0")
-                    tapState = AbstractCardItem::Standing;
-                else if (event.attr_value() == "1")
-                    tapState = AbstractCardItem::Tapped;
-                else if (event.attr_value() == "2")
-                    tapState = AbstractCardItem::Reversed;
-                else
-                    return;
-
-                emit logSetTapped(this, nullptr, tapState);
-            }
         }
     } else {
         CardItem *card = zone->getCard(event.card_id(), QString());
