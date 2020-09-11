@@ -2435,7 +2435,7 @@ void Player::playCard(CardItem *card, bool faceDown, bool tapped)
     bool playToStack = SettingsCache::instance().getPlayToStack();
     if (game->getCurrentPhase() == ClockPhase && currentZone == "hand") {
         cmd.set_target_zone("clock");
-        cmd.set_x(0);
+        cmd.set_x(-1);
         cmd.set_y(0);
         cmd.set_supercommand(SuperCommandClockPhase);
     } else if (info->getMainCardType() == "Climax" && currentZone == "hand") {
@@ -3751,7 +3751,7 @@ void Player::processTrigger(CardItem *card)
     } while (false);
 
     if (actionResolved)
-        QTimer::singleShot(1400, this, [this, card, targetZone]() { this->moveCard(card, targetZone); });
+        QTimer::singleShot(1200, this, [this, card, targetZone]() { this->moveCard(card, targetZone); });
 
     if (attackingCard && !attackingCard->hasDoubleTriggerCheckAbility())
         QTimer::singleShot(1500, game, &TabGame::nextPhase);
@@ -3893,7 +3893,7 @@ void Player::moveCard(CardItem *card, QString targetZone)
     cardToMove->set_card_id(card->getId());
     cmd.set_target_zone(targetZone.toStdString());
     cmd.set_target_player_id(id);
-    cmd.set_x(0);
+    cmd.set_x(-1);
 
     sendGameCommand(cmd);
 }
@@ -3969,7 +3969,7 @@ void Player::nextAfterDamageStep()
     if (noBattleStep) {
         int nextPhase = 0;
         for (auto card : opponent->getZones()["table"]->getCards()) {
-            if (card->getGridPoint().y() == 0 && card->getTapped() == CardItem::Standing) {
+            if (card->getGridPoint().y() == 0 && card->getTapped() == CardItem::Standing && !card->getAttachedTo()) {
                 nextPhase = AttackDeclarationPhase;
                 break;
             }
@@ -4024,7 +4024,7 @@ void Player::takeDamageUpdate(CardItem *card)
         return;
     }
 
-    QTimer::singleShot(1300, this, &Player::takeDamageCommand);
+    QTimer::singleShot(900, this, &Player::takeDamageCommand);
 }
 
 void Player::performBattle()
@@ -4090,8 +4090,8 @@ void Player::performBattle()
 
     setCardAttackState(attCard, CardItem::NoAttack);
 
-    for (auto card : opponent->getZones()["table"]->getCards()) {
-        if (card->getGridPoint().y() == 0 && card->getTapped() == CardItem::Standing) {
+    for (auto card : attCard->getZone()->getCards()) {
+        if (card->getGridPoint().y() == 0 && card->getTapped() == CardItem::Standing && !card->getAttachedTo()) {
             QTimer::singleShot(1300, this, [this]() { setActivePhase(AttackDeclarationPhase); });
             return;
         }
@@ -4114,7 +4114,7 @@ void Player::takeCardForClock()
     cardToMove->set_card_id(0);
     cmd.set_target_player_id(id);
     cmd.set_target_zone("hand");
-    cmd.set_x(0);
+    cmd.set_x(-1);
     cmd.set_y(0);
     cmd.set_supercommand(SuperCommandClockPhase);
 

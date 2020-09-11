@@ -1376,7 +1376,9 @@ void TabGame::eventSetActivePhase(const Event_SetActivePhase &event,
 
     // each player gets this event
     if (firstEvent && event.has_with_action()) {
-        QTimer::singleShot(600, this, &TabGame::triggerPhaseAction);
+        Player *player = getActivePlayer();
+        if (player && player->getLocal())
+            QTimer::singleShot(600, this, &TabGame::triggerPhaseAction);
     }
     // highlight hand area during clock phase
     if (firstEvent && phase == ClockPhase) {
