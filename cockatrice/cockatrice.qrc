@@ -317,16 +317,16 @@
         <file>resources/genders/female.svg</file>
         <file>resources/genders/unknown.svg</file>
 
-        <file>resources/phases/untap.svg</file>
-        <file>resources/phases/clock.svg</file>
-        <file>resources/phases/draw.svg</file>
-        <file>resources/phases/main.svg</file>
-        <file>resources/phases/declare_attack.svg</file>
-        <file>resources/phases/combat_trigger.svg</file>
-        <file>resources/phases/combat_counter.svg</file>
-        <file>resources/phases/combat_damage.svg</file>
-        <file>resources/phases/combat_battle.svg</file>
-        <file>resources/phases/encore.svg</file>
+        <file>resources/phases/untap.png</file>
+        <file>resources/phases/clock.png</file>
+        <file>resources/phases/draw.png</file>
+        <file>resources/phases/main.png</file>
+        <file>resources/phases/declare_attack.png</file>
+        <file>resources/phases/combat_trigger.png</file>
+        <file>resources/phases/combat_counter.png</file>
+        <file>resources/phases/combat_damage.png</file>
+        <file>resources/phases/combat_battle.png</file>
+        <file>resources/phases/encore.png</file>
         <file>resources/phases/nextturn.svg</file>
 
         <file>resources/replay/start.svg</file>
