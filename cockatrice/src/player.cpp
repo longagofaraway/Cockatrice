@@ -2314,6 +2314,7 @@ void Player::setActive(bool _active)
     active = _active;
     table->setActive(active);
     hand->setActive(false);
+    clock->setActive(false);
     update();
 }
 
@@ -4103,6 +4104,7 @@ void Player::clockPhase(bool on)
 {
     table->setActive(!on);
     hand->setActive(on);
+    clock->setActive(on);
 }
 
 void Player::takeCardForClock()

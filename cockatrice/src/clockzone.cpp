@@ -8,7 +8,8 @@
 
 #include <QPainter>
 
-ClockZone::ClockZone(Player *_p, QGraphicsItem *parent) : SelectZone(_p, "clock", true, false, true, parent)
+ClockZone::ClockZone(Player *_p, QGraphicsItem *parent)
+    : SelectZone(_p, "clock", true, false, true, parent), active(false)
 {
     dmgEllipse.setZone(this);
     dmgEllipse.setParentItem(this);
@@ -39,7 +40,10 @@ void ClockZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->fillRect(boundingRect(), QBrush(QColor("transparent")));
 
     painter->save();
-    painter->setOpacity(0.15);
+    if (active)
+        painter->setOpacity(0.35);
+    else
+        painter->setOpacity(0.15);
     QPixmap border = QPixmap("theme:clockZone").scaled(boundingRect().width(), boundingRect().height());
     painter->drawPixmap(0, 0, border);
     painter->restore();

@@ -48,6 +48,7 @@ private:
     qreal xspace = 25;
     qreal cardOffset = 30;
     ClockEllipse dmgEllipse;
+    bool active;
 
 public:
     ClockZone(Player *_p, QGraphicsItem *parent = nullptr);
@@ -56,6 +57,12 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     void reorganizeCards();
     void levelUp();
+
+    void setActive(bool _active)
+    {
+        active = _active;
+        update();
+    }
 
 protected:
     void addCardImpl(CardItem *card, int x, int y);
