@@ -51,6 +51,8 @@ void CardInfoText::setCard(CardInfoPtr card)
         if (card->getMainCardType() == "Event")
             if (key == "pt")
                 continue;
+        if (key == "triggers" && card->getProperty(key).isEmpty())
+            continue;
         QString keyText = Mtg::getNicePropertyName(key).toHtmlEscaped() + ":";
         text +=
             QString("<tr><td>%1</td><td></td><td>%2</td></tr>").arg(keyText, card->getProperty(key).toHtmlEscaped());
