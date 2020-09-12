@@ -3676,12 +3676,15 @@ void Player::processClimax(CardItem *card)
 {
     const QString &text = card->getInfo()->getText();
     int soulInc = 0;
+    int powerInc = 0;
     if (text.contains("+1 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive))
         soulInc = 1;
     if (text.contains("+2 soul", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive))
         soulInc = 2;
+    if (text.contains("+1000", Qt::CaseInsensitive) && text.contains("all", Qt::CaseInsensitive))
+        powerInc = 1000;
     if (soulInc)
-        QTimer::singleShot(0, this, [this, soulInc]() { this->incPTFrontRow(0, soulInc); });
+        QTimer::singleShot(0, this, [this, soulInc, powerInc]() { this->incPTFrontRow(powerInc, soulInc); });
 }
 
 void Player::processOpponentTrigger(CardItem *card)
