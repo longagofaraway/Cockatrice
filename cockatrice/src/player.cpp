@@ -2433,7 +2433,10 @@ void Player::playCard(CardItem *card, bool faceDown, bool tapped)
 
     int tableRow = info->getTableRow();
     bool playToStack = SettingsCache::instance().getPlayToStack();
-    if (game->getCurrentPhase() == ClockPhase && currentZone == "hand") {
+    if (card->getZone()->getIsView()) {
+        cmd.set_target_zone("hand");
+        cmd.set_x(-1);
+    } else if (game->getCurrentPhase() == ClockPhase && currentZone == "hand") {
         cmd.set_target_zone("clock");
         cmd.set_x(-1);
         cmd.set_y(0);
