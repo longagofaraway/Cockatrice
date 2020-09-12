@@ -166,13 +166,13 @@ void Server_Player::setupZones()
     addZone(new Server_CardZone(this, "climax", false, ServerInfo_Zone::PublicZone));
     addZone(new Server_CardZone(this, "clock", false, ServerInfo_Zone::PublicZone));
 
-    addCounter(new Server_Counter(0, "life", makeColor(255, 255, 255), 25, 20));
+    /*addCounter(new Server_Counter(0, "life", makeColor(255, 255, 255), 25, 20));
     addCounter(new Server_Counter(1, "w", makeColor(255, 255, 150), 20, 0));
     addCounter(new Server_Counter(2, "u", makeColor(150, 150, 255), 20, 0));
     addCounter(new Server_Counter(3, "b", makeColor(150, 150, 150), 20, 0));
     addCounter(new Server_Counter(4, "r", makeColor(250, 150, 150), 20, 0));
     addCounter(new Server_Counter(5, "g", makeColor(150, 255, 150), 20, 0));
-    addCounter(new Server_Counter(6, "x", makeColor(255, 255, 255), 20, 0));
+    addCounter(new Server_Counter(6, "x", makeColor(255, 255, 255), 20, 0));*/
     // addCounter(new Server_Counter(7, "storm", makeColor(255, 150, 30), 20, 0));
 
     // ------------------------------------------------------------------
