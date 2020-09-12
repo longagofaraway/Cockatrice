@@ -296,6 +296,54 @@ void MainWindow::actExit()
     close();
 }
 
+void MainWindow::actWsControls()
+{
+    QMessageBox mb(
+        QMessageBox::NoIcon, tr("About CockatriceWS"),
+        QString("<font size = '6'><b>Common controls for a WS game</b></font><br><br>"
+                "<font size='4'><b>Controls</b></font><br>"
+                "<b>D</b> - put the top card of the deck to the resolution zone.<br>"
+                "<b>A</b> - put all cards from the resolution zone to the waiting room.<br>"
+                "<b>W</b> - put all cards from the resolution zone to the stock.<br>"
+                "<b>S</b> - put all cards from the resolution zone to the clock.<br>"
+                "<b>L</b> - look at the next top card of the deck.<br>"
+                "<b>Q</b> - pay 1 stock.<br><br>"
+                "Place your mouse over a card and:<br>"
+                "<b>Mouse Wheel</b> - change card's power.<br>"
+                "<b>Ctlr + Mouse Wheel</b> - change card's soul.<br>"
+                "<b>E</b> - switch between stand/rest/reversed.<br>"
+                "<b>F</b> - flip card.<br><br>"
+                "<font size='4'><b>Phases</b></font><br>"
+                "This mod of Cockatrice can perform some WS related actions. Press <br><b>"
+                "Space</b><br> to perform the action of the next phase.<br><br>"
+                "When a turn starts, except for the very first, 'untap' and 'draw' phases will be performed "
+                "automatically.<br>"
+                "<b>Clock Phase</b><br>"
+                "Then a player will enter 'clock' phase, in which he can double click a card in his hand or drag&drop "
+                "it to the clock zone. "
+                "Two cards will be added to his hand, and the game will proceed to the main phase. By placing a card "
+                "to the table the player will "
+                "proceed to the main phase.<br>"
+                "<b>Attack declaration</b><br>"
+                "By resting a card in the front row during 'clock', 'main' or 'attack declaration' phases, the game "
+                "will proceed to 'attack declaration' "
+                "phase, and an attack of appropriate type will be declared. To declare a side attack - "
+                "right click on the card and choose 'Side attack' in the menu. "
+                "Only the last rested card will count as attacking though.<br>"
+                "<b>Trigger</b><br>"
+                "The game will perform a trigger check, and will add the needed amount of souls to the attacking card. "
+                "Other trigger actions players perform by themselves. The game proceeds to 'counter' phase.<br>"
+                "<b>Counter and Damage</b><br>"
+                "Only the player's opponent can proceed to 'damage' phase. The opponent will take damage according to "
+                "the attacking card's soul.<br>"
+                "<b>Battle</b><br>"
+                "Battle step will be performed according to cards' power."),
+        QMessageBox::Ok, this);
+    mb.setIconPixmap(QPixmap("theme:cockatrice").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    mb.setTextInteractionFlags(Qt::TextBrowserInteraction);
+    mb.exec();
+}
+
 void MainWindow::actAbout()
 {
     QMessageBox mb(QMessageBox::NoIcon, tr("About CockatriceWS"),
@@ -639,6 +687,7 @@ void MainWindow::retranslateUi()
 
     helpMenu->setTitle(tr("&Help"));
     aAbout->setText(tr("&About Cockatrice"));
+    aWsControls->setText(tr("&Weiss Schwarz controls"));
     aTips->setText(tr("&Tip of the Day"));
     aUpdate->setText(tr("Check for Client Updates"));
     aCheckCardUpdates->setText(tr("Check for Card Updates..."));
@@ -682,6 +731,8 @@ void MainWindow::createActions()
 
     aAbout = new QAction(this);
     connect(aAbout, SIGNAL(triggered()), this, SLOT(actAbout()));
+    aWsControls = new QAction(this);
+    connect(aWsControls, SIGNAL(triggered()), this, SLOT(actWsControls()));
     aTips = new QAction(this);
     connect(aTips, SIGNAL(triggered()), this, SLOT(actTips()));
     aUpdate = new QAction(this);
@@ -752,6 +803,7 @@ void MainWindow::createMenus()
 
     helpMenu = menuBar()->addMenu(QString());
     helpMenu->addAction(aAbout);
+    helpMenu->addAction(aWsControls);
     helpMenu->addAction(aTips);
     helpMenu->addSeparator();
     helpMenu->addAction(aUpdate);
