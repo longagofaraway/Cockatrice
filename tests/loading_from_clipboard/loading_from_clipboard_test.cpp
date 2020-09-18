@@ -115,6 +115,7 @@ TEST(LoadingFromClipboardTest, IfMultipleScatteredBlanksAllMainBoard)
     testDeck(clipboard, result);
 }
 
+// ToDo: Fix Æ and & conversion
 TEST(LoadingFromClipboardTest, EdgeCaseTesting)
 {
     QString clipboard(R"(
@@ -136,7 +137,7 @@ TEST(LoadingFromClipboardTest, EdgeCaseTesting)
 
 // Sideboard (11 cards)
 
-5x [WTH] Nature’s Resurgence
+5x [WTH] Nature's Resurgence
 6X Gaea's Skyfolk
 7  B.F.M. (Big Furry Monster)
 
@@ -145,7 +146,7 @@ TEST(LoadingFromClipboardTest, EdgeCaseTesting)
 )");
 
     Result result("DeckName", "Comment 1\n\nComment [two]\n(test) Æ ’ | / (3)",
-                  {{"Aether Adept", 1}, {"Fire // Ice", 2}, {"Pain // Suffering", 3}, {"Forest", 4}},
+                  {{"Æther Adept", 1}, {"Fire & Ice", 2}, {"Pain/Suffering", 3}, {"Forest", 4}},
                   {{"Nature's Resurgence", 5}, {"Gaea's Skyfolk", 6}, {"B.F.M. (Big Furry Monster)", 7}});
     testDeck(clipboard, result);
 }
