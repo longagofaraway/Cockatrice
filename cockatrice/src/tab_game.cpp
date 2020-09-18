@@ -448,13 +448,13 @@ TabGame::TabGame(TabSupervisor *_tabSupervisor,
     QTimer::singleShot(0, this, SLOT(loadLayout()));
 }
 
-void TabGame::addMentionTag(QString value)
+void TabGame::addMentionTag(const QString &value)
 {
     sayEdit->insert(value + " ");
     sayEdit->setFocus();
 }
 
-void TabGame::linkCardToChat(QString cardName)
+void TabGame::linkCardToChat(const QString &cardName)
 {
     sayEdit->insert("[[" + cardName + "]] ");
     sayEdit->setFocus();
@@ -830,6 +830,25 @@ Player *TabGame::addPlayer(int playerId, const ServerInfo_User &info)
     gameMenu->insertMenu(playersSeparator, newPlayer->getPlayerMenu());
 
     players.insert(playerId, newPlayer);
+
+    if (!spectators.contains(playerId)) {
+
+        // Loop for each player, the idea is to have one assigned zone for each non-spectator player
+        for (int i = 1; i <= players.count(); ++i) {
+            bool aPlayerHasThisZone = false;
+            for (auto &player : players) {
+                if (player->getZoneId() == i) {
+                    aPlayerHasThisZone = true;
+                    break;
+                }
+            }
+            if (!aPlayerHasThisZone) {
+                newPlayer->setZoneId(i);
+                break;
+            }
+        }
+    }
+
     emit playerAdded(newPlayer);
     return newPlayer;
 }
@@ -1888,10 +1907,19 @@ void TabGame::createMessageDock(bool bReplay)
         sayEdit->setCompleter(completer);
         actCompleterChanged();
 
-        if (spectator && !gameInfo.spectators_can_chat() && tabSupervisor->getAdminLocked()) {
-            sayLabel->hide();
-            sayEdit->hide();
+        if (spectator) {
+            /* Spectators can only talk if:
+             * (a) the game creator allows it
+             * (b) the spectator is a moderator/administrator
+             * (c) the spectator is a judge
+             */
+            bool isModOrJudge = !tabSupervisor->getAdminLocked() || judge;
+            if (!isModOrJudge && !gameInfo.spectators_can_chat()) {
+                sayLabel->hide();
+                sayEdit->hide();
+            }
         }
+
         connect(tabSupervisor, SIGNAL(adminLockChanged(bool)), this, SLOT(adminLockChanged(bool)));
         connect(sayEdit, SIGNAL(returnPressed()), this, SLOT(actSay()));
 

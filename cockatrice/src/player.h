@@ -273,6 +273,7 @@ private:
     bool mirrored;
     bool handVisible;
     bool conceded;
+    int zoneId;
 
     bool dialogSemaphore;
     bool clearCardsToDelete();
@@ -437,6 +438,11 @@ public:
     {
         return mirrored;
     }
+    int getZoneId() const
+    {
+        return zoneId;
+    }
+    void setZoneId(int _zoneId);
     const QMap<QString, CardZone *> &getZones() const
     {
         return zones;

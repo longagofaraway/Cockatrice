@@ -106,8 +106,8 @@ void PlayerArea::setSize(qreal width, qreal height)
 Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, TabGame *_parent)
     : QObject(_parent), game(_parent), shortcutsActive(false), defaultNumberTopCards(1),
       defaultNumberTopCardsToPlaceBelow(1), lastTokenDestroy(true), lastTokenTableRow(0), id(_id), active(false),
-      local(_local), judge(_judge), mirrored(false), handVisible(false), conceded(false), dialogSemaphore(false),
-      deck(nullptr), attackingCard(nullptr), cardsOp({0, 0})
+      local(_local), judge(_judge), mirrored(false), handVisible(false), conceded(false), zoneId(0),
+      dialogSemaphore(false), deck(nullptr), attackingCard(nullptr), cardsOp({0, 0})
 {
     userInfo = new ServerInfo_User;
     userInfo->CopyFrom(info);
@@ -3621,6 +3621,11 @@ void Player::setConceded(bool _conceded)
         clear();
     }
     emit playerCountChanged();
+}
+
+void Player::setZoneId(int _zoneId)
+{
+    zoneId = _zoneId;
 }
 
 void Player::setMirrored(bool _mirrored)

@@ -1151,8 +1151,9 @@ void MainWindow::actCheckCardUpdates()
     binaryName = getCardUpdaterBinaryName();
 #endif
 
-    if (dir.exists(binaryName))
+    if (dir.exists(binaryName)) {
         updaterCmd = dir.absoluteFilePath(binaryName);
+    }
 
     if (updaterCmd.isEmpty()) {
         QMessageBox::warning(this, tr("Error"),
@@ -1160,7 +1161,7 @@ void MainWindow::actCheckCardUpdates()
         return;
     }
 
-    cardUpdateProcess->start("\"" + updaterCmd + "\"", QStringList());
+    cardUpdateProcess->start(updaterCmd, QStringList());
 }
 
 void MainWindow::cardUpdateError(QProcess::ProcessError err)

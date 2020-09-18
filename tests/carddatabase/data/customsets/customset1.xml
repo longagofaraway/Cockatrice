@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cockatrice_carddatabase version="3">
+<cockatrice_carddatabase version="4">
     <cards>
         <card>
             <name>Sparrow</name>
-            <set muId="333">BRD</set>
-            <color>W</color>
-            <manacost>W</manacost>
-            <cmc>1</cmc>
-            <type>Creature</type>
-            <pt>1/1</pt>
+            <set>BRD</set>
             <tablerow>0</tablerow>
             <text></text>
+            <prop>
+                <code>Sparrow</code>
+                <colors>W</colors>
+                <manacost>W</manacost>
+                <cmc>1</cmc>
+                <type>Creature</type>
+                <maintype>Creature</maintype>
+                <pt>1/1</pt>
+            </prop>
         </card>
         <card>
             <name>Crow</name>
-            <set muId="334">BRD</set>
-            <color>B</color>
-            <manacost>1B</manacost>
-            <cmc>2</cmc>
-            <type>Creature</type>
-            <pt>2/2</pt>
+            <set>BRD</set>
             <tablerow>0</tablerow>
             <text></text>
+            <prop>
+                <code>Crow</code>
+                <colors>B</colors>
+                <manacost>1B</manacost>
+                <cmc>2</cmc>
+                <type>Creature</type>
+                <maintype>Creature</maintype>
+                <pt>2/2</pt>
+            </prop>
         </card>
     </cards>
 </cockatrice_carddatabase>
